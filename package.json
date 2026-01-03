@@ -1,0 +1,24 @@
+{
+  "name": "nft-dapp",
+  "version": "1.0.0",
+  "description": "区块链DApp项目 - Solidity + React",
+  "private": true,
+  "scripts": {
+    "compile": "cd contracts && npx hardhat compile",
+    "test": "cd contracts && npx hardhat test",
+    "node": "cd contracts && npx hardhat node",
+    "deploy:local": "cd contracts && npx hardhat run scripts/deploy.js --network localhost",
+    "frontend": "cd frontend && npm start",
+    "install:all": "npm install && cd contracts && npm install && cd ../frontend && npm install"
+  },
+  "keywords": [
+    "blockchain",
+    "dapp",
+    "solidity",
+    "react",
+    "ethereum"
+  ],
+  "author": "",
+  "license": "MIT"
+}
+
