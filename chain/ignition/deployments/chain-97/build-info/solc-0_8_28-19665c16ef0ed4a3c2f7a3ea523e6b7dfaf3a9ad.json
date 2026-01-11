@@ -1,0 +1,39 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_28-19665c16ef0ed4a3c2f7a3ea523e6b7dfaf3a9ad",
+  "solcVersion": "0.8.28",
+  "solcLongVersion": "0.8.28+commit.7893614a",
+  "userSourceNameMap": {
+    "contracts/PaymentChannel.sol": "project/contracts/PaymentChannel.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode",
+            "evm.deployedBytecode",
+            "evm.methodIdentifiers",
+            "metadata"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/PaymentChannel.sol": {
+        "content": "// SPDX-License-Identifier: UNLICENSED\npragma solidity ^0.8.28;\n\ncontract PaymentChannel {\n    mapping(address => uint256) public balances;\n    \n    event Deposited(address indexed user, uint256 amount);\n    event Withdrawn(address indexed user, uint256 amount);\n    \n    function deposit() public payable {\n        require(msg.value > 0, \"Deposit amount must be greater than 0\");\n        balances[msg.sender] += msg.value;\n        emit Deposited(msg.sender, msg.value);\n    }\n    \n    function withdraw(uint256 amount) public {\n        require(amount > 0, \"Withdrawal amount must be greater than 0\");\n        require(balances[msg.sender] >= amount, \"Insufficient balance\");\n        \n        balances[msg.sender] -= amount;\n        payable(msg.sender).transfer(amount);\n        emit Withdrawn(msg.sender, amount);\n    }\n    \n    function getBalance(address user) public view returns (uint256) {\n        return balances[user];\n    }\n    \n    receive() external payable {\n        deposit();\n    }\n}"
+      }
+    }
+  }
+}
