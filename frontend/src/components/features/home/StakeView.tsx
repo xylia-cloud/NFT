@@ -6,6 +6,17 @@ import { useAccount } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { cn } from "@/lib/utils";
 
+// 声明 spline-viewer 自定义元素类型
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'spline-viewer': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
+        url?: string;
+      };
+    }
+  }
+}
+
 // 质押金额档位
 const STAKE_AMOUNTS = [500, ...Array.from({ length: 10 }, (_, i) => (i + 1) * 1000)];
 
@@ -52,6 +63,38 @@ export function StakeView() {
     return () => clearTimeout(timer);
   }, []);
 
+  // 加载 Spline Viewer 脚本
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.type = 'module';
+    script.src = 'https://unpkg.com/@splinetool/viewer@1.12.32/build/spline-viewer.js';
+    document.head.appendChild(script);
+
+    // 添加 CSS 隐藏 Spline 水印
+    const style = document.createElement('style');
+    style.textContent = `
+      spline-viewer {
+        width: 100%;
+        height: 100%;
+      }
+      spline-viewer #logo,
+      spline-viewer .logo,
+      spline-viewer [id*="logo"],
+      spline-viewer [class*="logo"],
+      spline-viewer a[href*="spline"] {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+      }
+    `;
+    document.head.appendChild(style);
+
+    return () => {
+      document.head.removeChild(script);
+      document.head.removeChild(style);
+    };
+  }, []);
+
   const handleDecrease = () => {
     if (stepIndex > 0) {
       setStepIndex(stepIndex - 1);
@@ -86,103 +129,127 @@ export function StakeView() {
         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-blue-500/5 blur-[120px]" />
       </div>
 
-      {/* 1. 顶部 Hero 区域 */}
-      <div className="relative overflow-hidden rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md shadow-none">
-        <div className="absolute inset-0 bg-grid-white/5 [mask-image:linear-gradient(0deg,transparent,black)]" />
-        
-        <div className="relative p-4 md:p-4">
-          <ConnectButton.Custom>
-            {({
-              account,
-              chain,
-              openAccountModal,
-              openConnectModal,
-              mounted,
-            }) => {
-              const ready = mounted;
-              const connected = ready && account && chain;
+      {/* 1. 顶部 Hero 区域 - 未连接状态 */}
+      {!isConnected && (
+        <div className="relative overflow-hidden rounded-2xl border border-border/40 bg-black/80 backdrop-blur-md shadow-none min-h-[350px]">
+          <div className="absolute inset-0 bg-grid-white/5 [mask-image:linear-gradient(0deg,transparent,black)]" />
 
-              if (!connected) {
-                return (
-                  <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                    <div className="space-y-4 text-center md:text-left max-w-xl">
-                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-medium text-primary w-fit mx-auto md:mx-0">
-                        <span className="relative flex h-2 w-2">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-                        </span>
-                        BSC 链上质押正在进行中
-                      </div>
-                      <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground leading-tight">
-                        开启 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-600">Web3 财富</span> 之旅
-                      </h2>
-                      <p className="text-muted-foreground leading-relaxed">
-                        安全、透明的去中心化质押协议。即刻参与，享受高达 <span className="text-foreground font-semibold">20%</span> 的月化稳定收益。
-                      </p>
-                    </div>
-                    <Button 
-                      onClick={openConnectModal}
-                      size="lg" 
-                      className="h-14 px-8 rounded-xl bg-foreground text-background hover:bg-foreground/90 font-bold text-base transition-all hover:scale-105 active:scale-95 shadow-xl shadow-foreground/10 relative overflow-hidden"
-                    >
-                      <span className="relative z-10 flex items-center gap-2">
-                        连接钱包
-                        <ArrowRight className="h-5 w-5 animate-pulse" />
+          {/* Spline 3D 动画背景 */}
+          <div className="absolute inset-0 bottom-[-60px] right-[-60px] overflow-hidden rounded-2xl pointer-events-none">
+            {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+            {/* @ts-expect-error */}
+            <spline-viewer
+              url="https://prod.spline.design/ReHgYB4ZykMbOz5c/scene.splinecode"
+              style={{
+                pointerEvents: 'none',
+                width: '100%',
+                height: '100%',
+                display: 'block'
+              }}
+            />
+          </div>
+
+          <div className="relative p-4 md:p-4 z-10">
+            <ConnectButton.Custom>
+              {({ openConnectModal }) => (
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                  <div className="space-y-4 text-center md:text-left max-w-xl">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/40 text-xs font-medium text-blue-300 w-fit mx-auto md:mx-0">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-400"></span>
                       </span>
-                      <div className="absolute inset-0 bg-white/20 translate-y-full animate-[shimmer_2s_infinite] opacity-50" />
-                    </Button>
+                      BSC 链上质押正在进行中
+                    </div>
+                    <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-white leading-tight">
+                      开启 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-blue-400 to-purple-400">Web3 财富</span> 之旅
+                    </h2>
+                    <p className="text-gray-300 leading-relaxed">
+                      安全、透明的去中心化质押协议。即刻参与，享受高达 <span className="text-white font-semibold">20%</span> 的月化稳定收益。
+                    </p>
                   </div>
-                );
-              }
+                  <Button
+                    onClick={openConnectModal}
+                    size="lg"
+                    className="h-14 px-8 rounded-xl bg-white text-black hover:bg-gray-100 font-bold text-base transition-all hover:scale-105 active:scale-95 shadow-xl shadow-white/20 relative overflow-hidden"
+                  >
+                    <span className="relative z-10 flex items-center gap-2">
+                      连接钱包
+                      <ArrowRight className="h-5 w-5 animate-pulse" />
+                    </span>
+                    <div className="absolute inset-0 bg-primary/20 translate-y-full animate-[shimmer_2s_infinite] opacity-50" />
+                  </Button>
+                </div>
+              )}
+            </ConnectButton.Custom>
+          </div>
+        </div>
+      )}
 
-              return (
-                <div className="flex flex-col space-y-6 animate-in slide-in-from-top-4 duration-500">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="relative group cursor-pointer">
-                        <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-primary to-blue-600 p-[1.5px] shadow-sm transition-transform group-hover:scale-105">
-                          <div className="h-full w-full rounded-[7px] bg-card flex items-center justify-center">
-                            <Wallet className="h-5 w-5 text-primary" />
+      {/* 1. 顶部 Hero 区域 - 已连接状态 */}
+      {isConnected && (
+        <div className="relative overflow-hidden rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md shadow-none">
+          <div className="absolute inset-0 bg-grid-white/5 [mask-image:linear-gradient(0deg,transparent,black)]" />
+
+          <div className="relative p-4 md:p-4">
+            <ConnectButton.Custom>
+              {({
+                account,
+                chain,
+                openAccountModal,
+                mounted,
+              }) => {
+                if (!mounted || !account || !chain) return null;
+
+                return (
+                  <div className="flex flex-col space-y-6 animate-in slide-in-from-top-4 duration-500">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="relative group cursor-pointer">
+                          <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-primary to-blue-600 p-[1.5px] shadow-sm transition-transform group-hover:scale-105">
+                            <div className="h-full w-full rounded-[7px] bg-card flex items-center justify-center">
+                              <Wallet className="h-5 w-5 text-primary" />
+                            </div>
+                          </div>
+                          <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-green-500 rounded-full border-[1.5px] border-card flex items-center justify-center ring-1 ring-background/50">
+                            <div className="h-1 w-1 bg-white rounded-full animate-pulse" />
                           </div>
                         </div>
-                        <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-green-500 rounded-full border-[1.5px] border-card flex items-center justify-center ring-1 ring-background/50">
-                           <div className="h-1 w-1 bg-white rounded-full animate-pulse" />
+                        <div className="space-y-0.5">
+                          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">Connected</p>
+                          <h3 className="font-bold text-sm tracking-tight text-foreground">{account.displayName}</h3>
                         </div>
                       </div>
-                      <div className="space-y-0.5">
-                        <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">Connected</p>
-                        <h3 className="font-bold text-sm tracking-tight text-foreground">{account.displayName}</h3>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
+
+                      <div className="flex items-center gap-2">
                         <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-card/40 border border-border/20 backdrop-blur-md">
-                            <div className="flex items-center gap-1.5">
-                                <div className="relative flex h-1.5 w-1.5">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500"></span>
-                                </div>
-                                <span className="font-medium text-xs">{chain.name}</span>
+                          <div className="flex items-center gap-1.5">
+                            <div className="relative flex h-1.5 w-1.5">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500"></span>
                             </div>
-                            <div className="w-px h-3 bg-border/50 mx-1"></div>
-                            <span className="text-[10px] font-medium text-muted-foreground">已连接</span>
+                            <span className="font-medium text-xs">{chain.name}</span>
+                          </div>
+                          <div className="w-px h-3 bg-border/50 mx-1"></div>
+                          <span className="text-[10px] font-medium text-muted-foreground">已连接</span>
                         </div>
 
-                        <Button 
-                        variant="secondary" 
-                        onClick={openAccountModal} 
-                        className="rounded-lg px-3 h-9 font-medium bg-secondary/80 hover:bg-secondary border border-border/10 transition-all shadow-sm"
+                        <Button
+                          variant="secondary"
+                          onClick={openAccountModal}
+                          className="rounded-lg px-3 h-9 font-medium bg-secondary/80 hover:bg-secondary border border-border/10 transition-all shadow-sm"
                         >
-                        <span className="font-mono text-xs">{account.displayBalance ? account.displayBalance : ''}</span>
+                          <span className="font-mono text-xs">{account.displayBalance ? account.displayBalance : ''}</span>
                         </Button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            }}
-          </ConnectButton.Custom>
+                );
+              }}
+            </ConnectButton.Custom>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* 2. 数据指标 (Glassmorphism) */}
       <div className="grid grid-cols-3 gap-3">
