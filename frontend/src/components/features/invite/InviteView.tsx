@@ -17,7 +17,7 @@ interface InviteViewProps {
 
 export function InviteView({ onBack }: InviteViewProps) {
   const [copied, setCopied] = useState(false);
-  const inviteLink = "https://bscpay.io/register?code=BSC888";
+  const inviteLink = "https://plasma.to/register?code=PLM888";
 
   const handleCopy = () => {
     navigator.clipboard.writeText(inviteLink);

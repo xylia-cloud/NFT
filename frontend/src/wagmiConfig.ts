@@ -1,5 +1,5 @@
 import { http } from 'wagmi'
-import { bsc } from 'wagmi/chains'
+import { plasma } from 'wagmi/chains'
 import { getDefaultConfig } from '@rainbow-me/rainbowkit'
 import {
   okxWallet,
@@ -15,11 +15,11 @@ import {
 const projectId = 'demo-project-id'
 
 export const config = getDefaultConfig({
-  appName: 'BSC Payment Channel',
+  appName: 'PLASMA',
   projectId,
-  chains: [bsc],
+  chains: [plasma],
   transports: {
-    [bsc.id]: http(),
+    [plasma.id]: http(),
   },
   wallets: [
     {

@@ -157,13 +157,13 @@ export function StakeView() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-400"></span>
                 </span>
-                BSC 链上质押正在进行中
+                Plasma 链上质押正在进行中
               </div>
               <h2 className="text-2xl md:text-4xl font-bold tracking-tight text-white leading-tight">
                 开启 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary/80 to-primary/60">Web3 财富</span> 之旅
               </h2>
               <p className="text-xs text-gray-300 leading-relaxed">
-                安全、透明的去中心化质押协议。即刻参与，享受高达 <span className="text-white font-semibold">20%</span> 的月化稳定收益。请点击右上角连接钱包开始。
+                安全、透明的去中心化质押协议。充币请走 Plasma 网络。即刻参与，享受高达 <span className="text-white font-semibold">20%</span> 的月化稳定收益。请点击右上角连接钱包开始。
               </p>
             </div>
           </div>
@@ -402,7 +402,7 @@ export function StakeView() {
           <div>
             <h4 className="font-semibold text-foreground text-sm mb-0.5">极速链上结算</h4>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              基于 BSC 高性能网络，收益实时计算，秒级到账，低至 $0.01 的交互手续费。
+              基于 Plasma 高性能网络，收益实时计算，秒级到账，低至 $0.01 的交互手续费。
             </p>
           </div>
         </div>

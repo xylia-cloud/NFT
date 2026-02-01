@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,21 +16,25 @@ import {
   Copy,
   ArrowUpRight,
   LogOut,
-  ChevronRight
+  ChevronRight,
+  X
 } from "lucide-react";
 import { useAccount, useDisconnect } from "wagmi";
 import { cn } from "@/lib/utils";
 
+const VOCECHAT_URL = "http://67.215.229.143:3009";
+
 export function ProfileView({ onNavigate }: { onNavigate?: (tab: string) => void }) {
   const { address, isConnected } = useAccount();
   const { disconnect } = useDisconnect();
+  const [showVoceChat, setShowVoceChat] = useState(false);
 
   // 模拟数据
   const userData = {
     level: "VIP 3",
     stakedAmount: "12,500.00",
     rewards: "345.80",
-    inviteCode: "BSC888"
+    inviteCode: "PLM888"
   };
 
   const menuItems = [
@@ -54,7 +59,8 @@ export function ProfileView({ onNavigate }: { onNavigate?: (tab: string) => void
       icon: HeadphonesIcon,
       color: "text-primary",
       bg: "bg-primary/10",
-      desc: "7x24小时支持"
+      desc: "7x24小时支持",
+      action: () => setShowVoceChat(true)
     },
     {
       title: "修改密码",
@@ -76,12 +82,35 @@ export function ProfileView({ onNavigate }: { onNavigate?: (tab: string) => void
       icon: HelpCircle,
       color: "text-cyan-500",
       bg: "bg-cyan-500/10",
-      desc: "常见问题解答"
+      desc: "常见问题解答",
+      action: () => onNavigate?.('help-center')
     }
   ];
 
   return (
     <div className="space-y-6 pb-20 animate-in fade-in duration-500 relative max-w-4xl mx-auto">
+      {/* VoceChat 客服弹窗 - 点击联系客服时弹出 */}
+      {showVoceChat && (
+        <div className="fixed inset-0 z-[100] flex flex-col bg-background">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30 shrink-0">
+            <span className="text-sm font-semibold text-foreground">在线客服</span>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-10 w-10 shrink-0"
+              onClick={() => setShowVoceChat(false)}
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
+          <iframe
+            title="VoceChat 在线客服"
+            src={VOCECHAT_URL}
+            className="flex-1 w-full min-h-0 border-0"
+          />
+        </div>
+      )}
+
       {/* 顶部背景装饰 */}
       <div className="absolute top-0 left-0 right-0 h-[280px] bg-gradient-to-b from-secondary/50 via-secondary/20 to-transparent -z-10" />
 
@@ -200,7 +229,7 @@ export function ProfileView({ onNavigate }: { onNavigate?: (tab: string) => void
         )}
         
         <div className="mt-6 flex items-center justify-center gap-2 text-xs text-muted-foreground/40">
-          <span>BSC Pay</span>
+          <span>PLASMA</span>
           <Separator orientation="vertical" className="h-3" />
           <span className="font-mono">v1.0.2</span>
         </div>

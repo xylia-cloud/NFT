@@ -6,6 +6,7 @@ import { ProfileView } from '@/components/features/profile/ProfileView';
 import { TeamView } from '@/components/features/team/TeamView';
 import { InviteView } from '@/components/features/invite/InviteView';
 import { ChangePasswordView } from '@/components/features/profile/ChangePasswordView';
+import { HelpCenterView } from '@/components/features/profile/HelpCenterView';
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState("home");
@@ -24,6 +25,8 @@ export default function App() {
         return <InviteView />;
       case "change-password":
         return <ChangePasswordView onBack={() => setCurrentTab('profile')} />;
+      case "help-center":
+        return <HelpCenterView />;
       default:
         return <StakeView />;
     }

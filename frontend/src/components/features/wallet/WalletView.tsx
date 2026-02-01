@@ -56,6 +56,7 @@ export function WalletView() {
           <CardContent className="p-6">
             <div className="space-y-1">
               <span className="text-sm font-medium text-muted-foreground">总资产估值 (USDT)</span>
+              <p className="text-xs text-primary/80 mt-0.5">充币请走 Plasma 网络</p>
               <div className="flex items-baseline gap-3">
                 <span className="text-4xl font-bold tracking-tight text-primary tabular-nums">
                   {assets.total}

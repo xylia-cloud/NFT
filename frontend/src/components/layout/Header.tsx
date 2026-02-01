@@ -41,7 +41,7 @@ export function Header({ title, showBack, onBack }: HeaderProps) {
               <span className="text-lg font-bold">{title}</span>
             </div>
           ) : (
-            <img src={logo} alt="BSC Pay Logo" className="h-6" />
+            <img src={logo} alt="PLASMA Logo" className="h-6" />
           )}
         </div>
         <div className="flex items-center gap-2">
