@@ -1,7 +1,7 @@
 import { ModeToggle } from "@/components/mode-toggle";
 import logoWhite from "@/assets/images/logo-white.svg";
 import logoDark from "@/assets/images/logo-dark.svg";
-import { Languages, ChevronLeft, Wallet } from "lucide-react";
+import { Globe, ChevronLeft, Wallet } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
 import {
@@ -77,7 +77,7 @@ export function Header({ title, showBack, onBack }: HeaderProps) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="h-9 w-9">
-                <Languages className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all" />
+                <Globe className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all" />
                 <span className="sr-only">Toggle language</span>
               </Button>
             </DropdownMenuTrigger>

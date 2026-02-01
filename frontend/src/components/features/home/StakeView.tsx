@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { Plus, Minus, Loader2, Wallet, TrendingUp, Shield, Users, Activity, Zap, ChevronRight, Lock } from "lucide-react";
+import { Plus, Minus, Loader2, Wallet, TrendingUp, Shield, Users, Activity, Zap, ChevronRight, Lock, PiggyBank, Calendar, Unlock, Clock, ArrowDownToLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useAccount } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { cn } from "@/lib/utils";
@@ -20,6 +21,131 @@ declare global {
 
 // 质押金额档位 (500 ~ 30,000 USDT，1000 之后每次 +1000)
 const STAKE_AMOUNTS = [500, ...Array.from({ length: 30 }, (_, i) => (i + 1) * 1000)];
+
+// 质押订单类型
+interface StakeOrder {
+  id: number;
+  amount: number;
+  startDate: string;
+  lockEndDate: string;
+  lockDays: number;
+  accruedInterest: number;
+  status: "locked" | "unlocked";
+  dailyRate?: number; // 日化收益 %
+}
+
+// 模拟质押订单数据（锁仓 180 天，利息每日发放可单独提取）
+const INITIAL_STAKE_ORDERS: StakeOrder[] = [
+  { id: 1, amount: 5000, startDate: "2025-01-15", lockEndDate: "2025-07-14", lockDays: 180, accruedInterest: 125.80, status: "locked", dailyRate: 0.67 },
+  { id: 2, amount: 2000, startDate: "2024-12-20", lockEndDate: "2025-06-18", lockDays: 180, accruedInterest: 82.50, status: "locked", dailyRate: 0.67 },
+  { id: 3, amount: 500, startDate: "2024-08-01", lockEndDate: "2025-01-28", lockDays: 180, accruedInterest: 28.30, status: "unlocked", dailyRate: 0.67 },
+];
+
+// 单个质押订单卡片（含倒计时、提现）
+function StakeOrderItem({
+  order,
+  onWithdraw,
+  isWithdrawing,
+}: {
+  order: StakeOrder;
+  onWithdraw: (order: StakeOrder) => void;
+  isWithdrawing: boolean;
+}) {
+  const [remaining, setRemaining] = useState<{ days: number; hours: number; mins: number } | null>(null);
+  const isLocked = order.status === "locked";
+
+  useEffect(() => {
+    if (!isLocked) return;
+    const update = () => {
+      const end = new Date(order.lockEndDate + " 23:59:59").getTime();
+      const now = Date.now();
+      const diff = end - now;
+      if (diff <= 0) {
+        setRemaining(null);
+        return;
+      }
+      const days = Math.floor(diff / (24 * 60 * 60 * 1000));
+      const hours = Math.floor((diff % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+      const mins = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000));
+      setRemaining({ days, hours, mins });
+    };
+    update();
+    const timer = setInterval(update, 60000);
+    return () => clearInterval(timer);
+  }, [order.lockEndDate, isLocked]);
+
+  return (
+    <div className="p-5 md:p-6 hover:bg-muted/20 transition-colors space-y-5">
+      {/* 顶部：金额 + 状态 */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-start gap-4">
+          <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+            <PiggyBank className="h-6 w-6" />
+          </div>
+          <div className="space-y-2 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-bold text-lg text-foreground">{order.amount.toLocaleString()} USDT</span>
+              <Badge
+                variant="outline"
+                className={cn(
+                  "text-[10px] h-5 px-2",
+                  isLocked ? "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400" : "border-primary/30 bg-primary/10 text-primary"
+                )}
+              >
+                {isLocked ? <><Lock className="h-2.5 w-2.5 mr-0.5 inline" /> 锁仓中</> : <><Unlock className="h-2.5 w-2.5 mr-0.5 inline" /> 可提取</>}
+              </Badge>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1.5">
+                <Calendar className="h-3.5 w-3.5" />
+                {order.startDate} ~ {order.lockEndDate}
+              </span>
+              <span className="hidden sm:inline">·</span>
+              <span>{order.lockDays} 天锁仓</span>
+            </div>
+          </div>
+        </div>
+        <div className="text-left sm:text-right shrink-0">
+          <div className="text-xs text-muted-foreground mb-0.5">累计收益</div>
+          <div className="text-lg font-bold text-primary">+{order.accruedInterest.toFixed(2)} USDT</div>
+        </div>
+      </div>
+
+      {/* 中部：倒计时 */}
+      {isLocked && (
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-xl bg-muted/30 px-4 py-3 text-sm">
+          <span className="text-muted-foreground flex items-center gap-2">
+            <Clock className="h-4 w-4 shrink-0" />
+            {remaining ? (
+              <>剩余 <span className="font-semibold text-foreground">{remaining.days} 天 {remaining.hours} 时 {remaining.mins} 分</span> 解锁</>
+            ) : (
+              <span className="text-primary font-medium">即将到期</span>
+            )}
+          </span>
+          {order.dailyRate != null && <span className="text-muted-foreground">日化 {order.dailyRate}%</span>}
+        </div>
+      )}
+
+      {/* 可提取时：提现区域（仅提取本金，利息每日发放可单独提取） */}
+      {!isLocked && (
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4 border-t border-border/40">
+          <div className="text-sm text-muted-foreground">
+            本金 <span className="font-semibold text-foreground">{order.amount.toLocaleString()} USDT</span> 可提至钱包
+          </div>
+          <Button
+            size="default"
+            className="gap-2 rounded-xl shrink-0 w-full sm:w-auto"
+            onClick={() => onWithdraw(order)}
+            disabled={isWithdrawing}
+          >
+            {isWithdrawing ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowDownToLine className="h-4 w-4" />}
+            提取本金
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 // 数字滚动组件
 function CountUp({ end, duration = 2000, suffix = "" }: { end: number, duration?: number, suffix?: string }) {
@@ -56,6 +182,8 @@ export function StakeView() {
   
   const [isSimulating, setIsSimulating] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [stakeOrders, setStakeOrders] = useState<StakeOrder[]>(INITIAL_STAKE_ORDERS);
+  const [withdrawingOrderId, setWithdrawingOrderId] = useState<number | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -111,10 +239,34 @@ export function StakeView() {
   const handleStake = async () => {
     if (!isConnected) return;
     setIsSimulating(true);
-    // 模拟网络请求
     await new Promise(resolve => setTimeout(resolve, 2000));
     setIsSimulating(false);
+    // 模拟：添加新质押订单（180 天锁仓）
+    const now = new Date();
+    const end = new Date(now);
+    end.setDate(end.getDate() + 180);
+    setStakeOrders((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        amount,
+        startDate: now.toISOString().slice(0, 10),
+        lockEndDate: end.toISOString().slice(0, 10),
+        lockDays: 180,
+        accruedInterest: 0,
+        status: "locked",
+        dailyRate: 0.67,
+      },
+    ]);
     alert(`成功质押 ${amount} USDT (模拟)`);
+  };
+
+  const handleWithdrawStakeOrder = async (order: StakeOrder) => {
+    setWithdrawingOrderId(order.id);
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    setStakeOrders((prev) => prev.filter((o) => o.id !== order.id));
+    setWithdrawingOrderId(null);
+    alert(`已提取本金 ${order.amount.toLocaleString()} USDT 至钱包 (模拟)`);
   };
 
   // 动态计算预估收益 (月化 20%)
@@ -388,7 +540,36 @@ export function StakeView() {
         </CardFooter>
       </Card>
 
-      {/* 4. 特性说明 (Minimalist) */}
+      {/* 4. 质押订单列表 - 仅已连接时显示 */}
+      {isConnected && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold tracking-tight px-1 flex items-center gap-2">
+            <PiggyBank className="h-5 w-5 text-primary" />
+            质押订单
+          </h3>
+          {stakeOrders.length > 0 ? (
+            <div className="space-y-4">
+              {stakeOrders.map((order) => (
+                <div key={order.id} className="rounded-xl border border-border/40 bg-card/50 overflow-hidden">
+                  <StakeOrderItem
+                    order={order}
+                    onWithdraw={handleWithdrawStakeOrder}
+                    isWithdrawing={withdrawingOrderId === order.id}
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-16 text-muted-foreground rounded-xl border border-dashed border-border/40">
+              <PiggyBank className="h-12 w-12 opacity-20 mb-3" />
+              <p className="text-sm">暂无质押订单</p>
+              <p className="text-xs mt-1">完成首次质押后订单将显示在此处</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 5. 特性说明 (Minimalist) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 opacity-80">
         <div className="flex gap-3 p-3">
           <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
