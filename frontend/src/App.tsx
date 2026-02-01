@@ -4,15 +4,15 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { StakeView } from '@/components/features/home/StakeView';
 import { WalletView } from '@/components/features/wallet/WalletView';
-import { ProfileView } from '@/components/features/profile/ProfileView';
 import { TeamView } from '@/components/features/team/TeamView';
 import { InviteView } from '@/components/features/invite/InviteView';
 import { ChangePasswordView } from '@/components/features/profile/ChangePasswordView';
 import { HelpCenterView } from '@/components/features/profile/HelpCenterView';
 import { Button } from '@/components/ui/button';
-import { Wallet } from 'lucide-react';
+import { Wallet, X } from 'lucide-react';
 
-const VALID_TABS = ['home', 'wallet', 'profile', 'team', 'invite', 'change-password', 'help-center'] as const;
+const VOCECHAT_URL = "http://67.215.229.143:3009";
+const VALID_TABS = ['home', 'wallet', 'team', 'invite', 'change-password', 'help-center'] as const;
 
 function ConnectWalletGate() {
   return (
@@ -43,6 +43,7 @@ function hashToTab(hash: string): string {
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState(() => hashToTab(window.location.hash));
+  const [showVoceChat, setShowVoceChat] = useState(false);
   const { isConnected } = useAccount();
 
   // 从 URL hash 同步 tab，并监听 hashchange（浏览器前进/后退、刷新）
@@ -73,14 +74,12 @@ export default function App() {
         return <StakeView />;
       case "wallet":
         return <WalletView />;
-      case "profile":
-        return <ProfileView onNavigate={handleTabChange} />;
       case "team":
         return <TeamView />;
       case "invite":
         return <InviteView />;
       case "change-password":
-        return <ChangePasswordView onBack={() => handleTabChange('profile')} />;
+        return <ChangePasswordView />;
       case "help-center":
         return <HelpCenterView />;
       default:
@@ -89,8 +88,34 @@ export default function App() {
   };
 
   return (
-    <MainLayout currentTab={currentTab} onTabChange={handleTabChange}>
-      {renderContent()}
-    </MainLayout>
+    <>
+      <MainLayout
+        currentTab={currentTab}
+        onTabChange={handleTabChange}
+        onOpenCustomerService={() => setShowVoceChat(true)}
+      >
+        {renderContent()}
+      </MainLayout>
+      {showVoceChat && (
+        <div className="fixed inset-0 z-[100] flex flex-col bg-background">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30 shrink-0">
+            <span className="text-sm font-semibold text-foreground">在线客服</span>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-10 w-10 shrink-0"
+              onClick={() => setShowVoceChat(false)}
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
+          <iframe
+            title="VoceChat 在线客服"
+            src={VOCECHAT_URL}
+            className="flex-1 w-full min-h-0 border-0"
+          />
+        </div>
+      )}
+    </>
   );
 }

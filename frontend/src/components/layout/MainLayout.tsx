@@ -1,14 +1,14 @@
 import { ReactNode } from "react";
 import { Header } from "./Header";
-import { TabBar } from "./TabBar";
 
 interface MainLayoutProps {
   children: ReactNode;
   currentTab: string;
   onTabChange: (tab: string) => void;
+  onOpenCustomerService?: () => void;
 }
 
-export function MainLayout({ children, currentTab, onTabChange }: MainLayoutProps) {
+export function MainLayout({ children, currentTab, onTabChange, onOpenCustomerService }: MainLayoutProps) {
   // 判断是否为二级页面
   const isSecondaryPage = ['team', 'invite', 'change-password', 'help-center'].includes(currentTab);
   
@@ -23,7 +23,7 @@ export function MainLayout({ children, currentTab, onTabChange }: MainLayoutProp
   };
 
   const handleBack = () => {
-    onTabChange('profile');
+    onTabChange('home');
   };
 
   return (
@@ -32,11 +32,13 @@ export function MainLayout({ children, currentTab, onTabChange }: MainLayoutProp
         title={getPageTitle()} 
         showBack={isSecondaryPage} 
         onBack={handleBack}
+        currentTab={currentTab}
+        onTabChange={onTabChange}
+        onOpenCustomerService={onOpenCustomerService}
       />
       <main className="flex-1 container px-4 pb-6 overflow-y-auto">
         {children}
       </main>
-      {!isSecondaryPage && <TabBar currentTab={currentTab} onTabChange={onTabChange} />}
     </div>
   );
 }
