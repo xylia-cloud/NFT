@@ -128,17 +128,17 @@ function StakeOrderItem({
 
       {/* 可提取时：提现区域（仅提取本金，利息每日发放可单独提取） */}
       {!isLocked && (
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4 border-t border-border/40">
+        <div className="flex items-center justify-between gap-4 pt-4 border-t border-border/40">
           <div className="text-sm text-muted-foreground">
             本金 <span className="font-semibold text-foreground">{order.amount.toLocaleString()} USDT</span> 可提至钱包
           </div>
           <Button
-            size="default"
-            className="gap-2 rounded-xl shrink-0 w-full sm:w-auto"
+            size="sm"
+            className="gap-1.5 rounded-lg shrink-0"
             onClick={() => onWithdraw(order)}
             disabled={isWithdrawing}
           >
-            {isWithdrawing ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowDownToLine className="h-4 w-4" />}
+            {isWithdrawing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ArrowDownToLine className="h-3.5 w-3.5" />}
             提取本金
           </Button>
         </div>

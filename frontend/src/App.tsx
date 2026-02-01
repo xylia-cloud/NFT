@@ -66,20 +66,17 @@ export default function App() {
   }, []);
 
   const renderContent = () => {
-    if (!isConnected) {
-      return <ConnectWalletGate />;
-    }
     switch (currentTab) {
       case "home":
         return <StakeView />;
       case "wallet":
-        return <WalletView />;
+        return isConnected ? <WalletView /> : <ConnectWalletGate />;
       case "team":
-        return <TeamView />;
+        return isConnected ? <TeamView /> : <ConnectWalletGate />;
       case "invite":
-        return <InviteView />;
+        return isConnected ? <InviteView /> : <ConnectWalletGate />;
       case "change-password":
-        return <ChangePasswordView />;
+        return isConnected ? <ChangePasswordView /> : <ConnectWalletGate />;
       case "help-center":
         return <HelpCenterView />;
       default:
