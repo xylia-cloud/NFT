@@ -90,12 +90,12 @@ export function WalletView() {
             <CardContent className="p-4 flex flex-col gap-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium text-muted-foreground">累计利息</span>
-                <div className="p-1.5 rounded-full bg-green-500/10 text-green-500">
+                <div className="p-1.5 rounded-full bg-primary/10 text-primary">
                   <Coins className="h-3.5 w-3.5" />
                 </div>
               </div>
               <div>
-                <div className="text-xl font-bold tracking-tight text-green-600">{assets.interest}</div>
+                <div className="text-xl font-bold tracking-tight text-primary">{assets.interest}</div>
                 <div className="text-[10px] text-muted-foreground mt-0.5">可随时提取</div>
               </div>
             </CardContent>
@@ -158,7 +158,7 @@ function TransactionList({ transactions }: { transactions: any[] }) {
               <div className="flex items-center gap-4">
                 <div className={`flex h-9 w-9 items-center justify-center rounded-full border ${
                   tx.type === 'stake' ? 'bg-blue-500/10 border-blue-500/20 text-blue-500' :
-                  tx.type === 'interest' ? 'bg-green-500/10 border-green-500/20 text-green-500' :
+                  tx.type === 'interest' ? 'bg-primary/10 border-primary/20 text-primary' :
                   'bg-orange-500/10 border-orange-500/20 text-orange-500'
                 }`}>
                   {tx.type === 'stake' && <PiggyBank className="h-4 w-4" />}
@@ -176,7 +176,7 @@ function TransactionList({ transactions }: { transactions: any[] }) {
               <div className="text-right">
                 <div className={`font-bold text-sm ${
                   tx.type === 'stake' ? 'text-foreground' :
-                  tx.type === 'interest' ? 'text-green-600' : 'text-foreground'
+                  tx.type === 'interest' ? 'text-primary' : 'text-foreground'
                 }`}>
                   {tx.type === 'withdraw' ? '-' : '+'}{tx.amount} <span className="text-xs font-normal text-muted-foreground">{tx.currency}</span>
                 </div>

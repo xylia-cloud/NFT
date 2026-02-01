@@ -172,7 +172,7 @@ export function ChangePasswordView() {
             )}
             
             {success && (
-              <div className="flex items-center gap-2 text-sm text-green-500 bg-green-500/10 p-3 rounded-md">
+              <div className="flex items-center gap-2 text-sm text-primary bg-primary/10 p-3 rounded-md">
                 <CheckCircle2 className="h-4 w-4 shrink-0" />
                 <span>提现密码修改成功！</span>
               </div>

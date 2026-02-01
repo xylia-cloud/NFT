@@ -52,8 +52,8 @@ export function ProfileView({ onNavigate }: { onNavigate?: (tab: string) => void
     {
       title: "联系客服",
       icon: HeadphonesIcon,
-      color: "text-green-500",
-      bg: "bg-green-500/10",
+      color: "text-primary",
+      bg: "bg-primary/10",
       desc: "7x24小时支持"
     },
     {
@@ -127,7 +127,7 @@ export function ProfileView({ onNavigate }: { onNavigate?: (tab: string) => void
                 </div>
                 <div className="text-2xl font-bold tracking-tight text-foreground">{userData.stakedAmount}</div>
                 <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                  <span className="text-green-500 flex items-center font-medium">
+                  <span className="text-primary flex items-center font-medium">
                     <ArrowUpRight className="h-3 w-3" /> 2.5%
                   </span>
                   <span className="opacity-60">周环比</span>
@@ -138,14 +138,14 @@ export function ProfileView({ onNavigate }: { onNavigate?: (tab: string) => void
             <Card className="border-border/40 shadow-sm bg-card/50">
               <CardContent className="p-4">
                 <div className="flex items-center gap-2 mb-3 text-muted-foreground">
-                  <div className="p-1.5 rounded-md bg-green-500/10 text-green-500">
+                  <div className="p-1.5 rounded-md bg-primary/10 text-primary">
                     <Coins className="h-4 w-4" />
                   </div>
                   <span className="text-xs font-medium">累计收益</span>
                 </div>
                 <div className="text-2xl font-bold tracking-tight text-foreground">{userData.rewards}</div>
                 <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                  <span className="text-green-500 flex items-center font-medium">
+                  <span className="text-primary flex items-center font-medium">
                     <ArrowUpRight className="h-3 w-3" /> 12.8%
                   </span>
                   <span className="opacity-60">周环比</span>

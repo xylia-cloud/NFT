@@ -71,7 +71,7 @@ export function TeamView() {
             <div>
               <div className="text-xl font-bold tracking-tight text-orange-600">{teamStats.totalCommission}</div>
               <div className="text-[10px] text-muted-foreground mt-1.5 flex items-center gap-1">
-                <span className="text-green-500 font-medium flex items-center">
+                <span className="text-primary font-medium flex items-center">
                   <TrendingUp className="h-3 w-3 mr-0.5" />
                   {teamStats.todayCommission}
                 </span>
@@ -115,8 +115,8 @@ export function TeamView() {
                         <div className="text-xs text-muted-foreground flex items-center gap-2">
                           <span>加入: {member.joinDate}</span>
                           {member.status === 'active' ? (
-                            <span className="flex items-center gap-1 text-green-500 text-[10px]">
-                              <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
+                            <span className="flex items-center gap-1 text-primary text-[10px]">
+                              <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
                               活跃
                             </span>
                           ) : (

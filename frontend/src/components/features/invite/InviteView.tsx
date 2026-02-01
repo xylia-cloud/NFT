@@ -113,7 +113,7 @@ export function InviteView({ onBack }: InviteViewProps) {
             </div>
 
             <div className="flex gap-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-green-500/10 text-green-500">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <Users className="h-5 w-5" />
               </div>
               <div className="space-y-1">

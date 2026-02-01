@@ -23,7 +23,7 @@ export function TabBar({ currentTab, onTabChange }: TabBarProps) {
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
               className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors ${
-                isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
               }`}
             >
               <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />

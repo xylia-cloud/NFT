@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from "react";
-import { Plus, Minus, Loader2, Wallet, TrendingUp, Shield, Users, Activity, ArrowRight, Zap, ChevronRight, Lock } from "lucide-react";
+import { Plus, Minus, Loader2, Wallet, TrendingUp, Shield, Users, Activity, Zap, ChevronRight, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAccount } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { cn } from "@/lib/utils";
+import bannerSpline from "@/assets/images/banner.splinecode?url";
 
 // 声明 spline-viewer 自定义元素类型
 declare global {
@@ -131,7 +132,7 @@ export function StakeView() {
 
       {/* 1. 顶部 Hero 区域 - 未连接状态 */}
       {!isConnected && (
-        <div className="relative overflow-hidden rounded-2xl border border-border/40 bg-black/80 backdrop-blur-md shadow-none min-h-[350px]">
+        <div className="relative overflow-hidden rounded-2xl border border-border/40 bg-black/80 backdrop-blur-md shadow-none min-h-[200px]">
           <div className="absolute inset-0 bg-grid-white/5 [mask-image:linear-gradient(0deg,transparent,black)]" />
 
           {/* Spline 3D 动画背景 */}
@@ -139,7 +140,7 @@ export function StakeView() {
             {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
             {/* @ts-expect-error */}
             <spline-viewer
-              url="https://prod.spline.design/ReHgYB4ZykMbOz5c/scene.splinecode"
+              url={bannerSpline}
               style={{
                 pointerEvents: 'none',
                 width: '100%',
@@ -149,39 +150,22 @@ export function StakeView() {
             />
           </div>
 
-          <div className="relative p-4 md:p-4 z-10">
-            <ConnectButton.Custom>
-              {({ openConnectModal }) => (
-                <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                  <div className="space-y-4 text-center md:text-left max-w-xl">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/40 text-xs font-medium text-blue-300 w-fit mx-auto md:mx-0">
-                      <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-400"></span>
-                      </span>
-                      BSC 链上质押正在进行中
-                    </div>
-                    <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-white leading-tight">
-                      开启 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-blue-400 to-purple-400">Web3 财富</span> 之旅
-                    </h2>
-                    <p className="text-gray-300 leading-relaxed">
-                      安全、透明的去中心化质押协议。即刻参与，享受高达 <span className="text-white font-semibold">20%</span> 的月化稳定收益。
-                    </p>
-                  </div>
-                  <Button
-                    onClick={openConnectModal}
-                    size="lg"
-                    className="h-14 px-8 rounded-xl bg-white text-black hover:bg-gray-100 font-bold text-base transition-all hover:scale-105 active:scale-95 shadow-xl shadow-white/20 relative overflow-hidden"
-                  >
-                    <span className="relative z-10 flex items-center gap-2">
-                      连接钱包
-                      <ArrowRight className="h-5 w-5 animate-pulse" />
-                    </span>
-                    <div className="absolute inset-0 bg-primary/20 translate-y-full animate-[shimmer_2s_infinite] opacity-50" />
-                  </Button>
-                </div>
-              )}
-            </ConnectButton.Custom>
+          <div className="absolute inset-0 flex items-center p-4 md:p-5 z-10">
+            <div className="space-y-2 text-center md:text-left max-w-2xl w-full">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/40 text-xs font-medium text-blue-300 w-fit mx-auto md:mx-0">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-400"></span>
+                </span>
+                BSC 链上质押正在进行中
+              </div>
+              <h2 className="text-2xl md:text-4xl font-bold tracking-tight text-white leading-tight">
+                开启 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary/80 to-primary/60">Web3 财富</span> 之旅
+              </h2>
+              <p className="text-xs text-gray-300 leading-relaxed">
+                安全、透明的去中心化质押协议。即刻参与，享受高达 <span className="text-white font-semibold">20%</span> 的月化稳定收益。请点击右上角连接钱包开始。
+              </p>
+            </div>
           </div>
         </div>
       )}
@@ -206,12 +190,12 @@ export function StakeView() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="relative group cursor-pointer">
-                          <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-primary to-blue-600 p-[1.5px] shadow-sm transition-transform group-hover:scale-105">
+                          <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-primary to-primary/80 p-[1.5px] shadow-sm transition-transform group-hover:scale-105">
                             <div className="h-full w-full rounded-[7px] bg-card flex items-center justify-center">
                               <Wallet className="h-5 w-5 text-primary" />
                             </div>
                           </div>
-                          <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-green-500 rounded-full border-[1.5px] border-card flex items-center justify-center ring-1 ring-background/50">
+                          <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-primary rounded-full border-[1.5px] border-card flex items-center justify-center ring-1 ring-background/50">
                             <div className="h-1 w-1 bg-white rounded-full animate-pulse" />
                           </div>
                         </div>
@@ -225,8 +209,8 @@ export function StakeView() {
                         <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-card/40 border border-border/20 backdrop-blur-md">
                           <div className="flex items-center gap-1.5">
                             <div className="relative flex h-1.5 w-1.5">
-                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
-                              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500"></span>
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary"></span>
                             </div>
                             <span className="font-medium text-xs">{chain.name}</span>
                           </div>
@@ -254,7 +238,7 @@ export function StakeView() {
       {/* 2. 数据指标 (Glassmorphism) */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { icon: TrendingUp, label: "月化收益", value: "20%", sub: "稳定回报", color: "text-emerald-500", bg: "bg-emerald-500/10" },
+          { icon: TrendingUp, label: "月化收益", value: "20%", sub: "稳定回报", color: "text-primary", bg: "bg-primary/10" },
           { icon: Activity, label: "总质押量", value: "$2.8M", sub: "持续增长", color: "text-blue-500", bg: "bg-blue-500/10" },
           { icon: Users, label: "参与人数", value: <CountUp end={12500} />, sub: "全球用户", color: "text-violet-500", bg: "bg-violet-500/10" },
         ].map((item, index) => (
@@ -355,7 +339,7 @@ export function StakeView() {
                 <span className="block text-2xl font-bold text-foreground">
                   +{estimatedDailyReward}
                 </span>
-                <span className="text-sm font-medium text-green-500">USDT / Day</span>
+                <span className="text-sm font-medium text-primary">USDT / Day</span>
               </div>
             </div>
           </div>
@@ -363,15 +347,12 @@ export function StakeView() {
 
         <CardFooter className="p-6 pt-0">
           <ConnectButton.Custom>
-            {({ openConnectModal, mounted, account }) => {
+            {({ mounted, account }) => {
               if (!mounted || !account) {
                 return (
-                   <Button 
-                    className="w-full h-14 rounded-xl text-base font-bold bg-primary text-primary-foreground hover:bg-primary/90 transition-all active:scale-[0.98] shadow-none"
-                    onClick={openConnectModal}
-                  >
-                    连接钱包以质押
-                  </Button>
+                  <p className="w-full text-center py-4 text-sm text-muted-foreground">
+                    请先在顶部连接钱包后即可质押
+                  </p>
                 )
               }
               return (
