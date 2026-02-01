@@ -4,6 +4,8 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { StakeView } from '@/components/features/home/StakeView';
 import { WalletView } from '@/components/features/wallet/WalletView';
+import { WithdrawView } from '@/components/features/withdraw/WithdrawView';
+import { LeaderRewardView } from '@/components/features/leader/LeaderRewardView';
 import { TeamView } from '@/components/features/team/TeamView';
 import { InviteView } from '@/components/features/invite/InviteView';
 import { ChangePasswordView } from '@/components/features/profile/ChangePasswordView';
@@ -12,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Wallet, X } from 'lucide-react';
 
 const VOCECHAT_URL = "http://67.215.229.143:3009";
-const VALID_TABS = ['home', 'wallet', 'team', 'invite', 'change-password', 'help-center'] as const;
+const VALID_TABS = ['home', 'wallet', 'withdraw', 'leader', 'team', 'invite', 'change-password', 'help-center'] as const;
 
 function ConnectWalletGate() {
   return (
@@ -71,6 +73,10 @@ export default function App() {
         return <StakeView />;
       case "wallet":
         return isConnected ? <WalletView /> : <ConnectWalletGate />;
+      case "withdraw":
+        return isConnected ? <WithdrawView /> : <ConnectWalletGate />;
+      case "leader":
+        return isConnected ? <LeaderRewardView /> : <ConnectWalletGate />;
       case "team":
         return isConnected ? <TeamView /> : <ConnectWalletGate />;
       case "invite":

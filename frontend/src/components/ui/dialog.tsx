@@ -1,0 +1,89 @@
+import * as React from "react";
+import { X } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+interface DialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  children: React.ReactNode;
+}
+
+export function Dialog({ open, onOpenChange, children }: DialogProps) {
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={() => onOpenChange(false)}
+      />
+      <div className="relative z-50 w-full max-w-sm mx-4 animate-in zoom-in-95 duration-200">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+interface DialogContentProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+export function DialogContent({ children, className }: DialogContentProps) {
+  return (
+    <div className={cn("bg-background rounded-2xl border border-border/40 shadow-lg", className)}>
+      {children}
+    </div>
+  );
+}
+
+interface DialogHeaderProps {
+  children: React.ReactNode;
+}
+
+export function DialogHeader({ children }: DialogHeaderProps) {
+  return (
+    <div className="flex flex-col space-y-1.5 p-6 text-center sm:text-center">
+      {children}
+    </div>
+  );
+}
+
+interface DialogTitleProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+export function DialogTitle({ children, className }: DialogTitleProps) {
+  return (
+    <h2 className={cn("text-lg font-semibold leading-none tracking-tight", className)}>
+      {children}
+    </h2>
+  );
+}
+
+interface DialogDescriptionProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+export function DialogDescription({ children, className }: DialogDescriptionProps) {
+  return (
+    <p className={cn("text-sm text-muted-foreground", className)}>
+      {children}
+    </p>
+  );
+}
+
+interface DialogFooterProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+export function DialogFooter({ children, className }: DialogFooterProps) {
+  return (
+    <div className={cn("flex flex-col-reverse sm:flex-row sm:justify-center gap-2 p-6 pt-4", className)}>
+      {children}
+    </div>
+  );
+}

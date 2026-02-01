@@ -6,13 +6,14 @@ import { cn } from "@/lib/utils";
 const WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"];
 
 export interface FlowByDate {
-  [dateStr: string]: { income: number; expense: number }; // "2024-03-14" -> { income: 12.50, expense: 0 }
+  [dateStr: string]: { income: number; expense: number } | number; // "2024-03-14" -> { income: 12.50, expense: 0 } or just 12.50 for rewards
 }
 
 interface CalendarProps {
   selectedDate: Date | null;
   onSelectDate: (date: Date | null) => void;
   flowByDate?: FlowByDate;
+  showAmount?: boolean;
   className?: string;
 }
 
@@ -20,6 +21,7 @@ export function Calendar({
   selectedDate,
   onSelectDate,
   flowByDate = {},
+  showAmount = false,
   className,
 }: CalendarProps) {
   const [viewDate, setViewDate] = useState(new Date());
@@ -64,12 +66,24 @@ export function Calendar({
 
   const getFlow = (d: number) => {
     const str = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-    return flowByDate[str] ?? { income: 0, expense: 0 };
+    const flow = flowByDate[str];
+    if (flow === undefined) return { income: 0, expense: 0 };
+    if (typeof flow === "number") return { income: flow, expense: 0 };
+    return flow;
+  };
+
+  const getAmount = (d: number) => {
+    const str = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+    const flow = flowByDate[str];
+    if (flow === undefined) return 0;
+    if (typeof flow === "number") return flow;
+    return flow.income;
   };
 
   const hasIncome = (d: number) => getFlow(d).income > 0;
   const hasExpense = (d: number) => getFlow(d).expense > 0;
   const hasFlow = (d: number) => hasIncome(d) || hasExpense(d);
+  const hasReward = (d: number) => getAmount(d) > 0;
 
   return (
     <div className={cn("w-full", className)}>
@@ -115,23 +129,26 @@ export function Calendar({
                 onSelectDate(isSelected(d) ? null : date);
               }}
               className={cn(
-                "aspect-square rounded-lg text-sm font-medium transition-colors flex flex-col items-center justify-center gap-0.5",
+                "aspect-square rounded-lg text-sm font-medium transition-colors flex flex-col items-center justify-center gap-0.5 relative",
                 "hover:bg-muted/80",
                 isSelected(d) && "bg-primary text-primary-foreground hover:bg-primary/90",
                 !isSelected(d) && isToday(d) && "ring-1 ring-primary",
                 !isSelected(d) && !isToday(d) && "text-foreground",
-                hasFlow(d) && !isSelected(d) && "relative"
+                (hasFlow(d) || hasReward(d)) && !isSelected(d) && "bg-primary/5"
               )}
             >
               {d}
-              {hasFlow(d) && !isSelected(d) && (
+              {showAmount && hasReward(d) && !isSelected(d) && (
+                <span className="text-[10px] text-primary font-medium">+{getAmount(d).toFixed(1)}</span>
+              )}
+              {!showAmount && (hasFlow(d) || hasReward(d)) && !isSelected(d) && (
                 <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 flex gap-0.5 items-center">
-                  {hasIncome(d) && (
+                  {hasIncome(d) || hasReward(d) ? (
                     <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" title="收入" />
-                  )}
-                  {hasExpense(d) && (
+                  ) : null}
+                  {hasExpense(d) ? (
                     <span className="w-1.5 h-1.5 rounded-full bg-orange-500 shrink-0" title="支出" />
-                  )}
+                  ) : null}
                 </div>
               )}
             </button>

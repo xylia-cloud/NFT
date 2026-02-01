@@ -1,6 +1,6 @@
 import logoWhite from "@/assets/images/logo-white.svg";
 import logoDark from "@/assets/images/logo-dark.svg";
-import { Globe, ChevronLeft, Wallet, Menu, Home, CreditCard, Users, Share2, HelpCircle, HeadphonesIcon, Lock, Building2, LogOut, Sun, Moon, SunMoon } from "lucide-react";
+import { Globe, ChevronLeft, Wallet, Menu, Home, CreditCard, Users, Share2, HelpCircle, HeadphonesIcon, Lock, Building2, LogOut, Sun, Moon, SunMoon, Trophy } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useAccount, useDisconnect } from "wagmi";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,8 @@ import { cn } from "@/lib/utils";
 const NAV_ITEMS = [
   { id: "home", label: "首页", icon: Home },
   { id: "wallet", label: "钱包", icon: CreditCard },
+  { id: "withdraw", label: "提现", icon: LogOut },
+  { id: "leader", label: "领袖奖励", icon: Trophy },
   { id: "team", label: "我的团队", icon: Users },
   { id: "invite", label: "邀请好友", icon: Share2 },
   { id: "help-center", label: "帮助中心", icon: HelpCircle },
