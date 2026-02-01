@@ -1,21 +1,23 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useState, useMemo } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { useAccount } from "wagmi";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Calendar, type FlowByDate } from "@/components/ui/calendar";
 import { 
   ArrowUpRight, 
   ArrowDownLeft, 
   Wallet, 
   Coins, 
   History, 
-  ArrowRightLeft,
-  PiggyBank
+  PiggyBank,
+  CalendarDays
 } from "lucide-react";
 
 export function WalletView() {
   const { isConnected } = useAccount();
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   // 模拟资产数据
   const assets = {
@@ -26,13 +28,38 @@ export function WalletView() {
   };
 
   // 模拟交易记录数据
+  const now = new Date();
+  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
   const transactions = [
-    { id: 1, type: "stake", amount: "5,000.00", currency: "USDT", date: "2024-03-15 14:30", status: "completed" },
-    { id: 2, type: "interest", amount: "12.50", currency: "USDT", date: "2024-03-14 00:00", status: "completed" },
-    { id: 3, type: "withdraw", amount: "100.00", currency: "USDT", date: "2024-03-12 09:15", status: "processing" },
+    { id: 1, type: "stake", amount: "5,000.00", currency: "USDT", date: `${currentMonth}-15 14:30`, status: "completed" },
+    { id: 2, type: "interest", amount: "12.50", currency: "USDT", date: `${currentMonth}-14 00:00`, status: "completed" },
+    { id: 3, type: "withdraw", amount: "100.00", currency: "USDT", date: `${currentMonth}-12 09:15`, status: "processing" },
     { id: 4, type: "stake", amount: "2,000.00", currency: "USDT", date: "2024-03-10 16:45", status: "completed" },
-    { id: 5, type: "interest", amount: "10.20", currency: "USDT", date: "2024-03-13 00:00", status: "completed" },
+    { id: 5, type: "interest", amount: "10.20", currency: "USDT", date: `${currentMonth}-13 00:00`, status: "completed" },
+    { id: 6, type: "interest", amount: "11.80", currency: "USDT", date: `${currentMonth}-01 00:00`, status: "completed" },
   ];
+
+  // 从交易记录提取每日收支数据
+  const flowByDate: FlowByDate = useMemo(() => {
+    const map: FlowByDate = {};
+    transactions.forEach((t) => {
+      const dateStr = t.date.split(" ")[0]; // "2024-03-14"
+      if (!map[dateStr]) map[dateStr] = { income: 0, expense: 0 };
+      const amount = parseFloat(t.amount.replace(/,/g, ""));
+      if (t.type === "stake" || t.type === "interest") {
+        map[dateStr].income += amount;
+      } else if (t.type === "withdraw") {
+        map[dateStr].expense += amount;
+      }
+    });
+    return map;
+  }, [transactions]);
+
+  const selectedDateFlow = useMemo(() => {
+    if (!selectedDate) return null;
+    const str = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`;
+    return flowByDate[str] ?? { income: 0, expense: 0 };
+  }, [selectedDate, flowByDate]);
 
   if (!isConnected) {
     return (
@@ -104,14 +131,58 @@ export function WalletView() {
         </div>
       </div>
 
-      {/* 2. 交易明细 Tabs */}
+      {/* 2. 收支日历 */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between px-1">
-          <h3 className="text-lg font-semibold tracking-tight">资金明细</h3>
-          <Button variant="ghost" size="sm" className="text-xs h-8">
-            查看全部 <ArrowRightLeft className="ml-1 h-3 w-3" />
-          </Button>
-        </div>
+        <h3 className="text-lg font-semibold tracking-tight px-1 flex items-center gap-2">
+          <CalendarDays className="h-5 w-5 text-primary" />
+          收支日历
+        </h3>
+        <Card className="border-border/40 shadow-sm">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-end gap-4 mb-2 text-[10px] text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary" /> 收入
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-orange-500" /> 支出
+              </span>
+            </div>
+            <Calendar
+              selectedDate={selectedDate}
+              onSelectDate={setSelectedDate}
+              flowByDate={flowByDate}
+            />
+            {selectedDate && selectedDateFlow && (
+              <div className="mt-4 pt-4 border-t border-border/40 space-y-2">
+                <p className="text-xs text-muted-foreground">
+                  {selectedDate.getFullYear()}/{selectedDate.getMonth() + 1}/{selectedDate.getDate()} 收支
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">收入</span>
+                    <span className="text-base font-bold text-primary">
+                      +{selectedDateFlow.income.toFixed(2)} USDT
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">支出</span>
+                    <span className="text-base font-bold text-orange-500">
+                      -{selectedDateFlow.expense.toFixed(2)} USDT
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* 3. 交易明细 Tabs */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold tracking-tight px-1 flex items-center gap-2">
+          <History className="h-5 w-5 text-primary" />
+          资金明细
+        </h3>
 
         <Tabs defaultValue="all" className="w-full">
           <TabsList className="grid w-full grid-cols-4 h-9 p-1 bg-muted/50 rounded-lg">

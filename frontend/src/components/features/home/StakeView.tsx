@@ -18,8 +18,8 @@ declare global {
   }
 }
 
-// 质押金额档位
-const STAKE_AMOUNTS = [500, ...Array.from({ length: 10 }, (_, i) => (i + 1) * 1000)];
+// 质押金额档位 (500 ~ 30,000 USDT，1000 之后每次 +1000)
+const STAKE_AMOUNTS = [500, ...Array.from({ length: 30 }, (_, i) => (i + 1) * 1000)];
 
 // 数字滚动组件
 function CountUp({ end, duration = 2000, suffix = "" }: { end: number, duration?: number, suffix?: string }) {
@@ -324,8 +324,8 @@ export function StakeView() {
               </div>
               <div className="flex justify-between text-xs font-medium text-muted-foreground px-1">
                 <span>500 USDT</span>
-                <span>5,000 USDT</span>
-                <span>10,000 USDT</span>
+                <span>15,000 USDT</span>
+                <span>30,000 USDT</span>
               </div>
             </div>
 
