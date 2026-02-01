@@ -1,15 +1,19 @@
+import { useState, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Calendar, type FlowByDate } from "@/components/ui/calendar";
 import { 
   Users, 
   Target,
   TrendingUp,
+  CalendarDays,
 } from "lucide-react";
 
 export function TeamView() {
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   // 模拟团队数据
   const teamStats = {
     totalMembers: 128,
@@ -20,6 +24,33 @@ export function TeamView() {
     level1Members: 80,
     level2Members: 48
   };
+
+  // 模拟每日团队业绩（佣金）
+  const now = new Date();
+  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const commissionByDate: FlowByDate = useMemo(() => {
+    const map: FlowByDate = {};
+    [
+      { date: `${currentMonth}-01`, income: 85.5 },
+      { date: `${currentMonth}-05`, income: 120.0 },
+      { date: `${currentMonth}-10`, income: 156.8 },
+      { date: `${currentMonth}-12`, income: 98.2 },
+      { date: `${currentMonth}-14`, income: 125.8 },
+      { date: `${currentMonth}-18`, income: 142.0 },
+      { date: `${currentMonth}-22`, income: 168.5 },
+      { date: `${currentMonth}-25`, income: 95.0 },
+    ].forEach(({ date, income }) => {
+      map[date] = { income, expense: 0 };
+    });
+    return map;
+  }, [currentMonth]);
+
+  const selectedDateCommission = useMemo(() => {
+    if (!selectedDate) return null;
+    const str = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`;
+    const flow = commissionByDate[str] ?? { income: 0, expense: 0 };
+    return flow.income;
+  }, [selectedDate, commissionByDate]);
 
   // 模拟成员列表
   const members = [
@@ -62,31 +93,72 @@ export function TeamView() {
         {/* 佣金统计卡片 */}
         <Card className="shadow-sm border-border/60">
           <CardContent className="p-4 flex flex-col gap-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-muted-foreground">累计佣金</span>
+            <div className="flex items-center gap-2">
               <div className="p-1.5 rounded-full bg-orange-500/10 text-orange-500">
                 <Target className="h-3.5 w-3.5" />
               </div>
+              <span className="text-xs font-medium text-muted-foreground">累计佣金</span>
             </div>
             <div>
               <div className="text-xl font-bold tracking-tight text-orange-600">{teamStats.totalCommission}</div>
-              <div className="text-[10px] text-muted-foreground mt-1.5 flex items-center gap-1">
-                <span className="text-primary font-medium flex items-center">
-                  <TrendingUp className="h-3 w-3 mr-0.5" />
-                  {teamStats.todayCommission}
+              <div className="text-[10px] text-muted-foreground mt-1.5 flex items-center gap-2 flex-wrap">
+                <span className="flex items-center gap-1">
+                  <span className="text-primary font-medium flex items-center">
+                    <TrendingUp className="h-3 w-3 mr-0.5" />
+                    {teamStats.todayCommission}
+                  </span>
+                  <span className="opacity-60">今日新增</span>
                 </span>
-                <span className="opacity-60">今日新增</span>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
+      {/* 2. 团队业绩日历 */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold tracking-tight px-1 flex items-center gap-2">
+          <CalendarDays className="h-5 w-5 text-primary" />
+          团队业绩
+        </h3>
+        <Card className="border-border/40 shadow-sm">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-end gap-4 mb-2 text-[10px] text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary" /> 佣金
+              </span>
+            </div>
+            <Calendar
+              selectedDate={selectedDate}
+              onSelectDate={setSelectedDate}
+              flowByDate={commissionByDate}
+            />
+            {selectedDate && selectedDateCommission !== null && (
+              <div className="mt-4 pt-4 border-t border-border/40 space-y-2">
+                <p className="text-xs text-muted-foreground">
+                  {selectedDate.getFullYear()}/{selectedDate.getMonth() + 1}/{selectedDate.getDate()} 业绩
+                </p>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">佣金</span>
+                  <span className="text-xl font-bold text-primary">
+                    +{selectedDateCommission.toFixed(2)} USDT
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    (领袖奖励 +{(selectedDateCommission * 0.1).toFixed(2)} USDT)
+                  </span>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
       {/* 3. 成员列表 (Tabs & List) */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-muted-foreground px-1">团队成员</h3>
-        </div>
+        <h3 className="text-lg font-semibold tracking-tight px-1 flex items-center gap-2">
+          <Users className="h-5 w-5 text-primary" />
+          团队成员
+        </h3>
 
         <Tabs defaultValue="all" className="w-full">
           <TabsList className="grid w-full grid-cols-3 h-9 p-1 bg-muted/50 rounded-lg mb-4">

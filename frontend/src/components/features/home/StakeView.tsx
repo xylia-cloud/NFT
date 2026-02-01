@@ -160,7 +160,7 @@ export function StakeView() {
                 Plasma 链上质押正在进行中
               </div>
               <h2 className="text-2xl md:text-4xl font-bold tracking-tight text-white leading-tight">
-                开启 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary/80 to-primary/60">Web3 财富</span> 之旅
+                开启 <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-blue-400 to-primary drop-shadow-[0_0_12px_rgba(34,211,238,0.5)]">Web3 财富</span> 之旅
               </h2>
               <p className="text-xs text-gray-300 leading-relaxed">
                 安全、透明的去中心化质押协议。充币请走 Plasma 网络。即刻参与，享受高达 <span className="text-white font-semibold">20%</span> 的月化稳定收益。请点击右上角连接钱包开始。
@@ -342,6 +342,12 @@ export function StakeView() {
                 <span className="text-sm font-medium text-primary">USDT / Day</span>
               </div>
             </div>
+
+            {/* 复投提示 */}
+            <p className="text-xs text-muted-foreground/80 flex items-center gap-2">
+              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-primary text-[10px]">i</span>
+              利息累计满 100 USDT 可复投一次，收益自动滚入本金
+            </p>
           </div>
         </CardContent>
 

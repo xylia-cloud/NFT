@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import { AssetCard } from "@/components/ui/asset-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -23,17 +24,32 @@ import { useAccount, useDisconnect } from "wagmi";
 import { cn } from "@/lib/utils";
 
 const VOCECHAT_URL = "http://67.215.229.143:3009";
+const REINVEST_THRESHOLD = 100;
 
 export function ProfileView({ onNavigate }: { onNavigate?: (tab: string) => void }) {
   const { address, isConnected } = useAccount();
   const { disconnect } = useDisconnect();
   const [showVoceChat, setShowVoceChat] = useState(false);
+  const [rewards, setRewards] = useState(345.80);
+  const [stakedAmount, setStakedAmount] = useState(12500);
+  const [isReinvesting, setIsReinvesting] = useState(false);
 
-  // 模拟数据
+  const reinvestProgress = rewards % REINVEST_THRESHOLD;
+  const canReinvest = rewards >= REINVEST_THRESHOLD;
+
+  const handleReinvest = () => {
+    if (!canReinvest || isReinvesting) return;
+    setIsReinvesting(true);
+    setRewards((r) => r - REINVEST_THRESHOLD);
+    setStakedAmount((s) => s + REINVEST_THRESHOLD);
+    setTimeout(() => setIsReinvesting(false), 800);
+  };
+
+  // 模拟数据（复投会更新收益与本金）
   const userData = {
-    level: "VIP 3",
-    stakedAmount: "12,500.00",
-    rewards: "345.80",
+    level: "A3",
+    stakedAmount: stakedAmount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+    rewards: rewards.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
     inviteCode: "PLM888"
   };
 
@@ -136,6 +152,9 @@ export function ProfileView({ onNavigate }: { onNavigate?: (tab: string) => void
                 <Badge className="px-1.5 py-0.5 h-5 min-w-0 text-[10px] bg-primary border-background text-primary-foreground shadow-sm">
                   {userData.level}
                 </Badge>
+                <Badge variant="outline" className="px-1.5 py-0.5 h-5 min-w-0 text-[10px] border-primary/30 bg-primary/10 text-primary">
+                  领袖奖励 10%
+                </Badge>
               </div>
             </div>
 
@@ -146,41 +165,43 @@ export function ProfileView({ onNavigate }: { onNavigate?: (tab: string) => void
 
           {/* 资产统计 */}
           <div className="grid grid-cols-2 gap-4">
-            <Card className="border-border/40 shadow-sm bg-card/50">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-3 text-muted-foreground">
-                  <div className="p-1.5 rounded-md bg-blue-500/10 text-blue-500">
-                    <Wallet className="h-4 w-4" />
-                  </div>
-                  <span className="text-xs font-medium">质押本金</span>
-                </div>
-                <div className="text-2xl font-bold tracking-tight text-foreground">{userData.stakedAmount}</div>
-                <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+            <AssetCard
+              title="质押本金"
+              amount={userData.stakedAmount}
+              icon={Wallet}
+              iconBg="bg-blue-500/10"
+              iconColor="text-blue-500"
+              subtitle={
+                <>
                   <span className="text-primary flex items-center font-medium">
                     <ArrowUpRight className="h-3 w-3" /> 2.5%
                   </span>
                   <span className="opacity-60">周环比</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-border/40 shadow-sm bg-card/50">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-3 text-muted-foreground">
-                  <div className="p-1.5 rounded-md bg-primary/10 text-primary">
-                    <Coins className="h-4 w-4" />
-                  </div>
-                  <span className="text-xs font-medium">累计收益</span>
-                </div>
-                <div className="text-2xl font-bold tracking-tight text-foreground">{userData.rewards}</div>
-                <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                </>
+              }
+            />
+            <AssetCard
+              title="累计收益"
+              amount={userData.rewards}
+              icon={Coins}
+              iconBg="bg-primary/10"
+              iconColor="text-primary"
+              subtitle={
+                <>
                   <span className="text-primary flex items-center font-medium">
                     <ArrowUpRight className="h-3 w-3" /> 12.8%
                   </span>
                   <span className="opacity-60">周环比</span>
-                </div>
-              </CardContent>
-            </Card>
+                </>
+              }
+              reinvest={{
+                progress: reinvestProgress,
+                threshold: REINVEST_THRESHOLD,
+                canReinvest,
+                isReinvesting,
+                onReinvest: handleReinvest,
+              }}
+            />
           </div>
         </div>
       </div>

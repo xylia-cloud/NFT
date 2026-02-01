@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { ChevronDown, ChevronUp, HelpCircle, MessageCircle } from "lucide-react";
+import { ChevronDown, ChevronUp, MessageCircle } from "lucide-react";
 
 interface FAQItemProps {
   question: string;
@@ -144,13 +144,8 @@ export function HelpCenterView() {
   ];
 
   return (
-    <div className="space-y-5 pb-20 animate-in fade-in duration-500 max-w-4xl mx-auto pt-2">
-      {/* 顶部标题 - 仅此处保留图标 */}
+    <div className="space-y-5 pb-20 animate-in fade-in duration-500 max-w-4xl mx-auto pt-4">
       <div className="space-y-1">
-        <h2 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
-          <HelpCircle className="h-5 w-5 text-primary shrink-0" />
-          帮助中心
-        </h2>
         <p className="text-sm text-muted-foreground">
           常见问题解答，助您快速了解 PLASMA 平台
         </p>
