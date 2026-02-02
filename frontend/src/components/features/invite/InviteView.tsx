@@ -1,21 +1,10 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Copy, 
-  Share2, 
-  Trophy, 
-  Twitter,
-  Send,
-  QrCode
-} from "lucide-react";
+import { Share2, Trophy, Twitter, Send } from "lucide-react";
 import { useState } from "react";
 
-interface InviteViewProps {
-  onBack?: () => void;
-}
-
-export function InviteView({ onBack }: InviteViewProps) {
+export function InviteView() {
   const [copied, setCopied] = useState(false);
   const inviteLink = "https://plasma.to/register?code=PLM888";
 

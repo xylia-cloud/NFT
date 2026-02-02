@@ -73,16 +73,17 @@ export function WalletView() {
   ]);
 
   // 从交易记录提取每日收支数据
-  const flowByDate: FlowByDate = useMemo(() => {
+  const flowByDate = useMemo<FlowByDate>(() => {
     const map: FlowByDate = {};
     transactions.forEach((t) => {
       const dateStr = t.date.split(" ")[0];
       if (!map[dateStr]) map[dateStr] = { income: 0, expense: 0 };
       const amount = parseFloat(t.amount.replace(/,/g, ""));
+      const entry = map[dateStr] as { income: number; expense: number };
       if (t.type === "stake" || t.type === "interest" || t.type === "reinvest") {
-        map[dateStr].income += amount;
+        entry.income += amount;
       } else if (t.type === "withdraw") {
-        map[dateStr].expense += amount;
+        entry.expense += amount;
       }
     });
     return map;
@@ -91,7 +92,10 @@ export function WalletView() {
   const selectedDateFlow = useMemo(() => {
     if (!selectedDate) return null;
     const str = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`;
-    return flowByDate[str] ?? { income: 0, expense: 0 };
+    const flow = flowByDate[str];
+    if (flow === undefined) return { income: 0, expense: 0 };
+    if (typeof flow === "number") return { income: flow, expense: 0 };
+    return flow as { income: number; expense: number };
   }, [selectedDate, flowByDate]);
 
   if (!isConnected) {

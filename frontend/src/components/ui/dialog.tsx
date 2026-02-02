@@ -1,5 +1,4 @@
 import * as React from "react";
-import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface DialogProps {
@@ -39,11 +38,12 @@ export function DialogContent({ children, className }: DialogContentProps) {
 
 interface DialogHeaderProps {
   children: React.ReactNode;
+  className?: string;
 }
 
-export function DialogHeader({ children }: DialogHeaderProps) {
+export function DialogHeader({ children, className }: DialogHeaderProps) {
   return (
-    <div className="flex flex-col space-y-1.5 p-6 text-center sm:text-center">
+    <div className={cn("flex flex-col space-y-1.5 p-6 text-center sm:text-center", className)}>
       {children}
     </div>
   );

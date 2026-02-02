@@ -48,8 +48,10 @@ export function TeamView() {
   const selectedDateCommission = useMemo(() => {
     if (!selectedDate) return null;
     const str = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`;
-    const flow = commissionByDate[str] ?? { income: 0, expense: 0 };
-    return flow.income;
+    const flow = commissionByDate[str];
+    if (flow === undefined) return 0;
+    if (typeof flow === "number") return flow;
+    return (flow as { income: number }).income;
   }, [selectedDate, commissionByDate]);
 
   // 模拟成员列表

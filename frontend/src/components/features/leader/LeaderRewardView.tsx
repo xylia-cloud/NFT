@@ -147,8 +147,8 @@ export function LeaderRewardView() {
             <Card className="border-border/40 shadow-sm">
               <CardContent className="p-4">
                 <Calendar
-                  selectedDate={selectedDate || undefined}
-                  onSelectDate={(date) => setSelectedDate(date || null)}
+                  selectedDate={selectedDate ?? undefined}
+                  onSelectDate={(date) => setSelectedDate(date ?? null)}
                   flowByDate={LEADER_DAILY_REWARDS}
                   showAmount
                 />

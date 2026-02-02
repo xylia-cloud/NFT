@@ -35,12 +35,6 @@ interface HeaderProps {
   onOpenCustomerService?: () => void;
 }
 
-const THEME_OPTIONS = [
-  { id: "light" as const, label: "浅色模式", icon: Sun },
-  { id: "dark" as const, label: "深色模式", icon: Moon },
-  { id: "system" as const, label: "跟随系统", icon: SunMoon },
-] as const;
-
 export function Header({ title, showBack, onBack, currentTab, onTabChange, onOpenCustomerService }: HeaderProps) {
   const { theme, setTheme } = useTheme();
   const { isConnected } = useAccount();
@@ -71,8 +65,9 @@ export function Header({ title, showBack, onBack, currentTab, onTabChange, onOpe
         </div>
         <div className="flex items-center gap-2">
           <ConnectButton.Custom>
-            {({ openConnectModal, mounted }) => {
+            {({ openConnectModal, mounted, account }) => {
               if (!mounted) return null;
+              if (account) return null;
               return (
                 <Button
                   variant="ghost"

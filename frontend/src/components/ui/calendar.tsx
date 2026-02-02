@@ -10,7 +10,7 @@ export interface FlowByDate {
 }
 
 interface CalendarProps {
-  selectedDate: Date | null;
+  selectedDate?: Date | null;
   onSelectDate: (date: Date | null) => void;
   flowByDate?: FlowByDate;
   showAmount?: boolean;
