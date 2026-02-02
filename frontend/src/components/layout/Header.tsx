@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import logoWhite from "@/assets/images/logo-white.svg";
 import logoDark from "@/assets/images/logo-dark.svg";
-import { Globe, ChevronLeft, Wallet, Menu, X, Home, CreditCard, Users, Share2, HelpCircle, HeadphonesIcon, Lock, Building2, LogOut, Sun, Moon, SunMoon, Trophy } from "lucide-react";
+import { Globe, ChevronLeft, Wallet, Menu, X, Home, CreditCard, Users, Share2, HelpCircle, HeadphonesIcon, Lock, Building2, LogOut, Trophy } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useAccount, useDisconnect } from "wagmi";
 import { Button } from "@/components/ui/button";
@@ -37,7 +37,7 @@ interface HeaderProps {
 }
 
 export function Header({ title, showBack, onBack, currentTab, onTabChange, onOpenCustomerService }: HeaderProps) {
-  const { theme, setTheme } = useTheme();
+  const { theme } = useTheme();
   const { isConnected } = useAccount();
   const { disconnect } = useDisconnect();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -157,62 +157,27 @@ export function Header({ title, showBack, onBack, currentTab, onTabChange, onOpe
                         key={item.id}
                         onClick={onClick}
                         className={cn(
-                          "w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-muted text-left",
+                          "w-full flex items-center gap-2 px-3 py-2 text-base rounded-md hover:bg-muted text-left",
                           isActive && "bg-primary/10 text-primary"
                         )}
                       >
-                        <Icon className="h-4 w-4" />
+                        <Icon className="h-5 w-5" />
                         <span>{item.label}</span>
                       </button>
                     );
                   })}
                 </div>
-                <div className="px-2 pt-2">
+                <div className="px-2 py-1">
                   <button
                     onClick={() => {
                       onOpenCustomerService?.();
                       setIsMenuOpen(false);
                     }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-muted text-left"
+                    className="w-full flex items-center gap-2 px-3 py-2 text-base rounded-md hover:bg-muted text-left"
                   >
-                    <HeadphonesIcon className="h-4 w-4" />
+                    <HeadphonesIcon className="h-5 w-5" />
                     <span>联系客服</span>
                   </button>
-                </div>
-                <div className="px-2 pt-4">
-                  <p className="px-3 pb-1 text-xs text-muted-foreground">主题</p>
-                  <div className="space-y-1">
-                    <button
-                      onClick={() => setTheme("light")}
-                      className={cn(
-                        "w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-muted text-left",
-                        theme === "light" && "bg-primary/10 text-primary"
-                      )}
-                    >
-                      <Sun className="h-4 w-4" />
-                      <span>浅色</span>
-                    </button>
-                    <button
-                      onClick={() => setTheme("dark")}
-                      className={cn(
-                        "w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-muted text-left",
-                        theme === "dark" && "bg-primary/10 text-primary"
-                      )}
-                    >
-                      <Moon className="h-4 w-4" />
-                      <span>深色</span>
-                    </button>
-                    <button
-                      onClick={() => setTheme("system")}
-                      className={cn(
-                        "w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-muted text-left",
-                        theme === "system" && "bg-primary/10 text-primary"
-                      )}
-                    >
-                      <SunMoon className="h-4 w-4" />
-                      <span>跟随系统</span>
-                    </button>
-                  </div>
                 </div>
                 {isConnected && (
                   <div className="px-2 pt-4">
@@ -221,9 +186,9 @@ export function Header({ title, showBack, onBack, currentTab, onTabChange, onOpe
                         disconnect();
                         setIsMenuOpen(false);
                       }}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-destructive/10 text-destructive text-left"
+                      className="w-full flex items-center gap-2 px-3 py-2 text-base rounded-md hover:bg-destructive/10 text-destructive text-left"
                     >
-                      <LogOut className="h-4 w-4" />
+                      <LogOut className="h-5 w-5" />
                       <span>断开钱包连接</span>
                     </button>
                   </div>
