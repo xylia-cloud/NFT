@@ -37,7 +37,7 @@ declare global {
 const STAKE_AMOUNTS = [500, ...Array.from({ length: 30 }, (_, i) => (i + 1) * 1000)];
 
 // 质押订单类型
-interface StakeOrder {
+export interface StakeOrder {
   id: number;
   amount: number;
   startDate: string;
@@ -48,15 +48,15 @@ interface StakeOrder {
   dailyRate?: number; // 日化收益 %
 }
 
-// 模拟质押订单数据（锁仓 180 天，利息每日发放可单独提取）
-const INITIAL_STAKE_ORDERS: StakeOrder[] = [
-  { id: 1, amount: 5000, startDate: "2025-01-15", lockEndDate: "2025-07-14", lockDays: 180, accruedInterest: 125.80, status: "locked", dailyRate: 0.67 },
-  { id: 2, amount: 2000, startDate: "2024-12-20", lockEndDate: "2025-06-18", lockDays: 180, accruedInterest: 82.50, status: "locked", dailyRate: 0.67 },
+// 模拟质押订单数据（锁仓 180 天，利息每日发放可单独提取，到期日为 2026 年）
+export const INITIAL_STAKE_ORDERS: StakeOrder[] = [
+  { id: 1, amount: 5000, startDate: "2026-01-16", lockEndDate: "2026-07-14", lockDays: 180, accruedInterest: 125.80, status: "locked", dailyRate: 0.67 },
+  { id: 2, amount: 2000, startDate: "2025-12-21", lockEndDate: "2026-06-18", lockDays: 180, accruedInterest: 82.50, status: "locked", dailyRate: 0.67 },
   { id: 3, amount: 500, startDate: "2024-08-01", lockEndDate: "2025-01-28", lockDays: 180, accruedInterest: 28.30, status: "unlocked", dailyRate: 0.67 },
 ];
 
 // 单个质押订单卡片（含倒计时、提现）
-function StakeOrderItem({
+export function StakeOrderItem({
   order,
   onWithdraw,
   isWithdrawing,
@@ -65,7 +65,8 @@ function StakeOrderItem({
   onWithdraw: (order: StakeOrder) => void;
   isWithdrawing: boolean;
 }) {
-  const [remaining, setRemaining] = useState<{ days: number; hours: number; mins: number } | null>(null);
+  // 按天计算倒计时
+  const [remainingDays, setRemainingDays] = useState<number>(0);
   const isLocked = order.status === "locked";
 
   useEffect(() => {
@@ -75,13 +76,12 @@ function StakeOrderItem({
       const now = Date.now();
       const diff = end - now;
       if (diff <= 0) {
-        setRemaining(null);
+        setRemainingDays(0);
         return;
       }
-      const days = Math.floor(diff / (24 * 60 * 60 * 1000));
-      const hours = Math.floor((diff % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
-      const mins = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000));
-      setRemaining({ days, hours, mins });
+      // 向上取整，按天计算剩余时间
+      const days = Math.max(0, Math.ceil(diff / (24 * 60 * 60 * 1000)));
+      setRemainingDays(days);
     };
     update();
     const timer = setInterval(update, 60000);
@@ -106,10 +106,10 @@ function StakeOrderItem({
                   isLocked ? "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400" : "border-primary/30 bg-primary/10 text-primary"
                 )}
               >
-                {isLocked ? <><Lock className="h-2.5 w-2.5 mr-0.5 inline" /> 锁仓中</> : <><Unlock className="h-2.5 w-2.5 mr-0.5 inline" /> 可提取</>}
+                {isLocked ? <><Lock className="h-2.5 w-2.5 mr-0.5 inline" /> 提现冷却期</> : <><Unlock className="h-2.5 w-2.5 mr-0.5 inline" /> 可提取</>}
               </Badge>
             </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span className="flex items-center gap-1.5">
                 <Calendar className="h-3.5 w-3.5" />
                 {order.startDate} ~ {order.lockEndDate}
@@ -119,26 +119,22 @@ function StakeOrderItem({
             </div>
           </div>
         </div>
-        <div className="text-left sm:text-right shrink-0">
-          <div className="text-xs text-muted-foreground mb-0.5">累计收益</div>
-          <div className="text-lg font-bold text-primary">+{order.accruedInterest.toFixed(2)} USDT</div>
+        <div className="flex-1 min-w-0 flex flex-row items-end justify-end gap-2 sm:gap-4">
+          <div className="flex-1 min-w-0 text-left sm:text-right">
+            <div className="text-xs text-muted-foreground mb-0.5">累计收益</div>
+            <div className="text-lg font-bold text-primary">+{order.accruedInterest.toFixed(2)} USDT</div>
+          </div>
+          {isLocked && (
+            <div className="flex-1 min-w-0 text-left sm:text-right">
+              <div className="text-xs text-muted-foreground mb-0.5">冷却倒计时</div>
+              <div className="text-lg font-bold text-foreground flex items-center gap-1 sm:justify-end">
+                <Clock className="h-4 w-4 shrink-0" />
+                {remainingDays} 天
+              </div>
+            </div>
+          )}
         </div>
       </div>
-
-      {/* 中部：倒计时 */}
-      {isLocked && (
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-xl bg-muted/30 px-4 py-3 text-sm">
-          <span className="text-muted-foreground flex items-center gap-2">
-            <Clock className="h-4 w-4 shrink-0" />
-            {remaining ? (
-              <>剩余 <span className="font-semibold text-foreground">{remaining.days} 天 {remaining.hours} 时 {remaining.mins} 分</span> 解锁</>
-            ) : (
-              <span className="text-primary font-medium">即将到期</span>
-            )}
-          </span>
-          {order.dailyRate != null && <span className="text-muted-foreground">日化 {order.dailyRate}%</span>}
-        </div>
-      )}
 
       {/* 可提取时：提现区域（仅提取本金，利息每日发放可单独提取） */}
       {!isLocked && (
@@ -203,8 +199,6 @@ export function StakeView() {
   });
   
   const [mounted, setMounted] = useState(false);
-  const [stakeOrders, setStakeOrders] = useState<StakeOrder[]>(INITIAL_STAKE_ORDERS);
-  const [withdrawingOrderId, setWithdrawingOrderId] = useState<number | null>(null);
   const [depositStep, setDepositStep] = useState<'idle' | 'approving' | 'depositing'>('idle');
   const [pendingDepositAmount, setPendingDepositAmount] = useState<bigint | null>(null);
   const [showInsufficientDialog, setShowInsufficientDialog] = useState(false);
@@ -354,14 +348,6 @@ export function StakeView() {
       functionName: 'approve',
       args: [CONTRACT_ADDRESS, usdtAmount],
     });
-  };
-
-  const handleWithdrawStakeOrder = async (order: StakeOrder) => {
-    setWithdrawingOrderId(order.id);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setStakeOrders((prev) => prev.filter((o) => o.id !== order.id));
-    setWithdrawingOrderId(null);
-    alert(`已提取本金 ${order.amount.toLocaleString()} USDT 至钱包 (模拟)`);
   };
 
   // 动态计算预估收益 (月化 20%)
@@ -794,36 +780,7 @@ export function StakeView() {
         </DialogContent>
       </Dialog>
 
-      {/* 4. 质押订单列表 - 仅已连接时显示 */}
-      {isConnected && (
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold tracking-tight px-1 flex items-center gap-2">
-            <PiggyBank className="h-5 w-5 text-primary" />
-            质押订单
-          </h3>
-          {stakeOrders.length > 0 ? (
-            <div className="space-y-4">
-              {stakeOrders.map((order) => (
-                <div key={order.id} className="rounded-xl border border-border/40 bg-card/50 overflow-hidden">
-                  <StakeOrderItem
-                    order={order}
-                    onWithdraw={handleWithdrawStakeOrder}
-                    isWithdrawing={withdrawingOrderId === order.id}
-                  />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-16 text-muted-foreground rounded-xl border border-dashed border-border/40">
-              <PiggyBank className="h-12 w-12 opacity-20 mb-3" />
-              <p className="text-sm">暂无质押订单</p>
-              <p className="text-xs mt-1">完成首次质押后订单将显示在此处</p>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* 5. 合作伙伴 Logo 滚动展示 */}
+      {/* 4. 合作伙伴 Logo 滚动展示 */}
       <div className="space-y-3 mt-2">
         <p className="text-xs text-muted-foreground px-1">合作伙伴</p>
         <div className="relative overflow-hidden">
@@ -846,7 +803,7 @@ export function StakeView() {
         </div>
       </div>
 
-      {/* 6. 特性说明 (Minimalist) */}
+      {/* 5. 特性说明 (Minimalist) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 opacity-80 mt-2">
         <div className="flex gap-3 p-3">
           <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">

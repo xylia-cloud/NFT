@@ -10,13 +10,14 @@ interface MainLayoutProps {
 
 export function MainLayout({ children, currentTab, onTabChange, onOpenCustomerService }: MainLayoutProps) {
   // 判断是否为二级页面
-  const isSecondaryPage = ['team', 'invite', 'help-center'].includes(currentTab);
+  const isSecondaryPage = ['team', 'invite', 'help-center', 'orders'].includes(currentTab);
   
   const getPageTitle = () => {
     switch(currentTab) {
       case 'team': return '我的团队';
       case 'invite': return '邀请好友';
       case 'help-center': return '帮助中心';
+      case 'orders': return '质押订单';
       default: return undefined;
     }
   };

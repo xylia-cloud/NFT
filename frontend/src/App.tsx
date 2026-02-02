@@ -3,6 +3,7 @@ import { useAccount } from 'wagmi';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { StakeView } from '@/components/features/home/StakeView';
+import { StakeOrdersView } from '@/components/features/home/StakeOrdersView';
 import { WalletView } from '@/components/features/wallet/WalletView';
 import { WithdrawView } from '@/components/features/withdraw/WithdrawView';
 import { LeaderRewardView } from '@/components/features/leader/LeaderRewardView';
@@ -13,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Wallet, X } from 'lucide-react';
 
 const VOCECHAT_URL = "http://67.215.229.143:3009";
-const VALID_TABS = ['home', 'wallet', 'withdraw', 'leader', 'team', 'invite', 'help-center'] as const;
+const VALID_TABS = ['home', 'wallet', 'withdraw', 'leader', 'team', 'invite', 'help-center', 'orders'] as const;
 
 function ConnectWalletGate() {
   return (
@@ -82,6 +83,8 @@ export default function App() {
         return isConnected ? <InviteView /> : <ConnectWalletGate />;
       case "help-center":
         return <HelpCenterView />;
+      case "orders":
+        return isConnected ? <StakeOrdersView /> : <ConnectWalletGate />;
       default:
         return <StakeView />;
     }
