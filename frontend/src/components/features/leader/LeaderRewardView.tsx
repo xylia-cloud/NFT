@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { AssetCard } from "@/components/ui/asset-card";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Dialog,
@@ -15,7 +14,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { useAccount } from "wagmi";
-import { Wallet, Trophy, TrendingUp, Users, CalendarDays, Loader2, CheckCircle2, ArrowRight } from "lucide-react";
+import { Wallet, Trophy, TrendingUp, CalendarDays, Gift, Loader2, CheckCircle2, ArrowRight } from "lucide-react";
 
 // 模拟用户数据
 const MOCK_USER = {
@@ -111,26 +110,36 @@ export function LeaderRewardView() {
         <>
           {/* 收益统计 */}
           <div className="grid grid-cols-2 gap-4">
-            <AssetCard
-              title="累计领袖奖励"
-              amount={`+${MOCK_USER.totalLeaderRewards.toFixed(2)}`}
-              icon={TrendingUp}
-              iconBg="bg-primary/10"
-              iconColor="text-primary"
-              subtitle="额外10%收益加成"
-            />
-            <AssetCard
-              title="团队人数"
-              amount={MOCK_USER.teamCount.toString()}
-              icon={Users}
-              iconBg="bg-blue-500/10"
-              iconColor="text-blue-500"
-              subtitle="下级所有成员"
-            />
-          </div>
-
+            <Card className="border-border/40 shadow-sm">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                    <TrendingUp className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">累计领袖奖励</p>
+                    <p className="text-xl font-bold text-primary">+{MOCK_USER.totalLeaderRewards.toFixed(2)} USDT</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-border/40 shadow-sm">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
+                    <Gift className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">团队人数</p>
+                    <p className="text-xl font-bold">{MOCK_USER.teamCount} 人</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           {/* 收益日历 */}
-          <div className="space-y-4">
+                    </div>
+
+<div className="space-y-4">
             <h3 className="text-lg font-semibold tracking-tight px-1 flex items-center gap-2">
               <CalendarDays className="h-5 w-5 text-primary" />
               每日领袖奖励

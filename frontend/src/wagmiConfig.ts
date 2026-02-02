@@ -1,4 +1,4 @@
-import { http } from 'wagmi'
+import { http, createStorage, cookieStorage } from 'wagmi'
 import { plasma } from 'wagmi/chains'
 import { getDefaultConfig } from '@rainbow-me/rainbowkit'
 import {
@@ -10,9 +10,24 @@ import {
   injectedWallet,
 } from '@rainbow-me/rainbowkit/wallets'
 
-// WalletConnect project ID - you can get one from https://cloud.walletconnect.com
-// Using a demo project ID for development
-const projectId = 'demo-project-id'
+const projectId = '497f09c5a7528641d51b5996281682eb'
+
+function getStorage() {
+  if (typeof window !== 'undefined') {
+    try {
+      return createStorage({
+        storage: window.localStorage,
+      });
+    } catch {
+      return createStorage({
+        storage: cookieStorage,
+      });
+    }
+  }
+  return createStorage({
+    storage: cookieStorage,
+  });
+}
 
 export const config = getDefaultConfig({
   appName: 'PLASMA',
@@ -31,4 +46,6 @@ export const config = getDefaultConfig({
       wallets: [walletConnectWallet, injectedWallet],
     },
   ],
+  syncConnectedChain: true,
+  ssr: false,
 })

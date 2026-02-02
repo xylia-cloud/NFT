@@ -71,22 +71,8 @@ export function Header({ title, showBack, onBack, currentTab, onTabChange, onOpe
         </div>
         <div className="flex items-center gap-2">
           <ConnectButton.Custom>
-            {({ openConnectModal, openAccountModal, mounted, account }) => {
+            {({ openConnectModal, mounted }) => {
               if (!mounted) return null;
-              if (account) {
-                return (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={openAccountModal}
-                    className="h-9 w-9 relative"
-                  >
-                    <Wallet className="h-[1.2rem] w-[1.2rem]" />
-                    <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-primary ring-2 ring-background" />
-                    <span className="sr-only">钱包账户</span>
-                  </Button>
-                );
-              }
               return (
                 <Button
                   variant="ghost"
