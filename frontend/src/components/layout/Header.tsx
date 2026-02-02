@@ -22,7 +22,6 @@ const NAV_ITEMS = [
   { id: "team", label: "我的团队", icon: Users },
   { id: "invite", label: "邀请好友", icon: Share2 },
   { id: "help-center", label: "帮助中心", icon: HelpCircle },
-  { id: "change-password", label: "修改密码", icon: Lock },
   { id: "about", label: "关于我们", icon: Building2 },
 ] as const;
 

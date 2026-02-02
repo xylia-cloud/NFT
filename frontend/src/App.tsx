@@ -8,13 +8,12 @@ import { WithdrawView } from '@/components/features/withdraw/WithdrawView';
 import { LeaderRewardView } from '@/components/features/leader/LeaderRewardView';
 import { TeamView } from '@/components/features/team/TeamView';
 import { InviteView } from '@/components/features/invite/InviteView';
-import { ChangePasswordView } from '@/components/features/profile/ChangePasswordView';
 import { HelpCenterView } from '@/components/features/profile/HelpCenterView';
 import { Button } from '@/components/ui/button';
 import { Wallet, X } from 'lucide-react';
 
 const VOCECHAT_URL = "http://67.215.229.143:3009";
-const VALID_TABS = ['home', 'wallet', 'withdraw', 'leader', 'team', 'invite', 'change-password', 'help-center'] as const;
+const VALID_TABS = ['home', 'wallet', 'withdraw', 'leader', 'team', 'invite', 'help-center'] as const;
 
 function ConnectWalletGate() {
   return (
@@ -81,8 +80,6 @@ export default function App() {
         return isConnected ? <TeamView /> : <ConnectWalletGate />;
       case "invite":
         return isConnected ? <InviteView /> : <ConnectWalletGate />;
-      case "change-password":
-        return isConnected ? <ChangePasswordView /> : <ConnectWalletGate />;
       case "help-center":
         return <HelpCenterView />;
       default:
