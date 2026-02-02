@@ -1,4 +1,4 @@
-提交const hre = require("hardhat");
+const hre = require("hardhat");
 
 async function main() {
   const [signer] = await hre.ethers.getSigners();

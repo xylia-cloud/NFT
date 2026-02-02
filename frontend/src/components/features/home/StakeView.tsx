@@ -185,7 +185,7 @@ export function StakeView() {
   const { isConnected, address } = useAccount();
   
   // 查询 USDT 余额
-  const { data: usdtBalance } = useReadContract({
+  const { data: usdtBalance, refetch: refetchUsdtBalance } = useReadContract({
     address: USDT_ADDRESS,
     abi: USDT_ABI,
     functionName: 'balanceOf',
@@ -199,6 +199,11 @@ export function StakeView() {
   const [pendingDepositAmount, setPendingDepositAmount] = useState<bigint | null>(null);
   const [showInsufficientDialog, setShowInsufficientDialog] = useState(false);
   const [insufficientInfo, setInsufficientInfo] = useState<{ balanceUsdt: string; requiredUsdt: string } | null>(null);
+  const [showDepositSuccessDialog, setShowDepositSuccessDialog] = useState(false);
+  const [depositSuccessInfo, setDepositSuccessInfo] = useState<{ amountUsdt: string; txHash?: string } | null>(null);
+  const [showStakeConfirmDialog, setShowStakeConfirmDialog] = useState(false);
+  const [showTxErrorDialog, setShowTxErrorDialog] = useState(false);
+  const [txErrorInfo, setTxErrorInfo] = useState<{ title: string; description: string; detail?: string } | null>(null);
   
   const { data: hash, isPending, writeContract, error: writeError, reset: resetWrite } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
@@ -227,26 +232,42 @@ export function StakeView() {
   // 当 depositUsdt 交易确认后，重置状态
   useEffect(() => {
     if (isConfirmed && depositStep === 'depositing') {
-      // 延迟重置，让用户看到成功提示
-      const timer = setTimeout(() => {
-        setDepositStep('idle');
-        setPendingDepositAmount(null);
-        resetWrite();
-      }, 2000);
-      return () => clearTimeout(timer);
+      // 充值成功：弹窗提示 + 刷新余额
+      setDepositSuccessInfo({
+        amountUsdt: amount.toLocaleString(),
+        txHash: hash,
+      });
+      setShowDepositSuccessDialog(true);
+      setDepositStep('idle');
+      setPendingDepositAmount(null);
+      resetWrite();
+      // 刷新顶部余额显示
+      void refetchUsdtBalance();
     }
-  }, [isConfirmed, depositStep, resetWrite]);
+  }, [isConfirmed, depositStep, resetWrite, refetchUsdtBalance, amount, hash]);
 
   // 当交易失败时，重置状态
   useEffect(() => {
     if (writeError) {
-      const timer = setTimeout(() => {
-        setDepositStep('idle');
-        setPendingDepositAmount(null);
-      }, 3000);
-      return () => clearTimeout(timer);
+      const stepLabel = depositStep === 'approving' ? '授权' : depositStep === 'depositing' ? '充值' : '交易';
+      const msg = (writeError as any)?.shortMessage ?? (writeError as any)?.message ?? String(writeError);
+      const isUserRejected =
+        (writeError as any)?.name === 'UserRejectedRequestError' ||
+        /user rejected|rejected|denied|取消|拒绝/i.test(msg);
+
+      setTxErrorInfo({
+        title: isUserRejected ? '已取消' : `${stepLabel}失败`,
+        description: isUserRejected
+          ? `你已取消本次${stepLabel}操作（未扣费）。`
+          : `本次${stepLabel}未成功，请重试。`,
+        detail: msg,
+      });
+      setShowTxErrorDialog(true);
+      setDepositStep('idle');
+      setPendingDepositAmount(null);
+      resetWrite();
     }
-  }, [writeError]);
+  }, [writeError, depositStep, resetWrite]);
 
   // 加载 Spline Viewer 脚本
   useEffect(() => {
@@ -579,7 +600,7 @@ export function StakeView() {
               return (
                 <Button 
                   className="w-full h-14 rounded-xl text-base font-bold bg-primary text-primary-foreground hover:bg-primary/90 transition-all active:scale-[0.98] shadow-none relative overflow-hidden group"
-                  onClick={handleStake}
+                  onClick={() => setShowStakeConfirmDialog(true)}
                   disabled={isPending || isConfirming || depositStep !== 'idle'}
                 >
                   <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
@@ -598,14 +619,6 @@ export function StakeView() {
                       <>
                         <Loader2 className="h-5 w-5 animate-spin" />
                         打包中...
-                      </>
-                    ) : isConfirmed && depositStep === 'depositing' ? (
-                      <>
-                        <span>充值成功!</span>
-                      </>
-                    ) : writeError ? (
-                      <>
-                        <span>失败: {writeError.message.slice(0, 15)}...</span>
                       </>
                     ) : (
                       <>
@@ -655,6 +668,114 @@ export function StakeView() {
               onClick={() => setShowInsufficientDialog(false)}
             >
               我知道了
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 质押确认弹窗 */}
+      <Dialog open={showStakeConfirmDialog} onOpenChange={setShowStakeConfirmDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader className="text-center">
+            <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
+              <PiggyBank className="h-7 w-7 text-primary" />
+            </div>
+            <DialogTitle className="text-xl">确认质押</DialogTitle>
+            <DialogDescription className="text-base">
+              你将质押 <span className="font-semibold text-foreground">{amount.toLocaleString()} USDT</span>。
+            </DialogDescription>
+          </DialogHeader>
+          <div className="px-6 pb-2">
+            <div className="rounded-xl border border-border/40 bg-muted/20 p-4 text-sm space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">钱包余额</span>
+                <span className="font-semibold">{usdtBalance ? (Number(usdtBalance) / 1e6).toFixed(2) : "0.00"} USDT</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">合约地址</span>
+                <span className="font-mono text-xs truncate max-w-[180px] text-right">{CONTRACT_ADDRESS}</span>
+              </div>
+            </div>
+            <p className="mt-3 text-xs text-muted-foreground">
+              点击“确认质押”后会先发起授权（Approve），随后发起充值（Deposit）两笔交易。
+            </p>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="secondary"
+              className="w-full h-11 rounded-xl"
+              onClick={() => setShowStakeConfirmDialog(false)}
+            >
+              取消
+            </Button>
+            <Button
+              className="w-full h-11 rounded-xl"
+              onClick={async () => {
+                setShowStakeConfirmDialog(false);
+                await handleStake();
+              }}
+            >
+              确认质押
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 充值成功弹窗 */}
+      <Dialog open={showDepositSuccessDialog} onOpenChange={setShowDepositSuccessDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader className="text-center">
+            <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
+              <PiggyBank className="h-7 w-7 text-primary" />
+            </div>
+            <DialogTitle className="text-xl">质押成功</DialogTitle>
+            <DialogDescription className="text-base">
+              已成功充值 {depositSuccessInfo?.amountUsdt ?? amount.toLocaleString()} USDT 到合约。
+            </DialogDescription>
+          </DialogHeader>
+          <div className="px-6 pb-2">
+            <div className="rounded-xl border border-border/40 bg-muted/20 p-4 text-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">交易哈希</span>
+                <span className="font-mono text-xs truncate max-w-[180px] text-right">
+                  {depositSuccessInfo?.txHash ?? "-"}
+                </span>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              className="w-full h-11 rounded-xl"
+              onClick={() => setShowDepositSuccessDialog(false)}
+            >
+              好的
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 交易失败/取消弹窗 */}
+      <Dialog open={showTxErrorDialog} onOpenChange={setShowTxErrorDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader className="text-center">
+            <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-destructive/10 flex items-center justify-center">
+              <AlertTriangle className="h-7 w-7 text-destructive" />
+            </div>
+            <DialogTitle className="text-xl">{txErrorInfo?.title ?? "交易未完成"}</DialogTitle>
+            <DialogDescription className="text-base">
+              {txErrorInfo?.description ?? "请稍后重试。"}
+            </DialogDescription>
+          </DialogHeader>
+          {txErrorInfo?.detail && (
+            <div className="px-6 pb-2">
+              <div className="rounded-xl border border-border/40 bg-muted/20 p-4 text-xs font-mono text-muted-foreground break-words">
+                {txErrorInfo.detail}
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button className="w-full h-11 rounded-xl" onClick={() => setShowTxErrorDialog(false)}>
+              好的
             </Button>
           </DialogFooter>
         </DialogContent>
