@@ -111,6 +111,43 @@
   animation: pulse-soft 2s ease-in-out infinite;
 }
 
+/* 合作伙伴 Logo 横向滚动 */
+@keyframes partner-marquee-ltr {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes partner-marquee-rtl {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.partner-row {
+  display: flex;
+  gap: 2rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  animation: partner-marquee-ltr 24s linear infinite;
+  width: max-content;
+}
+
+.partner-row-reverse {
+  display: flex;
+  gap: 2rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  animation: partner-marquee-rtl 24s linear infinite;
+  width: max-content;
+}
+
 /* Gradient Text */
 .text-gradient {
   background-clip: text;

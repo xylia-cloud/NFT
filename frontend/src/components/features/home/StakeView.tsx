@@ -9,6 +9,16 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { cn } from "@/lib/utils";
 import { CONTRACT_ADDRESS, CONTRACT_ABI, USDT_ADDRESS, USDT_ABI } from "../../../wagmiConfig";
 import bannerSpline from "@/assets/images/banner.splinecode?url";
+import partner1 from "@/assets/images/partners_1.png";
+import partner2 from "@/assets/images/partners_2.png";
+import partner3 from "@/assets/images/partners_3.png";
+import partner4 from "@/assets/images/partners_4.png";
+import partner5 from "@/assets/images/partners_5.png";
+import partner6 from "@/assets/images/partners_6.png";
+import partner7 from "@/assets/images/partners_7.png";
+import partner8 from "@/assets/images/partners_8.png";
+import partner9 from "@/assets/images/partners_9.png";
+import partner10 from "@/assets/images/partners_10.png";
 
 // 声明 spline-viewer 自定义元素类型
 /* eslint-disable @typescript-eslint/no-namespace */
@@ -204,6 +214,9 @@ export function StakeView() {
   const [showStakeConfirmDialog, setShowStakeConfirmDialog] = useState(false);
   const [showTxErrorDialog, setShowTxErrorDialog] = useState(false);
   const [txErrorInfo, setTxErrorInfo] = useState<{ title: string; description: string; detail?: string } | null>(null);
+
+  const partnersRow1 = [partner1, partner2, partner3, partner4, partner5];
+  const partnersRow2 = [partner6, partner7, partner8, partner9, partner10];
   
   const { data: hash, isPending, writeContract, error: writeError, reset: resetWrite } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
@@ -810,8 +823,31 @@ export function StakeView() {
         </div>
       )}
 
-      {/* 5. 特性说明 (Minimalist) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 opacity-80">
+      {/* 5. 合作伙伴 Logo 滚动展示 */}
+      <div className="space-y-3 mt-2">
+        <p className="text-xs text-muted-foreground px-1">合作伙伴</p>
+        <div className="relative overflow-hidden">
+          <div className="partner-row">
+            {[...partnersRow1, ...partnersRow1].map((src, idx) => (
+              <div key={`p1-${idx}`} className="flex items-center justify-center opacity-90">
+                <img src={src} alt="partner" className="max-h-20 max-w-full object-contain" />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="relative overflow-hidden">
+          <div className="partner-row-reverse">
+            {[...partnersRow2, ...partnersRow2].map((src, idx) => (
+              <div key={`p2-${idx}`} className="flex items-center justify-center opacity-90">
+                <img src={src} alt="partner" className="max-h-20 max-w-full object-contain" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* 6. 特性说明 (Minimalist) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 opacity-80 mt-2">
         <div className="flex gap-3 p-3">
           <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
             <Shield className="h-4 w-4" />

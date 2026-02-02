@@ -163,10 +163,9 @@ export function TeamView() {
         </h3>
 
         <Tabs defaultValue="all" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 h-9 p-1 bg-muted/50 rounded-lg mb-4">
+          <TabsList className="grid w-full grid-cols-2 h-9 p-1 bg-muted/50 rounded-lg mb-4">
             <TabsTrigger value="all" className="text-xs rounded-md h-7">全部成员</TabsTrigger>
             <TabsTrigger value="active" className="text-xs rounded-md h-7">活跃中</TabsTrigger>
-            <TabsTrigger value="inactive" className="text-xs rounded-md h-7">未激活</TabsTrigger>
           </TabsList>
 
           <Card className="border-border/40 shadow-sm bg-card">
