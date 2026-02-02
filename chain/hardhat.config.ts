@@ -35,11 +35,11 @@ export default defineConfig({
       url: process.env.BSC_TESTNET_RPC_URL || "",
       accounts: process.env.BSC_TESTNET_PRIVATE_KEY ? [process.env.BSC_TESTNET_PRIVATE_KEY] : [],
     },
-    bscMainnet: {
+    bscTestnet: {
       type: "http",
       chainType: "l1",
-      url: process.env.BSC_MAINNET_RPC_URL || "https://bsc-dataseed.binance.org/",
-      accounts: process.env.BSC_MAINNET_PRIVATE_KEY ? [process.env.BSC_MAINNET_PRIVATE_KEY] : [],
+      url: process.env.BSC_TESTNET_RPC_URL || "https://data-seed-prebsc-1-s1.binance.org:8545",
+      accounts: process.env.BSC_TESTNET_PRIVATE_KEY ? [process.env.BSC_TESTNET_PRIVATE_KEY] : [],
     },
     localhost: {
       type: "http",

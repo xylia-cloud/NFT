@@ -1,5 +1,5 @@
-import { http } from 'wagmi'
-import { plasma } from 'wagmi/chains'
+import { http, createConfig } from 'wagmi'
+import { mainnet } from 'wagmi/chains'
 import { getDefaultConfig } from '@rainbow-me/rainbowkit'
 import {
   okxWallet,
@@ -15,9 +15,9 @@ const projectId = '497f09c5a7528641d51b5996281682eb'
 export const config = getDefaultConfig({
   appName: 'PLASMA',
   projectId,
-  chains: [plasma],
+  chains: [mainnet],
   transports: {
-    [plasma.id]: http(),
+    [mainnet.id]: http('http://127.0.0.1:8546'),
   },
   wallets: [
     {

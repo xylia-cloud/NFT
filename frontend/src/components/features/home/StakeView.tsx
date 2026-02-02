@@ -3,7 +3,7 @@ import { Plus, Minus, Loader2, Wallet, TrendingUp, Shield, Users, Activity, Zap,
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useAccount } from "wagmi";
+import { useAccount, useBalance } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { cn } from "@/lib/utils";
 import bannerSpline from "@/assets/images/banner.splinecode?url";
@@ -178,7 +178,8 @@ function CountUp({ end, duration = 2000, suffix = "" }: { end: number, duration?
 export function StakeView() {
   const [stepIndex, setStepIndex] = useState(0);
   const amount = STAKE_AMOUNTS[stepIndex];
-  const { isConnected } = useAccount();
+  const { isConnected, address } = useAccount();
+  const { data: balance } = useBalance({ address });
   
   const [isSimulating, setIsSimulating] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -370,12 +371,14 @@ export function StakeView() {
                           <span className="text-[10px] font-medium text-muted-foreground">已连接</span>
                         </div>
 
-                        <Button
+                          <Button
                           variant="secondary"
                           onClick={openAccountModal}
                           className="rounded-lg px-3 h-9 font-medium bg-secondary/80 hover:bg-secondary border border-border/10 transition-all shadow-sm"
                         >
-                          <span className="font-mono text-xs">{account.displayBalance ? account.displayBalance : ''}</span>
+                          <span className="font-mono text-xs">
+                            {balance ? `${(Number(balance.value) / 1e18).toFixed(4)} XPL` : '0 XPL'}
+                          </span>
                         </Button>
                       </div>
                     </div>
