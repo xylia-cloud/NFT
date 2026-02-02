@@ -1,14 +1,17 @@
 import { useState, useEffect, useRef } from "react";
-import { Plus, Minus, Loader2, Wallet, TrendingUp, Shield, Users, Activity, Zap, ChevronRight, Lock, PiggyBank, Calendar, Unlock, Clock, ArrowDownToLine } from "lucide-react";
+import { Plus, Minus, Loader2, Wallet, TrendingUp, Shield, Users, Activity, Zap, ChevronRight, Lock, PiggyBank, Calendar, Unlock, Clock, ArrowDownToLine, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useAccount, useBalance } from "wagmi";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { cn } from "@/lib/utils";
+import { CONTRACT_ADDRESS, CONTRACT_ABI, USDT_ADDRESS, USDT_ABI } from "../../../wagmiConfig";
 import bannerSpline from "@/assets/images/banner.splinecode?url";
 
 // 声明 spline-viewer 自定义元素类型
+/* eslint-disable @typescript-eslint/no-namespace */
 declare global {
   namespace JSX {
     interface IntrinsicElements {
@@ -18,6 +21,7 @@ declare global {
     }
   }
 }
+/* eslint-enable @typescript-eslint/no-namespace */
 
 // 质押金额档位 (500 ~ 30,000 USDT，1000 之后每次 +1000)
 const STAKE_AMOUNTS = [500, ...Array.from({ length: 30 }, (_, i) => (i + 1) * 1000)];
@@ -179,12 +183,25 @@ export function StakeView() {
   const [stepIndex, setStepIndex] = useState(0);
   const amount = STAKE_AMOUNTS[stepIndex];
   const { isConnected, address } = useAccount();
-  const { data: balance } = useBalance({ address });
   
-  const [isSimulating, setIsSimulating] = useState(false);
+  // 查询 USDT 余额
+  const { data: usdtBalance } = useReadContract({
+    address: USDT_ADDRESS,
+    abi: USDT_ABI,
+    functionName: 'balanceOf',
+    args: address ? [address] : undefined,
+  });
+  
   const [mounted, setMounted] = useState(false);
   const [stakeOrders, setStakeOrders] = useState<StakeOrder[]>(INITIAL_STAKE_ORDERS);
   const [withdrawingOrderId, setWithdrawingOrderId] = useState<number | null>(null);
+  const [depositStep, setDepositStep] = useState<'idle' | 'approving' | 'depositing'>('idle');
+  const [pendingDepositAmount, setPendingDepositAmount] = useState<bigint | null>(null);
+  const [showInsufficientDialog, setShowInsufficientDialog] = useState(false);
+  const [insufficientInfo, setInsufficientInfo] = useState<{ balanceUsdt: string; requiredUsdt: string } | null>(null);
+  
+  const { data: hash, isPending, writeContract, error: writeError, reset: resetWrite } = useWriteContract();
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -192,6 +209,44 @@ export function StakeView() {
     }, 0)
     return () => clearTimeout(timer);
   }, []);
+
+  // 当 approve 交易确认后，自动调用 depositUsdt
+  useEffect(() => {
+    if (isConfirmed && depositStep === 'approving' && pendingDepositAmount) {
+      setDepositStep('depositing');
+      writeContract({
+        address: CONTRACT_ADDRESS,
+        abi: CONTRACT_ABI,
+        functionName: 'depositUsdt',
+        args: [pendingDepositAmount],
+      });
+      setPendingDepositAmount(null);
+    }
+  }, [isConfirmed, depositStep, pendingDepositAmount, writeContract]);
+
+  // 当 depositUsdt 交易确认后，重置状态
+  useEffect(() => {
+    if (isConfirmed && depositStep === 'depositing') {
+      // 延迟重置，让用户看到成功提示
+      const timer = setTimeout(() => {
+        setDepositStep('idle');
+        setPendingDepositAmount(null);
+        resetWrite();
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [isConfirmed, depositStep, resetWrite]);
+
+  // 当交易失败时，重置状态
+  useEffect(() => {
+    if (writeError) {
+      const timer = setTimeout(() => {
+        setDepositStep('idle');
+        setPendingDepositAmount(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [writeError]);
 
   // 加载 Spline Viewer 脚本
   useEffect(() => {
@@ -238,28 +293,33 @@ export function StakeView() {
   };
 
   const handleStake = async () => {
-    if (!isConnected) return;
-    setIsSimulating(true);
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setIsSimulating(false);
-    // 模拟：添加新质押订单（180 天锁仓）
-    const now = new Date();
-    const end = new Date(now);
-    end.setDate(end.getDate() + 180);
-    setStakeOrders((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        amount,
-        startDate: now.toISOString().slice(0, 10),
-        lockEndDate: end.toISOString().slice(0, 10),
-        lockDays: 180,
-        accruedInterest: 0,
-        status: "locked",
-        dailyRate: 0.67,
-      },
-    ]);
-    alert(`成功质押 ${amount} USDT (模拟)`);
+    if (!isConnected || !address) return;
+    
+    const usdtAmount = BigInt(amount * 1e6); // USDT decimals = 6
+    
+    // 检查余额是否足够（前端提示更友好；最终仍以链上为准）
+    const balance = usdtBalance != null ? BigInt(usdtBalance.toString()) : 0n;
+    if (balance < usdtAmount) {
+      setInsufficientInfo({
+        balanceUsdt: (Number(balance) / 1e6).toFixed(2),
+        requiredUsdt: amount.toLocaleString(),
+      });
+      setShowInsufficientDialog(true);
+      return;
+    }
+    
+    // 重置状态
+    resetWrite();
+    setDepositStep('approving');
+    setPendingDepositAmount(usdtAmount);
+    
+    // 先 approve，等待交易确认后再调用 depositUsdt（在 useEffect 中处理）
+    writeContract({
+      address: USDT_ADDRESS,
+      abi: USDT_ABI,
+      functionName: 'approve',
+      args: [CONTRACT_ADDRESS, usdtAmount],
+    });
   };
 
   const handleWithdrawStakeOrder = async (order: StakeOrder) => {
@@ -377,7 +437,7 @@ export function StakeView() {
                           className="rounded-lg px-3 h-9 font-medium bg-secondary/80 hover:bg-secondary border border-border/10 transition-all shadow-sm"
                         >
                           <span className="font-mono text-xs">
-                            {balance ? `${(Number(balance.value) / 1e18).toFixed(4)} XPL` : '0 XPL'}
+                            {usdtBalance ? `${(Number(usdtBalance) / 1e6).toFixed(2)} USDT` : '0.00 USDT'}
                           </span>
                         </Button>
                       </div>
@@ -520,14 +580,32 @@ export function StakeView() {
                 <Button 
                   className="w-full h-14 rounded-xl text-base font-bold bg-primary text-primary-foreground hover:bg-primary/90 transition-all active:scale-[0.98] shadow-none relative overflow-hidden group"
                   onClick={handleStake}
-                  disabled={isSimulating}
+                  disabled={isPending || isConfirming || depositStep !== 'idle'}
                 >
                   <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                   <span className="relative flex items-center justify-center gap-2">
-                    {isSimulating ? (
+                    {isPending && depositStep === 'approving' ? (
                       <>
                         <Loader2 className="h-5 w-5 animate-spin" />
-                        处理中...
+                        授权中...
+                      </>
+                    ) : isPending && depositStep === 'depositing' ? (
+                      <>
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                        充值中...
+                      </>
+                    ) : isConfirming ? (
+                      <>
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                        打包中...
+                      </>
+                    ) : isConfirmed && depositStep === 'depositing' ? (
+                      <>
+                        <span>充值成功!</span>
+                      </>
+                    ) : writeError ? (
+                      <>
+                        <span>失败: {writeError.message.slice(0, 15)}...</span>
                       </>
                     ) : (
                       <>
@@ -542,6 +620,45 @@ export function StakeView() {
           </ConnectButton.Custom>
         </CardFooter>
       </Card>
+
+      {/* 余额不足弹窗 */}
+      <Dialog open={showInsufficientDialog} onOpenChange={setShowInsufficientDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader className="text-center">
+            <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-amber-500/10 flex items-center justify-center">
+              <AlertTriangle className="h-7 w-7 text-amber-500" />
+            </div>
+            <DialogTitle className="text-xl">余额不足</DialogTitle>
+            <DialogDescription className="text-base">
+              当前 USDT 余额不足以完成本次质押。
+            </DialogDescription>
+          </DialogHeader>
+          <div className="px-6 pb-2">
+            <div className="rounded-xl border border-border/40 bg-muted/20 p-4 text-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">当前余额</span>
+                <span className="font-semibold">{insufficientInfo?.balanceUsdt ?? "0.00"} USDT</span>
+              </div>
+              <div className="mt-2 flex items-center justify-between">
+                <span className="text-muted-foreground">需要金额</span>
+                <span className="font-semibold">{insufficientInfo?.requiredUsdt ?? amount.toLocaleString()} USDT</span>
+              </div>
+            </div>
+            <p className="mt-3 text-xs text-muted-foreground">
+              请先获取/充值测试 USDT 后再尝试质押（必要时刷新页面以更新余额）。
+            </p>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="secondary"
+              className="w-full h-11 rounded-xl"
+              onClick={() => setShowInsufficientDialog(false)}
+            >
+              我知道了
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* 4. 质押订单列表 - 仅已连接时显示 */}
       {isConnected && (
