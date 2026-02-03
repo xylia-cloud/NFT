@@ -61,7 +61,7 @@ export function HelpCenterView() {
         },
         {
           question: "如何将资产充入 Plasma 网络？",
-          answer: "可通过跨链桥（如 Stargate）将 USDT 从 Ethereum 等链桥接至 Plasma 网络，或直接在支持 Plasma 的交易所/钱包选择 Plasma 网络进行充币。充币地址可在钱包页面查看。",
+          answer: "可通过跨链桥（如 Stargate）将 USDT0 从 Ethereum 等链桥接至 Plasma 网络，或直接在支持 Plasma 的交易所/钱包选择 Plasma 网络进行充币。充币地址可在钱包页面查看。",
         },
         {
           question: "充币需要多少 XPL 作为 Gas？",
@@ -74,7 +74,7 @@ export function HelpCenterView() {
       items: [
         {
           question: "如何参与质押？",
-          answer: "连接钱包后，在首页选择质押金额（500～30,000 USDT），点击「立即质押」并确认交易即可。质押成功后，收益将按日自动结算。",
+          answer: "连接钱包后，在首页选择质押金额（500～30,000 USDT0），点击「立即质押」并确认交易即可。质押成功后，收益将按日自动结算。",
         },
         {
           question: "收益如何计算？",
@@ -82,7 +82,7 @@ export function HelpCenterView() {
         },
         {
           question: "质押金额有什么限制？",
-          answer: "单笔质押金额范围为 500～30,000 USDT，支持多次追加质押。最低 500 USDT 起投，可根据需求灵活调整。",
+          answer: "单笔质押金额范围为 500～30,000 USDT0，支持多次追加质押。最低 500 USDT0 起投，可根据需求灵活调整。",
         },
         {
           question: "何时可以提取本金和收益？",

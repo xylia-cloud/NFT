@@ -98,7 +98,7 @@ export function StakeOrderItem({
           </div>
           <div className="space-y-2 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-bold text-lg text-foreground">{order.amount.toLocaleString()} USDT</span>
+              <span className="font-bold text-lg text-foreground">{order.amount.toLocaleString()} USDT0</span>
               <Badge
                 variant="outline"
                 className={cn(
@@ -122,7 +122,7 @@ export function StakeOrderItem({
         <div className="flex-1 min-w-0 flex flex-row items-end justify-end gap-2 sm:gap-4">
           <div className="flex-1 min-w-0 text-left sm:text-right">
             <div className="text-xs text-muted-foreground mb-0.5">累计收益</div>
-            <div className="text-lg font-bold text-primary">+{order.accruedInterest.toFixed(2)} USDT</div>
+            <div className="text-lg font-bold text-primary">+{order.accruedInterest.toFixed(2)} USDT0</div>
           </div>
           {isLocked && (
             <div className="flex-1 min-w-0 text-left sm:text-right">
@@ -140,7 +140,7 @@ export function StakeOrderItem({
       {!isLocked && (
         <div className="flex items-center justify-between gap-4 pt-4 border-t border-border/40">
           <div className="text-sm text-muted-foreground">
-            本金 <span className="font-semibold text-foreground">{order.amount.toLocaleString()} USDT</span> 可提至钱包
+            本金 <span className="font-semibold text-foreground">{order.amount.toLocaleString()} USDT0</span> 可提至钱包
           </div>
           <Button
             size="sm"
@@ -466,7 +466,7 @@ export function StakeView() {
                           className="rounded-lg px-3 h-9 font-medium bg-secondary/80 hover:bg-secondary border border-border/10 transition-all shadow-sm"
                         >
                           <span className="font-mono text-xs">
-                            {usdtBalance ? `${(Number(usdtBalance) / 1e6).toFixed(2)} USDT` : '0.00 USDT'}
+                            {usdtBalance ? `${(Number(usdtBalance) / 1e6).toFixed(2)} USDT0` : '0.00 USDT0'}
                           </span>
                         </Button>
                       </div>
@@ -541,7 +541,7 @@ export function StakeView() {
                   {amount}
                 </span>
                 <span className="text-xs font-semibold text-muted-foreground mt-1 bg-secondary/50 px-3 py-1 rounded-full border border-border/50">
-                  USDT
+                  USDT0
                 </span>
               </div>
 
@@ -567,9 +567,9 @@ export function StakeView() {
                 </div>
               </div>
               <div className="flex justify-between text-xs font-medium text-muted-foreground px-1">
-                <span>500 USDT</span>
-                <span>15,000 USDT</span>
-                <span>30,000 USDT</span>
+                <span>500 USDT0</span>
+                <span>15,000 USDT0</span>
+                <span>30,000 USDT0</span>
               </div>
             </div>
 
@@ -583,14 +583,14 @@ export function StakeView() {
                 <span className="block text-2xl font-bold text-foreground">
                   +{estimatedDailyReward}
                 </span>
-                <span className="text-sm font-medium text-primary">USDT / Day</span>
+                <span className="text-sm font-medium text-primary">USDT0 / Day</span>
               </div>
             </div>
 
             {/* 复投提示 */}
             <p className="text-xs text-muted-foreground/80 flex items-center gap-2">
               <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-primary text-[10px]">i</span>
-              利息累计满 100 USDT 可复投一次，收益自动滚入本金
+              利息累计满 100 USDT0 可复投一次，收益自动滚入本金
             </p>
           </div>
         </CardContent>
@@ -651,22 +651,22 @@ export function StakeView() {
             </div>
             <DialogTitle className="text-xl">余额不足</DialogTitle>
             <DialogDescription className="text-base">
-              当前 USDT 余额不足以完成本次质押。
+              当前 USDT0 余额不足以完成本次质押。
             </DialogDescription>
           </DialogHeader>
           <div className="px-6 pb-2">
             <div className="rounded-xl border border-border/40 bg-muted/20 p-4 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">当前余额</span>
-                <span className="font-semibold">{insufficientInfo?.balanceUsdt ?? "0.00"} USDT</span>
+                <span className="font-semibold">{insufficientInfo?.balanceUsdt ?? "0.00"} USDT0</span>
               </div>
               <div className="mt-2 flex items-center justify-between">
                 <span className="text-muted-foreground">需要金额</span>
-                <span className="font-semibold">{insufficientInfo?.requiredUsdt ?? amount.toLocaleString()} USDT</span>
+                <span className="font-semibold">{insufficientInfo?.requiredUsdt ?? amount.toLocaleString()} USDT0</span>
               </div>
             </div>
             <p className="mt-3 text-xs text-muted-foreground">
-              请先获取/充值测试 USDT 后再尝试质押（必要时刷新页面以更新余额）。
+              请先获取/充值测试 USDT0 后再尝试质押（必要时刷新页面以更新余额）。
             </p>
           </div>
           <DialogFooter>
@@ -690,14 +690,14 @@ export function StakeView() {
             </div>
             <DialogTitle className="text-xl">确认质押</DialogTitle>
             <DialogDescription className="text-base">
-              你将质押 <span className="font-semibold text-foreground">{amount.toLocaleString()} USDT</span>。
+              你将质押 <span className="font-semibold text-foreground">{amount.toLocaleString()} USDT0</span>。
             </DialogDescription>
           </DialogHeader>
           <div className="px-6 pb-2">
             <div className="rounded-xl border border-border/40 bg-muted/20 p-4 text-sm space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">钱包余额</span>
-                <span className="font-semibold">{usdtBalance ? (Number(usdtBalance) / 1e6).toFixed(2) : "0.00"} USDT</span>
+                <span className="font-semibold">{usdtBalance ? (Number(usdtBalance) / 1e6).toFixed(2) : "0.00"} USDT0</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">合约地址</span>
@@ -738,7 +738,7 @@ export function StakeView() {
             </div>
             <DialogTitle className="text-xl">质押成功</DialogTitle>
             <DialogDescription className="text-base">
-              已成功充值 {depositSuccessInfo?.amountUsdt ?? amount.toLocaleString()} USDT 到合约。
+              已成功充值 {depositSuccessInfo?.amountUsdt ?? amount.toLocaleString()} USDT0 到合约。
             </DialogDescription>
           </DialogHeader>
           <div className="px-6 pb-2">

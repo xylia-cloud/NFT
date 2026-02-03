@@ -70,7 +70,7 @@ export function WalletView() {
         id: Date.now(),
         type: "reinvest",
         amount: amount.toFixed(2),
-        currency: "USDT",
+        currency: "USDT0",
         date: formatDate(),
         status: "completed"
       },
@@ -88,15 +88,15 @@ export function WalletView() {
 
   // 模拟交易记录数据（含领袖奖励）
   const [transactions, setTransactions] = useState([
-    { id: 1, type: "stake", amount: "5,000.00", currency: "USDT", date: `${currentMonth}-15 14:30`, status: "completed" },
-    { id: 2, type: "interest", amount: "12.50", currency: "USDT", date: `${currentMonth}-14 00:00`, status: "completed" },
-    { id: 3, type: "withdraw", amount: "100.00", currency: "USDT", date: `${currentMonth}-12 09:15`, status: "processing" },
-    { id: 4, type: "stake", amount: "2,000.00", currency: "USDT", date: "2024-03-10 16:45", status: "completed" },
-    { id: 5, type: "interest", amount: "10.20", currency: "USDT", date: `${currentMonth}-13 00:00`, status: "completed" },
-    { id: 6, type: "interest", amount: "11.80", currency: "USDT", date: `${currentMonth}-01 00:00`, status: "completed" },
-    { id: 7, type: "leader", amount: "88.00", currency: "USDT", date: `${currentMonth}-10 00:00`, status: "completed" },
-    { id: 8, type: "leader", amount: "56.50", currency: "USDT", date: `${currentMonth}-05 00:00`, status: "completed" },
-    { id: 9, type: "leader", amount: "120.00", currency: "USDT", date: "2024-12-28 00:00", status: "completed" },
+    { id: 1, type: "stake", amount: "5,000.00", currency: "USDT0", date: `${currentMonth}-15 14:30`, status: "completed" },
+    { id: 2, type: "interest", amount: "12.50", currency: "USDT0", date: `${currentMonth}-14 00:00`, status: "completed" },
+    { id: 3, type: "withdraw", amount: "100.00", currency: "USDT0", date: `${currentMonth}-12 09:15`, status: "processing" },
+    { id: 4, type: "stake", amount: "2,000.00", currency: "USDT0", date: "2024-03-10 16:45", status: "completed" },
+    { id: 5, type: "interest", amount: "10.20", currency: "USDT0", date: `${currentMonth}-13 00:00`, status: "completed" },
+    { id: 6, type: "interest", amount: "11.80", currency: "USDT0", date: `${currentMonth}-01 00:00`, status: "completed" },
+    { id: 7, type: "leader", amount: "88.00", currency: "USDT0", date: `${currentMonth}-10 00:00`, status: "completed" },
+    { id: 8, type: "leader", amount: "56.50", currency: "USDT0", date: `${currentMonth}-05 00:00`, status: "completed" },
+    { id: 9, type: "leader", amount: "120.00", currency: "USDT0", date: "2024-12-28 00:00", status: "completed" },
   ]);
 
   // 从交易记录提取每日收支数据
@@ -146,7 +146,7 @@ export function WalletView() {
           </div>
           <CardContent className="p-6 text-black">
             <div className="space-y-1">
-              <span className="text-sm font-medium">总资产估值 (USDT)</span>
+              <span className="text-sm font-medium">总资产估值 (USDT0)</span>
               <p className="text-xs opacity-80 mt-0.5">充币请走 Plasma 网络</p>
               <div className="flex items-baseline gap-3">
                 <span className="text-4xl font-bold tracking-tight tabular-nums">
@@ -217,7 +217,7 @@ export function WalletView() {
                   {reinvestAmount}
                 </span>
                 <span className="text-xs font-medium text-muted-foreground mt-1 bg-secondary/50 px-3 py-1 rounded-full border border-border/50">
-                  USDT
+                  USDT0
                 </span>
               </div>
               <Button
@@ -293,13 +293,13 @@ export function WalletView() {
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-muted-foreground">收入</span>
                     <span className="text-base font-bold text-primary">
-                      +{selectedDateFlow.income.toFixed(2)} USDT
+                      +{selectedDateFlow.income.toFixed(2)} USDT0
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-muted-foreground">支出</span>
                     <span className="text-base font-bold text-orange-500">
-                      -{selectedDateFlow.expense.toFixed(2)} USDT
+                      -{selectedDateFlow.expense.toFixed(2)} USDT0
                     </span>
                   </div>
                 </div>

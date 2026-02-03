@@ -12,7 +12,7 @@ export function StakeOrdersView() {
     await new Promise((resolve) => setTimeout(resolve, 2000));
     setStakeOrders((prev) => prev.filter((o) => o.id !== order.id));
     setWithdrawingOrderId(null);
-    alert(`已提取本金 ${order.amount.toLocaleString()} USDT 至钱包 (模拟)`);
+    alert(`已提取本金 ${order.amount.toLocaleString()} USDT0 至钱包 (模拟)`);
   };
 
   return (

@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { useAccount } from "wagmi";
 import { Wallet, Trophy, TrendingUp, CalendarDays, Gift, Loader2, CheckCircle2, ArrowRight } from "lucide-react";
+import iconManager from "@/assets/images/icon-manager.webp";
 
 // 模拟用户数据
 const MOCK_USER = {
@@ -82,28 +83,27 @@ export function LeaderRewardView() {
   }
 
   return (
-    <div className="space-y-6 pb-20 animate-in fade-in duration-500 max-w-4xl mx-auto pt-6">
-      {/* 领袖状态卡片 */}
-      <Card className="bg-primary/5 border-primary/10 shadow-sm overflow-hidden relative">
-        <div className="absolute top-0 right-0 p-4 opacity-5">
-          <Trophy className="h-24 w-24 -mr-6 -mt-6 rotate-12" />
-        </div>
-        <CardContent className="p-6">
-          <div className="space-y-1">
-            <span className="text-sm font-medium text-muted-foreground">领袖状态</span>
-            <div className="flex items-baseline gap-3">
-              <span className="text-4xl font-bold tracking-tight text-primary tabular-nums">
-                {isLeader ? "已激活" : "未激活"}
-              </span>
-              {isLeader ? (
-                <Badge className="bg-primary text-primary-foreground">+10% 收益加成</Badge>
-              ) : (
-                <Badge variant="outline">普通用户</Badge>
-              )}
-            </div>
+    <div className="space-y-6 pb-20 animate-in fade-in duration-500 max-w-4xl mx-auto pt-5">
+      {/* 领袖状态卡片 - 仅激活后显示 */}
+      {isLeader && (
+        <Card className="bg-primary/5 border-primary/10 shadow-sm overflow-hidden relative">
+          <div className="absolute top-0 right-0 p-4 opacity-5">
+            <Trophy className="h-24 w-24 -mr-6 -mt-6 rotate-12" />
           </div>
-        </CardContent>
-      </Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between gap-4">
+              <div className="space-y-1 min-w-0">
+                <span className="text-sm font-medium text-muted-foreground">领袖状态</span>
+                <div className="flex items-baseline gap-3">
+                  <span className="text-4xl font-bold tracking-tight text-primary tabular-nums">已激活</span>
+                  <Badge className="bg-primary text-primary-foreground">+10% 收益加成</Badge>
+                </div>
+              </div>
+              <img src={iconManager} alt="领袖" className="h-14 w-14 object-contain shrink-0" />
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* 领袖收益概览 */}
       {isLeader ? (
@@ -118,7 +118,7 @@ export function LeaderRewardView() {
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">累计领袖奖励</p>
-                    <p className="text-xl font-bold text-primary">+{MOCK_USER.totalLeaderRewards.toFixed(2)} USDT</p>
+                    <p className="text-xl font-bold text-primary">+{MOCK_USER.totalLeaderRewards.toFixed(2)} USDT00</p>
                   </div>
                 </div>
               </CardContent>
@@ -159,7 +159,7 @@ export function LeaderRewardView() {
                     </p>
                     <div className="flex items-center gap-2">
                       <span className="text-2xl font-bold text-primary">
-                        +{selectedDateReward.toFixed(2)} USDT
+                        +{selectedDateReward.toFixed(2)} USDT0
                       </span>
                       <Badge variant="outline" className="text-xs">额外10%收益</Badge>
                     </div>
@@ -171,16 +171,19 @@ export function LeaderRewardView() {
         </>
       ) : (
         /* 升级领袖 */
-        <Card className="border-border/40 shadow-sm">
-          <CardContent className="p-6 space-y-6">
-            <div className="text-center space-y-2">
-              <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary mx-auto">
-                <Trophy className="h-6 w-6" />
+        <Card className="border-border/40 shadow-sm overflow-hidden relative bg-gradient-to-br from-primary/5 to-primary/10">
+          <div className="absolute top-0 right-0 p-8 opacity-10">
+            <Trophy className="h-32 w-32 -mr-8 -mt-8 rotate-12" />
+          </div>
+          <CardContent className="p-8 space-y-6 relative">
+            <div className="text-center space-y-4">
+              <div className="h-20 w-20 rounded-2xl bg-primary/20 flex items-center justify-center text-primary mx-auto border-2 border-primary/30">
+                <Trophy className="h-10 w-10" />
               </div>
-              <h3 className="text-lg font-bold">升级为领袖</h3>
-              <p className="text-sm text-muted-foreground">
-                领袖可享受额外 10% 收益加成，收益每日发放
-              </p>
+              <div className="space-y-2">
+                <h3 className="text-2xl font-bold">升级为领袖</h3>
+                <p className="text-sm text-muted-foreground">解锁额外收益加成，享受专属权益</p>
+              </div>
             </div>
 
             <div className="space-y-3">
@@ -192,21 +195,6 @@ export function LeaderRewardView() {
                 onChange={(e) => setInviteCode(e.target.value)}
                 className="h-12"
               />
-            </div>
-
-            <div className="rounded-xl bg-muted/30 p-4 space-y-2">
-              <div className="flex items-start gap-2 text-sm text-muted-foreground">
-                <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5 text-primary" />
-                <span>升级后立即享受额外 10% 收益</span>
-              </div>
-              <div className="flex items-start gap-2 text-sm text-muted-foreground">
-                <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5 text-primary" />
-                <span>可查看每日领袖奖励明细</span>
-              </div>
-              <div className="flex items-start gap-2 text-sm text-muted-foreground">
-                <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5 text-primary" />
-                <span>团队成员越多，奖励越丰厚</span>
-              </div>
             </div>
 
             <Button
@@ -230,33 +218,54 @@ export function LeaderRewardView() {
         </Card>
       )}
 
-      {/* 领袖说明 */}
-      <Card className="border-border/40 shadow-sm">
-        <CardContent className="p-4">
-          <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
-            <Trophy className="h-4 w-4 text-primary" />
-            领袖权益说明
-          </h4>
-          <div className="space-y-3 text-sm text-muted-foreground">
-            <div className="flex items-start gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-primary mt-2 shrink-0" />
-              <span>领袖在基础收益上额外获得 10% 收益加成</span>
+      {/* 领袖说明 - 仅激活后显示 */}
+      {isLeader && (
+        <>
+          <p className="text-sm text-muted-foreground">
+            领袖可享受额外 10% 收益加成，收益每日发放
+          </p>
+          <div className="rounded-xl bg-muted/30 p-4 space-y-2">
+            <div className="flex items-start gap-2 text-sm text-muted-foreground">
+              <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5 text-primary" />
+              <span>升级后立即享受额外 10% 收益</span>
             </div>
-            <div className="flex items-start gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-primary mt-2 shrink-0" />
-              <span>每日收益自动结算，可在日历中查看明细</span>
+            <div className="flex items-start gap-2 text-sm text-muted-foreground">
+              <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5 text-primary" />
+              <span>可查看每日领袖奖励明细</span>
             </div>
-            <div className="flex items-start gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-primary mt-2 shrink-0" />
-              <span>邀请码由管理员发放，升级后立即生效</span>
-            </div>
-            <div className="flex items-start gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-primary mt-2 shrink-0" />
-              <span>领袖奖励可随时提取至钱包</span>
+            <div className="flex items-start gap-2 text-sm text-muted-foreground">
+              <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5 text-primary" />
+              <span>团队成员越多，奖励越丰厚</span>
             </div>
           </div>
-        </CardContent>
-      </Card>
+          <Card className="border-border/40 shadow-sm">
+            <CardContent className="p-4">
+              <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                <Trophy className="h-4 w-4 text-primary" />
+                领袖权益说明
+              </h4>
+              <div className="space-y-3 text-sm text-muted-foreground">
+                <div className="flex items-start gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary mt-2 shrink-0" />
+                  <span>领袖在基础收益上额外获得 10% 收益加成</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary mt-2 shrink-0" />
+                  <span>每日收益自动结算，可在日历中查看明细</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary mt-2 shrink-0" />
+                  <span>邀请码由管理员发放，升级后立即生效</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary mt-2 shrink-0" />
+                  <span>领袖奖励可随时提取至钱包</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </>
+      )}
 
       {/* 升级成功弹窗 */}
       <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>

@@ -10,6 +10,7 @@ import {
   Target,
   TrendingUp,
   CalendarDays,
+  Wallet,
 } from "lucide-react";
 
 export function TeamView() {
@@ -20,9 +21,10 @@ export function TeamView() {
     activeMembers: 45,
     totalCommission: "2,450.00",
     todayCommission: "+125.80",
-    level: "Lv.3 黄金合伙人",
     level1Members: 80,
-    level2Members: 48
+    level2Members: 48,
+    totalPerformance: "125,000.00", // 团队总业绩
+    myAccountBalance: "12,845.80", // 本人账户金额
   };
 
   // 模拟每日团队业绩（佣金）
@@ -64,8 +66,41 @@ export function TeamView() {
   ];
 
   return (
-    <div className="space-y-6 pb-20 animate-in fade-in duration-500 max-w-4xl mx-auto pt-4">
-      {/* 1. 团队数据统计 (Grid) */}
+    <div className="space-y-4 pb-20 animate-in fade-in duration-500 max-w-4xl mx-auto pt-4">
+      {/* 1. 团队总业绩、本人账户金额 */}
+      <div className="grid grid-cols-2 gap-4">
+        {/* 团队总业绩 */}
+        <Card className="shadow-sm border-border/60">
+          <CardContent className="p-4 flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-muted-foreground">团队总业绩</span>
+              <Badge className="bg-primary text-primary-foreground text-[10px] h-5 px-2">
+                A3
+              </Badge>
+            </div>
+            <div>
+              <div className="text-xl font-bold tracking-tight">{teamStats.totalPerformance} <span className="text-[10px] font-normal text-muted-foreground">USDT0</span></div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 本人账户金额 */}
+        <Card className="shadow-sm border-border/60">
+          <CardContent className="p-4 flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-muted-foreground">本人账户金额</span>
+              <div className="p-1.5 rounded-full bg-primary/10 text-primary">
+                <Wallet className="h-3.5 w-3.5" />
+              </div>
+            </div>
+            <div>
+              <div className="text-xl font-bold tracking-tight">{teamStats.myAccountBalance} <span className="text-[10px] font-normal text-muted-foreground">USDT0</span></div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* 2. 团队数据统计 (Grid) */}
       <div className="grid grid-cols-2 gap-4">
         {/* 成员统计卡片 */}
         <Card className="shadow-sm border-border/60">
@@ -95,11 +130,11 @@ export function TeamView() {
         {/* 佣金统计卡片 */}
         <Card className="shadow-sm border-border/60">
           <CardContent className="p-4 flex flex-col gap-2">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-muted-foreground">累计佣金</span>
               <div className="p-1.5 rounded-full bg-orange-500/10 text-orange-500">
                 <Target className="h-3.5 w-3.5" />
               </div>
-              <span className="text-xs font-medium text-muted-foreground">累计佣金</span>
             </div>
             <div>
               <div className="text-xl font-bold tracking-tight text-orange-600">{teamStats.totalCommission}</div>
@@ -117,7 +152,7 @@ export function TeamView() {
         </Card>
       </div>
 
-      {/* 2. 团队业绩日历 */}
+      {/* 3. 团队业绩日历 */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold tracking-tight px-1 flex items-center gap-2">
           <CalendarDays className="h-5 w-5 text-primary" />
@@ -146,7 +181,7 @@ export function TeamView() {
                     +{selectedDateCommission.toFixed(2)} USDT
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    (领袖奖励 +{(selectedDateCommission * 0.1).toFixed(2)} USDT)
+                    (领袖奖励 +{(selectedDateCommission * 0.1).toFixed(2)} USDT0)
                   </span>
                 </div>
               </div>
@@ -155,7 +190,7 @@ export function TeamView() {
         </Card>
       </div>
 
-      {/* 3. 成员列表 (Tabs & List) */}
+      {/* 4. 成员列表 (Tabs & List) */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold tracking-tight px-1 flex items-center gap-2">
           <Users className="h-5 w-5 text-primary" />
@@ -200,10 +235,7 @@ export function TeamView() {
                     </div>
                     
                     <div className="text-right">
-                      <div className="text-sm font-bold text-foreground">{member.stake} <span className="text-[10px] font-normal text-muted-foreground">USDT</span></div>
-                      <div className="text-[10px] text-muted-foreground mt-0.5">
-                        贡献佣金: <span className="text-orange-500 font-medium">+{member.commission}</span>
-                      </div>
+                      <div className="text-sm font-bold text-foreground">{member.stake} <span className="text-[10px] font-normal text-muted-foreground">USDT0</span></div>
                     </div>
                   </div>
                 ))}

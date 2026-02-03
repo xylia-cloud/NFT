@@ -1,15 +1,25 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Share2, Trophy, Twitter, Send } from "lucide-react";
+import { Share2, Trophy, Twitter, Send, User } from "lucide-react";
 import { useState } from "react";
+import { useAccount } from "wagmi";
 
 export function InviteView() {
+  const { address } = useAccount();
   const [copied, setCopied] = useState(false);
   const inviteLink = "https://plasma.to/register?code=PLM888";
+  // 模拟上级用户钱包地址
+  const parentAddress = "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb";
 
   const handleCopy = () => {
     navigator.clipboard.writeText(inviteLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleCopyParentAddress = () => {
+    navigator.clipboard.writeText(parentAddress);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -27,7 +37,6 @@ export function InviteView() {
         <CardContent className="p-6 relative z-10">
           <div className="flex justify-between items-start mb-6">
             <div>
-              <h2 className="text-2xl font-bold tracking-tight">邀请好友</h2>
               <p className="text-primary-foreground/80 text-sm mt-1">赚取高达 15% 的质押佣金</p>
             </div>
             <Badge variant="secondary" className="bg-white/20 hover:bg-white/30 text-white border-transparent backdrop-blur-sm">
@@ -54,31 +63,45 @@ export function InviteView() {
                 <Button 
                   size="sm" 
                   variant="secondary" 
-                  className="h-8 shrink-0 bg-white text-primary hover:bg-white/90 font-medium"
+                  className="h-8 shrink-0 bg-white/20 hover:bg-white/30 text-white border border-white/20 backdrop-blur-sm font-medium"
                   onClick={handleCopy}
                 >
                   {copied ? "已复制" : "复制"}
-                </Button>
-                <Button 
-                  size="icon" 
-                  variant="ghost" 
-                  className="h-8 w-8 shrink-0 text-white hover:bg-white/20"
-                >
-                  <Share2 className="h-4 w-4" />
                 </Button>
               </div>
 
               {/* Social Share Buttons */}
               <div className="flex gap-3">
-                <Button variant="secondary" className="flex-1 bg-[#1DA1F2] hover:bg-[#1DA1F2]/90 text-white border-none h-9">
+                <Button variant="secondary" className="flex-1 bg-white/20 hover:bg-white/30 text-white border border-white/20 backdrop-blur-sm h-9">
                   <Twitter className="h-4 w-4 mr-2" />
                   Twitter
                 </Button>
-                <Button variant="secondary" className="flex-1 bg-[#0088cc] hover:bg-[#0088cc]/90 text-white border-none h-9">
+                <Button variant="secondary" className="flex-1 bg-white/20 hover:bg-white/30 text-white border border-white/20 backdrop-blur-sm h-9">
                   <Send className="h-4 w-4 mr-2" />
                   Telegram
                 </Button>
               </div>
+            </div>
+          </div>
+
+          {/* 上级用户钱包地址 */}
+          <div className="mt-6 pt-6 border-t border-white/20">
+            <div className="flex items-center gap-2 mb-2">
+              <User className="h-4 w-4 text-white/80" />
+              <span className="text-sm text-white/80">上级用户</span>
+            </div>
+            <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 flex items-center gap-3 border border-white/10">
+              <div className="flex-1 truncate text-sm font-mono text-white/90">
+                {parentAddress}
+              </div>
+              <Button 
+                size="sm" 
+                variant="secondary" 
+                className="h-8 shrink-0 bg-white/20 hover:bg-white/30 text-white border border-white/20 backdrop-blur-sm font-medium"
+                onClick={handleCopyParentAddress}
+              >
+                {copied ? "已复制" : "复制"}
+              </Button>
             </div>
           </div>
         </CardContent>

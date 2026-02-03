@@ -8,6 +8,8 @@ import { Wallet, ArrowDownToLine, Shield, AlertCircle, Loader2, History } from "
 
 // 模拟可提取金额
 const WITHDRAWABLE_AMOUNT = 12500;
+// USDT0 兑 XPL 参考汇率（示例：1 USDT0 ≈ 10 XPL，可按实际接口替换）
+const USDT0_TO_XPL_RATE = 10;
 
 export function WithdrawView() {
   const { isConnected } = useAccount();
@@ -21,6 +23,8 @@ export function WithdrawView() {
 
   const inputAmount = parseFloat(amount);
   const isValidAmount = !isNaN(inputAmount) && inputAmount > 0 && inputAmount <= WITHDRAWABLE_AMOUNT;
+  // 根据输入的 USDT0 实时估算约等于的 XPL 数量
+  const estimatedXpl = isNaN(inputAmount) || inputAmount <= 0 ? 0 : inputAmount * USDT0_TO_XPL_RATE;
 
   const handleWithdraw = async () => {
     if (!isValidAmount) return;
@@ -28,7 +32,7 @@ export function WithdrawView() {
     await new Promise(resolve => setTimeout(resolve, 2000));
     setIsWithdrawing(false);
     setAmount("");
-    alert(`成功提现 ${inputAmount} USDT 至钱包 (模拟)`);
+    alert(`成功提现 ${inputAmount} USDT0 至钱包 (模拟)`);
   };
 
   if (!isConnected) {
@@ -49,7 +53,7 @@ export function WithdrawView() {
         </div>
         <CardContent className="p-6">
           <div className="space-y-1">
-            <span className="text-sm font-medium text-muted-foreground">可提取金额 (USDT)</span>
+            <span className="text-sm font-medium text-muted-foreground">可提取金额 (USDT0)</span>
             <div className="flex items-baseline gap-3">
               <span className="text-4xl font-bold tracking-tight text-primary tabular-nums">
                 {WITHDRAWABLE_AMOUNT.toLocaleString()}
@@ -74,7 +78,7 @@ export function WithdrawView() {
                 className="h-12 text-lg pr-16"
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                USDT
+                USDT0
               </div>
             </div>
             <div className="flex items-center justify-between text-xs">
@@ -86,9 +90,14 @@ export function WithdrawView() {
                 全部提取
               </button>
               <span className="text-muted-foreground">
-                最小提取: 100 USDT
+                最小提取: 100 USDT0
               </span>
             </div>
+            {inputAmount > 0 && (
+              <p className="text-sm text-muted-foreground">
+                约 <span className="font-semibold text-foreground tabular-nums">{estimatedXpl.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span> XPL
+              </p>
+            )}
           </div>
 
           {/* 快捷金额 */}
@@ -112,7 +121,7 @@ export function WithdrawView() {
           <div className="rounded-xl bg-muted/30 p-4 space-y-2">
             <div className="flex items-start gap-2 text-sm text-muted-foreground">
               <Shield className="h-4 w-4 shrink-0 mt-0.5 text-primary" />
-              <span>提现手续费 1 USDT，24小时到账</span>
+              <span>提现手续费 1 USDT0，24小时到账</span>
             </div>
             <div className="flex items-start gap-2 text-sm text-muted-foreground">
               <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
@@ -133,7 +142,7 @@ export function WithdrawView() {
             ) : (
               <>
                 <ArrowDownToLine className="h-4 w-4 mr-2" />
-                确认提现 {isValidAmount ? `${inputAmount.toLocaleString()} USDT` : ""}
+                确认提现 {isValidAmount ? `${inputAmount.toLocaleString()} USDT0` : ""}
               </>
             )}
           </Button>
@@ -161,7 +170,7 @@ export function WithdrawView() {
                 </div>
                 <div className="text-right">
                   <div className="font-bold text-sm text-foreground">
-                    -{item.amount.toLocaleString()} <span className="text-xs font-normal text-muted-foreground">USDT</span>
+                    -{item.amount.toLocaleString()} <span className="text-xs font-normal text-muted-foreground">USDT0</span>
                   </div>
                   <div className="text-[10px] text-muted-foreground">已完成</div>
                 </div>
