@@ -18,8 +18,7 @@ import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { id: "home", label: "首页", icon: Home },
-  { id: "wallet", label: "钱包", icon: CreditCard },
-  { id: "withdraw", label: "提现", icon: LogOut },
+  { id: "wallet", label: "我的钱包", icon: CreditCard },
   { id: "leader", label: "领袖奖励", icon: Trophy },
   { id: "orders", label: "质押订单", icon: PiggyBank },
   { id: "team", label: "我的团队", icon: Users },

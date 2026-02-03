@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Plus, Minus, Loader2, Wallet, TrendingUp, Shield, Users, Activity, Zap, ChevronRight, Lock, PiggyBank, Calendar, Unlock, Clock, ArrowDownToLine, AlertTriangle } from "lucide-react";
+import { Plus, Minus, Loader2, Wallet, TrendingUp, Shield, Users, Activity, Zap, ChevronRight, Lock, PiggyBank, Calendar, Unlock, Clock, ArrowDownToLine, AlertTriangle, Twitter, ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -208,6 +208,7 @@ export function StakeView() {
   const [showStakeConfirmDialog, setShowStakeConfirmDialog] = useState(false);
   const [showTxErrorDialog, setShowTxErrorDialog] = useState(false);
   const [txErrorInfo, setTxErrorInfo] = useState<{ title: string; description: string; detail?: string } | null>(null);
+  const [showBackToTop, setShowBackToTop] = useState(false);
 
   const partnersRow1 = [partner1, partner2, partner3, partner4, partner5];
   const partnersRow2 = [partner6, partner7, partner8, partner9, partner10];
@@ -220,6 +221,14 @@ export function StakeView() {
         setMounted(true);
     }, 0)
     return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const main = document.querySelector("main");
+    if (!main) return;
+    const onScroll = () => setShowBackToTop(main.scrollTop > 300);
+    main.addEventListener("scroll", onScroll, { passive: true });
+    return () => main.removeEventListener("scroll", onScroll);
   }, []);
 
   // 当 approve 交易确认后，自动调用 depositUsdt
@@ -828,6 +837,36 @@ export function StakeView() {
           </div>
         </div>
       </div>
+
+      {/* 6. PLASMA 官方社交媒体 */}
+      <div className="mt-8 pt-6 border-t border-border/40 flex justify-center">
+        <a
+          href="https://x.com/Plasma"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="h-10 w-10 rounded-xl border border-border/50 bg-card/40 flex items-center justify-center text-black hover:opacity-80 transition-opacity"
+          aria-label="X (Twitter)"
+        >
+          <Twitter className="h-5 w-5" />
+        </a>
+      </div>
+
+      {/* 返回顶部 - 下滑时显示 */}
+      {showBackToTop && (
+        <button
+          type="button"
+          onClick={() => {
+          document.querySelector("main")?.scrollTo({ top: 0, behavior: "smooth" });
+          window.scrollTo({ top: 0, behavior: "smooth" });
+          document.documentElement.scrollTo({ top: 0, behavior: "smooth" });
+          document.body.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+          className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 h-10 w-10 rounded-xl border border-border/50 bg-background/90 backdrop-blur-md flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/50 transition-colors shadow-sm z-40 animate-in fade-in slide-in-from-bottom-2 duration-200"
+          aria-label="返回顶部"
+        >
+          <ArrowUp className="h-5 w-5" />
+        </button>
+      )}
 
     </div>
   );

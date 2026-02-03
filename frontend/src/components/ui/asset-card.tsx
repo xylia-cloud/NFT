@@ -17,6 +17,8 @@ export interface AssetCardProps {
     isReinvesting: boolean;
     onReinvest: () => void;
   };
+  /** 点击提现时回调，不传则不显示提现按钮 */
+  onWithdraw?: () => void;
 }
 
 export function AssetCard({
@@ -27,6 +29,7 @@ export function AssetCard({
   iconColor = "text-blue-500",
   subtitle,
   reinvest,
+  onWithdraw,
 }: AssetCardProps) {
   return (
     <Card className="border-border/40 shadow-sm bg-card/50">
@@ -38,35 +41,8 @@ export function AssetCard({
             </div>
             <span className="text-xs font-medium">{title}</span>
           </div>
-          {reinvest && (
-            <div className="relative h-7 w-7 shrink-0">
-              <svg viewBox="0 0 36 36" className="h-full w-full -rotate-90">
-                <circle
-                  cx="18"
-                  cy="18"
-                  r="14"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  className="text-muted/30"
-                />
-                <circle
-                  cx="18"
-                  cy="18"
-                  r="14"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeDasharray={88}
-                  strokeDashoffset={88 * (1 - Math.min(reinvest.progress / reinvest.threshold, 1))}
-                  className="text-primary transition-all duration-500"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </div>
-          )}
         </div>
-        <div className="flex items-center justify-between gap-2">
+        <div className="space-y-3">
           <div>
             <div className="text-2xl font-bold tracking-tight text-foreground">{amount}</div>
             {subtitle && (
@@ -75,16 +51,30 @@ export function AssetCard({
               </div>
             )}
           </div>
-          {reinvest && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 px-2.5 text-xs text-muted-foreground hover:text-foreground shrink-0 self-end"
-              disabled={!reinvest.canReinvest || reinvest.isReinvesting}
-              onClick={reinvest.onReinvest}
-            >
-              {reinvest.isReinvesting ? "处理中" : reinvest.canReinvest ? "复投" : "满100"}
-            </Button>
+          {(reinvest || onWithdraw) && (
+            <div className="flex items-center gap-2 w-full">
+              {reinvest && (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="h-8 flex-1 min-w-0 text-xs"
+                  disabled={!reinvest.canReinvest || reinvest.isReinvesting}
+                  onClick={reinvest.onReinvest}
+                >
+                  {reinvest.isReinvesting ? "处理中" : "复投"}
+                </Button>
+              )}
+              {onWithdraw && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 flex-1 min-w-0 text-xs"
+                  onClick={onWithdraw}
+                >
+                  提现
+                </Button>
+              )}
+            </div>
           )}
         </div>
       </CardContent>
