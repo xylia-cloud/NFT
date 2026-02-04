@@ -10,11 +10,12 @@ import { LeaderRewardView } from '@/components/features/leader/LeaderRewardView'
 import { TeamView } from '@/components/features/team/TeamView';
 import { InviteView } from '@/components/features/invite/InviteView';
 import { HelpCenterView } from '@/components/features/profile/HelpCenterView';
+import { AboutView } from '@/components/features/about/AboutView';
 import { Button } from '@/components/ui/button';
 import { Wallet, X } from 'lucide-react';
 
 const VOCECHAT_URL = "http://67.215.229.143:3009";
-const VALID_TABS = ['home', 'wallet', 'withdraw', 'leader', 'team', 'invite', 'help-center', 'orders'] as const;
+const VALID_TABS = ['home', 'wallet', 'withdraw', 'leader', 'team', 'invite', 'help-center', 'orders', 'about'] as const;
 
 function ConnectWalletGate() {
   return (
@@ -85,6 +86,8 @@ export default function App() {
         return <HelpCenterView />;
       case "orders":
         return isConnected ? <StakeOrdersView /> : <ConnectWalletGate />;
+      case "about":
+        return <AboutView />;
       default:
         return <StakeView />;
     }

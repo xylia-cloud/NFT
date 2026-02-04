@@ -146,12 +146,10 @@ export function Header({ title, showBack, onBack, currentTab, onTabChange, onOpe
                     const Icon = item.icon;
                     const isActive = currentTab === item.id;
                     const onClick =
-                      item.id === "about"
-                        ? () => {}
-                        : () => {
-                            onTabChange?.(item.id);
-                            setIsMenuOpen(false);
-                          };
+                      () => {
+                        onTabChange?.(item.id);
+                        setIsMenuOpen(false);
+                      };
                     return (
                       <button
                         key={item.id}

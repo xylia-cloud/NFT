@@ -91,7 +91,8 @@ export function ProfileView({ onNavigate }: { onNavigate?: (tab: string) => void
       icon: Building2,
       color: "text-indigo-500",
       bg: "bg-indigo-500/10",
-      desc: "了解平台背景"
+      desc: "了解平台背景",
+      action: () => onNavigate?.('about')
     },
     {
       title: "帮助中心",
