@@ -9,9 +9,6 @@ interface MainLayoutProps {
 }
 
 export function MainLayout({ children, currentTab, onTabChange, onOpenCustomerService }: MainLayoutProps) {
-  // 判断是否为二级页面
-  const isSecondaryPage = ['team', 'invite', 'help-center', 'orders'].includes(currentTab);
-  
   const getPageTitle = () => {
     switch(currentTab) {
       case 'team': return '我的团队';
@@ -30,7 +27,7 @@ export function MainLayout({ children, currentTab, onTabChange, onOpenCustomerSe
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans">
       <Header 
         title={getPageTitle()} 
-        showBack={isSecondaryPage} 
+        showBack={false} 
         onBack={handleBack}
         currentTab={currentTab}
         onTabChange={onTabChange}

@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 import '@rainbow-me/rainbowkit/styles.css'
-import { RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit'
+import { RainbowKitProvider, lightTheme } from '@rainbow-me/rainbowkit'
 import { WagmiProvider } from 'wagmi'
 import { config } from './wagmiConfig'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -15,8 +15,8 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-          <RainbowKitProvider theme={darkTheme()}>
+        <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+          <RainbowKitProvider theme={lightTheme()}>
             <App />
           </RainbowKitProvider>
         </ThemeProvider>

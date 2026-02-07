@@ -1,6 +1,7 @@
 import { type LucideIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Usdt0 } from "@/components/ui/usdt0";
 
 export interface AssetCardProps {
   title: string;
@@ -44,7 +45,10 @@ export function AssetCard({
         </div>
         <div className="space-y-3">
           <div>
-            <div className="text-2xl font-bold tracking-tight text-foreground">{amount}</div>
+            <div className="text-2xl font-bold tracking-tight text-foreground inline-flex items-center gap-2">
+            <Usdt0 iconSize="default" iconOnly />
+            {amount}
+          </div>
             {subtitle && (
               <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
                 {subtitle}

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import logoWhite from "@/assets/images/logo-white.svg";
 import logoDark from "@/assets/images/logo-dark.svg";
-import { Globe, ChevronLeft, Wallet, Menu, X, Home, CreditCard, Users, Share2, HelpCircle, HeadphonesIcon, Lock, Building2, LogOut, Trophy, PiggyBank } from "lucide-react";
+import { Globe, ChevronLeft, Wallet, Menu, X, Home, CreditCard, Users, Share2, HelpCircle, HeadphonesIcon, Building2, LogOut, Trophy, PiggyBank } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useAccount, useDisconnect } from "wagmi";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { cn } from "@/lib/utils";
@@ -66,9 +65,11 @@ export function Header({ title, showBack, onBack, currentTab, onTabChange, onOpe
               </Button>
               <span className="text-lg font-bold">{title}</span>
             </div>
-          ) : (
-            <img src={logo} alt="PLASMA Logo" className="h-6" />
-          )}
+          ) : title ? (
+              <span className="text-lg font-bold">{title}</span>
+            ) : (
+              <img src={logo} alt="PLASMA Logo" className="h-6" />
+            )}
         </div>
         <div className="flex items-center gap-2">
           <ConnectButton.Custom>

@@ -16,11 +16,11 @@ export function StakeOrdersView() {
   };
 
   return (
-    <div className="space-y-4 max-w-3xl mx-auto pb-16">
+    <div className="space-y-4 max-w-3xl mx-auto pb-16 pt-4">
       {stakeOrders.length > 0 ? (
         <div className="space-y-4">
           {stakeOrders.map((order) => (
-            <div key={order.id} className="rounded-xl border border-border/40 bg-card/50 overflow-hidden">
+            <div key={order.id} className="rounded-xl border border-border/70 bg-card/50 overflow-hidden">
               <StakeOrderItem
                 order={order}
                 onWithdraw={handleWithdrawStakeOrder}
@@ -30,7 +30,7 @@ export function StakeOrdersView() {
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center py-16 text-muted-foreground rounded-xl border border-dashed border-border/40">
+        <div className="flex flex-col items-center justify-center py-16 text-muted-foreground rounded-xl border border-dashed border-border/70">
           <PiggyBank className="h-12 w-12 opacity-20 mb-3" />
           <p className="text-sm">暂无质押订单</p>
           <p className="text-xs mt-1">完成首次质押后订单将显示在此处</p>

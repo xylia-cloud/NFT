@@ -12,6 +12,7 @@ import {
   CalendarDays,
   Wallet,
 } from "lucide-react";
+import { Usdt0 } from "@/components/ui/usdt0";
 
 export function TeamView() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -79,7 +80,7 @@ export function TeamView() {
               </Badge>
             </div>
             <div>
-              <div className="text-xl font-bold tracking-tight">{teamStats.totalPerformance} <span className="text-[10px] font-normal text-muted-foreground">USDT0</span></div>
+              <div className="text-xl font-bold tracking-tight inline-flex items-center gap-1.5"><Usdt0 iconSize="sm" iconOnly />{teamStats.totalPerformance}</div>
             </div>
           </CardContent>
         </Card>
@@ -94,7 +95,7 @@ export function TeamView() {
               </div>
             </div>
             <div>
-              <div className="text-xl font-bold tracking-tight">{teamStats.myAccountBalance} <span className="text-[10px] font-normal text-muted-foreground">USDT0</span></div>
+              <div className="text-xl font-bold tracking-tight inline-flex items-center gap-1.5"><Usdt0 iconSize="sm" iconOnly />{teamStats.myAccountBalance}</div>
             </div>
           </CardContent>
         </Card>
@@ -137,7 +138,7 @@ export function TeamView() {
               </div>
             </div>
             <div>
-              <div className="text-xl font-bold tracking-tight text-orange-600">{teamStats.totalCommission}</div>
+              <div className="text-xl font-bold tracking-tight text-orange-600 inline-flex items-center gap-1.5"><Usdt0 iconSize="sm" iconOnly />{teamStats.totalCommission}</div>
               <div className="text-[10px] text-muted-foreground mt-1.5 flex items-center gap-2 flex-wrap">
                 <span className="flex items-center gap-1">
                   <span className="text-primary font-medium flex items-center">
@@ -235,7 +236,7 @@ export function TeamView() {
                     </div>
                     
                     <div className="text-right">
-                      <div className="text-sm font-bold text-foreground">{member.stake} <span className="text-[10px] font-normal text-muted-foreground">USDT0</span></div>
+                      <div className="text-sm font-bold text-foreground inline-flex items-center gap-1">{member.stake} <span className="text-[10px] font-normal text-muted-foreground"><Usdt0 iconSize="sm" /></span></div>
                     </div>
                   </div>
                 ))}

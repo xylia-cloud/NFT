@@ -14,8 +14,9 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { useAccount } from "wagmi";
-import { Wallet, Trophy, TrendingUp, CalendarDays, Gift, Loader2, CheckCircle2, ArrowRight } from "lucide-react";
+import { Wallet, Trophy, CalendarDays, Gift, Loader2, CheckCircle2, ArrowRight } from "lucide-react";
 import iconManager from "@/assets/images/icon-manager.webp";
+import { Usdt0 } from "@/components/ui/usdt0";
 
 // 模拟用户数据
 const MOCK_USER = {
@@ -113,12 +114,12 @@ export function LeaderRewardView() {
             <Card className="border-border/40 shadow-sm">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                    <TrendingUp className="h-5 w-5" />
+                  <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary p-1.5">
+                    <Usdt0 iconSize="lg" iconOnly />
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">累计领袖奖励</p>
-                    <p className="text-xl font-bold text-primary">+{MOCK_USER.totalLeaderRewards.toFixed(2)} USDT00</p>
+                    <p className="text-xl font-bold text-primary inline-flex items-center gap-1.5">+{MOCK_USER.totalLeaderRewards.toFixed(2)} <Usdt0 iconSize="default" /></p>
                   </div>
                 </div>
               </CardContent>

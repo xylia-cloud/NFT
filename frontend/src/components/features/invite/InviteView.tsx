@@ -3,10 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Share2, Trophy, Twitter, Send, User } from "lucide-react";
 import { useState } from "react";
-import { useAccount } from "wagmi";
 
 export function InviteView() {
-  const { address } = useAccount();
   const [copied, setCopied] = useState(false);
   const inviteLink = "https://plasma.to/register?code=PLM888";
   // 模拟上级用户钱包地址

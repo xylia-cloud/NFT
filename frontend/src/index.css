@@ -21,7 +21,7 @@
     --accent-foreground: 0 0% 9%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
+    --border: 0 0% 82%;
     --input: 0 0% 89.8%;
     --ring: 165 93% 23%;
     --radius: 0.5rem;
@@ -111,6 +111,15 @@
   animation: pulse-soft 2s ease-in-out infinite;
 }
 
+/* 隐藏横向滚动条 */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* 合作伙伴 Logo 横向滚动 */
 @keyframes partner-marquee-ltr {
   0% {
@@ -130,9 +139,39 @@
   }
 }
 
+/* 移动端：每次滚动一个 Logo(112px)，滚动后停顿 2s，5 步后循环 */
+@keyframes partner-marquee-mobile-ltr {
+  0% { transform: translateX(0); }
+  2% { transform: translateX(-112px); }
+  20% { transform: translateX(-112px); }
+  22% { transform: translateX(-224px); }
+  40% { transform: translateX(-224px); }
+  42% { transform: translateX(-336px); }
+  60% { transform: translateX(-336px); }
+  62% { transform: translateX(-448px); }
+  80% { transform: translateX(-448px); }
+  82% { transform: translateX(-560px); }
+  100% { transform: translateX(-560px); }
+}
+
+@keyframes partner-marquee-mobile-rtl {
+  0% { transform: translateX(-560px); }
+  2% { transform: translateX(-448px); }
+  20% { transform: translateX(-448px); }
+  22% { transform: translateX(-336px); }
+  40% { transform: translateX(-336px); }
+  42% { transform: translateX(-224px); }
+  60% { transform: translateX(-224px); }
+  62% { transform: translateX(-112px); }
+  80% { transform: translateX(-112px); }
+  82% { transform: translateX(0); }
+  100% { transform: translateX(0); }
+}
+
+/* 合作伙伴 Logo 平滑滚动 */
 .partner-row {
   display: flex;
-  gap: 2rem;
+  gap: 1rem;
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
   animation: partner-marquee-ltr 24s linear infinite;
@@ -141,11 +180,26 @@
 
 .partner-row-reverse {
   display: flex;
-  gap: 2rem;
+  gap: 1rem;
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
   animation: partner-marquee-rtl 24s linear infinite;
   width: max-content;
+}
+
+/* 移动端：每行 3 个 Logo，每次滚动一个，停顿 2s */
+@media (max-width: 767px) {
+  .partner-container {
+    max-width: 320px; /* 3 * 96px + 2 * 16px */
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .partner-row {
+    animation: partner-marquee-mobile-ltr 12s ease-in-out infinite;
+  }
+  .partner-row-reverse {
+    animation: partner-marquee-mobile-rtl 12s ease-in-out infinite;
+  }
 }
 
 /* Gradient Text */

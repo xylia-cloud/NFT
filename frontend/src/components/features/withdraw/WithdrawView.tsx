@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAccount } from "wagmi";
 import { Wallet, ArrowDownToLine, Shield, AlertCircle, Loader2, History } from "lucide-react";
+import { Usdt0 } from "@/components/ui/usdt0";
 
 // 模拟可提取金额
 const WITHDRAWABLE_AMOUNT = 12500;
@@ -55,7 +56,8 @@ export function WithdrawView() {
           <div className="space-y-1">
             <span className="text-sm font-medium text-muted-foreground">可提取金额 (USDT0)</span>
             <div className="flex items-baseline gap-3">
-              <span className="text-4xl font-bold tracking-tight text-primary tabular-nums">
+              <span className="text-4xl font-bold tracking-tight text-primary tabular-nums inline-flex items-center gap-2">
+                <Usdt0 iconSize="lg" iconOnly />
                 {WITHDRAWABLE_AMOUNT.toLocaleString()}
               </span>
             </div>
@@ -169,8 +171,8 @@ export function WithdrawView() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="font-bold text-sm text-foreground">
-                    -{item.amount.toLocaleString()} <span className="text-xs font-normal text-muted-foreground">USDT0</span>
+                  <div className="font-bold text-sm text-foreground inline-flex items-center gap-1">
+                    -{item.amount.toLocaleString()} <span className="text-xs font-normal text-muted-foreground"><Usdt0 iconSize="sm" /></span>
                   </div>
                   <div className="text-[10px] text-muted-foreground">已完成</div>
                 </div>

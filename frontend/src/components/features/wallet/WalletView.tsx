@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Calendar, type FlowByDate } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Usdt0 } from "@/components/ui/usdt0";
 import { 
   ArrowUpRight, 
   ArrowDownLeft, 
@@ -149,7 +150,8 @@ export function WalletView() {
               <span className="text-sm font-medium">总资产估值 (USDT0)</span>
               <p className="text-xs opacity-80 mt-0.5">充币请走 Plasma 网络</p>
               <div className="flex items-baseline gap-3">
-                <span className="text-4xl font-bold tracking-tight tabular-nums">
+                <span className="text-4xl font-bold tracking-tight tabular-nums inline-flex items-center gap-2">
+                  <Usdt0 iconSize="lg" iconOnly />
                   {assets.total}
                 </span>
                 <Badge variant="outline" className="bg-background/50 border-black/20 text-black h-6 gap-1 px-2 font-normal">
@@ -392,7 +394,7 @@ function TransactionList({ transactions }: { transactions: any[] }) {
                   tx.type === 'stake' ? 'text-foreground' :
                   tx.type === 'interest' || tx.type === 'reinvest' || tx.type === 'leader' ? 'text-primary' : 'text-foreground'
                 }`}>
-                  {tx.type === 'withdraw' ? '-' : '+'}{tx.amount} <span className="text-xs font-normal text-muted-foreground">{tx.currency}</span>
+                  {tx.type === 'withdraw' ? '-' : '+'}{tx.amount} <span className="text-xs font-normal text-muted-foreground inline-flex items-center gap-0.5">{tx.currency === 'USDT0' ? <Usdt0 iconSize="sm" /> : tx.currency}</span>
                 </div>
                 <div className="text-[10px]">
                   {tx.status === 'completed' ? (

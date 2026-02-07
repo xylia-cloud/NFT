@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Plus, Minus, Loader2, Wallet, TrendingUp, Shield, Users, Activity, Zap, ChevronRight, Lock, PiggyBank, Calendar, Unlock, Clock, ArrowDownToLine, AlertTriangle, Twitter, ArrowUp } from "lucide-react";
+import { Plus, Minus, Loader2, Wallet, TrendingUp, Shield, Users, Activity, Zap, ChevronLeft, ChevronRight, Lock, PiggyBank, Calendar, Unlock, Clock, ArrowDownToLine, AlertTriangle, Twitter, ArrowUp, FileText, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,18 +7,23 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { cn } from "@/lib/utils";
+import { Usdt0 } from "@/components/ui/usdt0";
 import { CONTRACT_ADDRESS, CONTRACT_ABI, USDT_ADDRESS, USDT_ABI } from "../../../wagmiConfig";
 import bannerSpline from "@/assets/images/banner.splinecode?url";
-import partner1 from "@/assets/images/partners_1.png";
-import partner2 from "@/assets/images/partners_2.png";
-import partner3 from "@/assets/images/partners_3.png";
-import partner4 from "@/assets/images/partners_4.png";
+import partner1 from "@/assets/images/partners_1.svg";
+import partner2 from "@/assets/images/partners_2.svg";
+import partner3 from "@/assets/images/partners_3.svg";
+import partner4 from "@/assets/images/partners_4.webp";
 import partner5 from "@/assets/images/partners_5.png";
-import partner6 from "@/assets/images/partners_6.png";
-import partner7 from "@/assets/images/partners_7.png";
+import partner6 from "@/assets/images/partners_6.svg";
+import partner7 from "@/assets/images/partners_7.svg";
 import partner8 from "@/assets/images/partners_8.png";
-import partner9 from "@/assets/images/partners_9.png";
-import partner10 from "@/assets/images/partners_10.png";
+import partner9 from "@/assets/images/partners_9.svg";
+import partner10 from "@/assets/images/partners_10.svg";
+import certikAudit from "@/assets/images/CERTIK.webp";
+import certikPdfImg from "@/assets/images/CERTIK2.webp";
+import certikPdf from "@/assets/images/REP-PLASMA--28Threshold-lib-29__final-20231011T224322Z__02.pdf";
+import githubImg from "@/assets/images/GitHub.webp";
 
 // 声明 spline-viewer 自定义元素类型
 /* eslint-disable @typescript-eslint/no-namespace */
@@ -93,8 +98,8 @@ export function StakeOrderItem({
       {/* 顶部：金额 + 状态 */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-start gap-4">
-          <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
-            <PiggyBank className="h-6 w-6" />
+          <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0 p-1.5">
+            <Usdt0 iconSize="xl" iconOnly />
           </div>
           <div className="space-y-2 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
@@ -138,7 +143,7 @@ export function StakeOrderItem({
 
       {/* 可提取时：提现区域（仅提取本金，利息每日发放可单独提取） */}
       {!isLocked && (
-        <div className="flex items-center justify-between gap-4 pt-4 border-t border-border/40">
+        <div className="flex items-center justify-between gap-4 pt-4 border-t border-border/70">
           <div className="text-sm text-muted-foreground">
             本金 <span className="font-semibold text-foreground">{order.amount.toLocaleString()} USDT0</span> 可提至钱包
           </div>
@@ -209,6 +214,7 @@ export function StakeView() {
   const [showTxErrorDialog, setShowTxErrorDialog] = useState(false);
   const [txErrorInfo, setTxErrorInfo] = useState<{ title: string; description: string; detail?: string } | null>(null);
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [certikCarouselIndex, setCertikCarouselIndex] = useState(0);
 
   const partnersRow1 = [partner1, partner2, partner3, partner4, partner5];
   const partnersRow2 = [partner6, partner7, partner8, partner9, partner10];
@@ -229,6 +235,14 @@ export function StakeView() {
     const onScroll = () => setShowBackToTop(main.scrollTop > 300);
     main.addEventListener("scroll", onScroll, { passive: true });
     return () => main.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // CertiK 三图移动端自动轮播，每 4 秒切换
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCertikCarouselIndex((prev) => (prev + 1) % 3);
+    }, 4000);
+    return () => clearInterval(timer);
   }, []);
 
   // 当 approve 交易确认后，自动调用 depositUsdt
@@ -374,7 +388,7 @@ export function StakeView() {
 
       {/* 1. 顶部 Hero 区域 - 未连接状态 */}
       {!isConnected && (
-        <div className="relative overflow-hidden rounded-2xl border border-border/40 bg-black/80 backdrop-blur-md shadow-none min-h-[200px]">
+        <div className="relative overflow-hidden rounded-2xl border border-border/70 bg-black/80 backdrop-blur-md shadow-none min-h-[200px]">
           <div className="absolute inset-0 bg-grid-white/5 [mask-image:linear-gradient(0deg,transparent,black)]" />
 
           {/* Spline 3D 动画背景 */}
@@ -414,7 +428,7 @@ export function StakeView() {
 
       {/* 1. 顶部 Hero 区域 - 已连接状态 */}
       {isConnected && (
-        <div className="relative overflow-hidden rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md shadow-none">
+        <div className="relative overflow-hidden rounded-2xl border border-border/70 bg-card/40 backdrop-blur-md shadow-none">
           <div className="absolute inset-0 bg-grid-white/5 [mask-image:linear-gradient(0deg,transparent,black)]" />
 
           <div className="relative p-4 md:p-4">
@@ -465,8 +479,8 @@ export function StakeView() {
                           onClick={openAccountModal}
                           className="rounded-lg px-3 h-9 font-medium bg-secondary/80 hover:bg-secondary border border-border/10 transition-all shadow-sm"
                         >
-                          <span className="font-mono text-xs">
-                            {usdtBalance ? `${(Number(usdtBalance) / 1e6).toFixed(2)} USDT0` : '0.00 USDT0'}
+                          <span className="font-mono text-xs inline-flex items-center gap-1">
+                            {usdtBalance ? (Number(usdtBalance) / 1e6).toFixed(2) : '0.00'} <Usdt0 iconSize="sm" />
                           </span>
                         </Button>
                       </div>
@@ -482,13 +496,13 @@ export function StakeView() {
       {/* 2. 数据指标 (Glassmorphism) */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { icon: TrendingUp, label: "月化收益", value: "20%", sub: "稳定回报", color: "text-primary", bg: "bg-primary/10" },
+          { icon: TrendingUp, label: "预期月化收益", value: "20%", sub: "稳定回报", color: "text-primary", bg: "bg-primary/10" },
           { icon: Activity, label: "总质押量", value: "$2.8M", sub: "持续增长", color: "text-blue-500", bg: "bg-blue-500/10" },
           { icon: Users, label: "参与人数", value: <CountUp end={12500} />, sub: "全球用户", color: "text-violet-500", bg: "bg-violet-500/10" },
         ].map((item, index) => (
           <div 
             key={index} 
-            className="group relative overflow-hidden rounded-xl border border-border/40 bg-card/40 p-4 hover:bg-card/60 transition-all duration-300 shadow-none"
+            className="group relative overflow-hidden rounded-xl border border-border/70 bg-card/40 p-4 hover:bg-card/60 transition-all duration-300 shadow-none"
           >
             <div className="relative z-10 flex flex-col h-full justify-between gap-3">
               <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center", item.bg, item.color)}>
@@ -508,7 +522,7 @@ export function StakeView() {
       </div>
 
       {/* 3. 核心质押面板 */}
-      <Card className="border border-border/40 shadow-none bg-card/30 rounded-2xl overflow-hidden backdrop-blur-sm">
+      <Card className="border border-border/70 shadow-none bg-card/30 rounded-2xl overflow-hidden backdrop-blur-sm">
         <CardHeader className="p-6 pb-0">
           <div className="flex items-center justify-between mb-1">
             <CardTitle className="text-xl font-bold flex items-center gap-2">
@@ -537,7 +551,8 @@ export function StakeView() {
               </Button>
 
               <div className="flex-1 flex flex-col items-center justify-center relative py-1">
-                <span className="text-4xl md:text-5xl font-bold tracking-tighter text-foreground tabular-nums animate-in zoom-in-50 duration-200 key-[amount] relative z-10">
+                <span className="text-4xl md:text-5xl font-bold tracking-tighter text-foreground tabular-nums animate-in zoom-in-50 duration-200 key-[amount] relative z-10 inline-flex items-center justify-center gap-2">
+                  <Usdt0 iconSize="xl" iconOnly />
                   {amount}
                 </span>
                 <span className="text-xs font-semibold text-muted-foreground mt-1 bg-secondary/50 px-3 py-1 rounded-full border border-border/50">
@@ -655,7 +670,7 @@ export function StakeView() {
             </DialogDescription>
           </DialogHeader>
           <div className="px-6 pb-2">
-            <div className="rounded-xl border border-border/40 bg-muted/20 p-4 text-sm">
+            <div className="rounded-xl border border-border/70 bg-muted/20 p-4 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">当前余额</span>
                 <span className="font-semibold">{insufficientInfo?.balanceUsdt ?? "0.00"} USDT0</span>
@@ -694,7 +709,7 @@ export function StakeView() {
             </DialogDescription>
           </DialogHeader>
           <div className="px-6 pb-2">
-            <div className="rounded-xl border border-border/40 bg-muted/20 p-4 text-sm space-y-2">
+            <div className="rounded-xl border border-border/70 bg-muted/20 p-4 text-sm space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">钱包余额</span>
                 <span className="font-semibold">{usdtBalance ? (Number(usdtBalance) / 1e6).toFixed(2) : "0.00"} USDT0</span>
@@ -742,7 +757,7 @@ export function StakeView() {
             </DialogDescription>
           </DialogHeader>
           <div className="px-6 pb-2">
-            <div className="rounded-xl border border-border/40 bg-muted/20 p-4 text-sm">
+            <div className="rounded-xl border border-border/70 bg-muted/20 p-4 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">交易哈希</span>
                 <span className="font-mono text-xs truncate max-w-[180px] text-right">
@@ -776,7 +791,7 @@ export function StakeView() {
           </DialogHeader>
           {txErrorInfo?.detail && (
             <div className="px-6 pb-2">
-              <div className="rounded-xl border border-border/40 bg-muted/20 p-4 text-xs font-mono text-muted-foreground break-words">
+              <div className="rounded-xl border border-border/70 bg-muted/20 p-4 text-xs font-mono text-muted-foreground break-words">
                 {txErrorInfo.detail}
               </div>
             </div>
@@ -789,23 +804,107 @@ export function StakeView() {
         </DialogContent>
       </Dialog>
 
-      {/* 4. 合作伙伴 Logo 滚动展示 */}
-      <div className="space-y-3 mt-2">
-        <p className="text-xs text-muted-foreground px-1">合作伙伴</p>
-        <div className="relative overflow-hidden">
+      {/* 4. 安全与合规保障 */}
+      <div className="mt-6 space-y-5">
+        <div className="space-y-1 text-center">
+          <h3 className="text-xl font-semibold text-foreground">安全与合规保障</h3>
+          <p className="text-sm text-muted-foreground">
+            PLASMA 实行全球领先的安全与合规体系，多维度守护您的资产与数据安全。
+          </p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 text-sm text-muted-foreground">
+          <div className="space-y-2.5 rounded-xl bg-background/60 border border-border/70 p-4">
+            <p className="text-sm font-semibold text-foreground">资产安全</p>
+            <ul className="space-y-2">
+              <li className="flex items-start gap-2">
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary/70" />
+                <span>冷热钱包分离，核心资产离线隔离</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary/70" />
+                <span>多重签名提币，防范内外风险</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary/70" />
+                <span>7×24 小时智能风控与威胁预警</span>
+              </li>
+            </ul>
+          </div>
+          <div className="space-y-2.5 rounded-xl bg-background/60 border border-border/70 p-4">
+            <p className="text-sm font-semibold text-foreground">合规体系</p>
+            <ul className="space-y-2">
+              <li className="flex items-start gap-2">
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary/70" />
+                <span>英国金融背景，持有 MSB 等国际资质</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary/70" />
+                <span>严格遵守多地法律法规，合规运营</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary/70" />
+                <span>完善 KYC 与 AML 身份及反洗钱体系</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary/70" />
+                <span>定期合规审查与风险评估</span>
+              </li>
+            </ul>
+          </div>
+          <div className="space-y-2.5 rounded-xl bg-background/60 border border-border/70 p-4">
+            <p className="text-sm font-semibold text-foreground">用户保护</p>
+            <ul className="space-y-2">
+              <li className="flex items-start gap-2">
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary/70" />
+                <span>先进端到端加密，全面保障用户数据安全</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary/70" />
+                <span>双因素认证，多重防护账户安全</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary/70" />
+                <span>智能反钓鱼系统，防止恶意仿冒风险</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary/70" />
+                <span>AI 智能风控，实时识别并拦截异常操作</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* 5. 投资人 & 合作伙伴 Logo 滚动展示 */}
+      <div className="space-y-3 mt-4">
+        <div className="text-center space-y-1">
+          <p className="text-xl font-semibold text-foreground">
+            投资人&合作伙伴
+          </p>
+          <p className="text-sm text-muted-foreground">
+            PLASMA由全球知名投资机构战略加持，与顶尖科技及金融服务伙伴深度合作，共建开放共赢生态
+          </p>
+        </div>
+        <div className="partner-container relative overflow-hidden">
           <div className="partner-row">
             {[...partnersRow1, ...partnersRow1].map((src, idx) => (
-              <div key={`p1-${idx}`} className="flex items-center justify-center opacity-90">
-                <img src={src} alt="partner" className="max-h-20 max-w-full object-contain" />
+              <div
+                key={`p1-${idx}`}
+                className="flex items-center justify-center opacity-90 border border-border/70 rounded-lg w-24 h-14 shrink-0"
+              >
+                <img src={src} alt="partner" className="w-16 h-8 object-contain" />
               </div>
             ))}
           </div>
         </div>
-        <div className="relative overflow-hidden">
+        <div className="partner-container relative overflow-hidden">
           <div className="partner-row-reverse">
             {[...partnersRow2, ...partnersRow2].map((src, idx) => (
-              <div key={`p2-${idx}`} className="flex items-center justify-center opacity-90">
-                <img src={src} alt="partner" className="max-h-20 max-w-full object-contain" />
+              <div
+                key={`p2-${idx}`}
+                className="flex items-center justify-center opacity-90 border border-border/70 rounded-lg w-24 h-14 shrink-0"
+              >
+                <img src={src} alt="partner" className="w-16 h-8 object-contain" />
               </div>
             ))}
           </div>
@@ -813,33 +912,126 @@ export function StakeView() {
       </div>
 
       {/* 5. 特性说明 (Minimalist) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 opacity-80 mt-2">
-        <div className="flex gap-3 p-3">
-          <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
-            <Shield className="h-4 w-4" />
+      <div className="opacity-80 mt-2 space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex gap-3 p-3">
+            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+              <Shield className="h-4 w-4" />
+            </div>
+            <div>
+              <h4 className="font-semibold text-foreground text-sm mb-0.5">CertiK 权威审计</h4>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                智能合约代码已通过 CertiK 全面安全审计，多重签名机制保护，确保资金绝对安全。
+              </p>
+            </div>
           </div>
-          <div>
-            <h4 className="font-semibold text-foreground text-sm mb-0.5">CertiK 权威审计</h4>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              智能合约代码已通过 CertiK 全面安全审计，多重签名机制保护，确保资金绝对安全。
-            </p>
+          <div className="flex gap-3 p-3">
+            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+              <Zap className="h-4 w-4" />
+            </div>
+            <div>
+              <h4 className="font-semibold text-foreground text-sm mb-0.5">极速链上结算</h4>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                基于 Plasma 高性能网络，收益实时计算，秒级到账，低至 $0.01 的交互手续费。
+              </p>
+            </div>
           </div>
         </div>
-        <div className="flex gap-3 p-3">
-          <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
-            <Zap className="h-4 w-4" />
+        {/* 审计图、PDF图、GitHub 图 - 移动端 100% 宽度 + 左右手动切换，桌面端三列网格 */}
+        <div className="md:hidden overflow-hidden -mx-4 relative">
+          <div
+            className="flex transition-transform duration-500 ease-out"
+            style={{ transform: `translateX(-${certikCarouselIndex * 100}%)` }}
+          >
+            <div className="flex-shrink-0 w-full flex flex-col items-center gap-2 p-4 rounded-xl">
+              <img src={certikAudit} alt="CertiK 审计" className="w-full h-auto object-contain rounded border border-border/60 bg-background/60" />
+              <span className="text-sm text-muted-foreground">Certik审计</span>
+            </div>
+            <a
+              href={certikPdf}
+              target="_blank"
+              rel="noreferrer"
+              className="flex-shrink-0 w-full flex flex-col items-center gap-2 p-4 rounded-xl group"
+            >
+              <div className="relative w-full">
+                <img src={certikPdfImg} alt="CertiK 审计报告 PDF" className="w-full h-auto object-contain rounded border border-border/60 bg-background/60 group-hover:opacity-90 transition-opacity" />
+                <span className="absolute bottom-1 right-1 flex items-center justify-center w-6 h-6 rounded-full bg-primary/90 text-primary-foreground">
+                  <FileText className="h-3 w-3" />
+                </span>
+              </div>
+              <span className="text-sm text-muted-foreground">查看PDF</span>
+            </a>
+            <a
+              href="https://github.com/plasma-disassembler/plasma"
+              target="_blank"
+              rel="noreferrer"
+              className="flex-shrink-0 w-full flex flex-col items-center gap-2 p-4 rounded-xl group"
+            >
+              <img src={githubImg} alt="GitHub 仓库" className="w-full h-auto object-contain rounded border border-border/60 bg-background/60 group-hover:opacity-90 transition-opacity" />
+              <span className="text-sm text-muted-foreground flex items-center gap-1">GitHub <ExternalLink className="h-3.5 w-3.5" /></span>
+            </a>
           </div>
-          <div>
-            <h4 className="font-semibold text-foreground text-sm mb-0.5">极速链上结算</h4>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              基于 Plasma 高性能网络，收益实时计算，秒级到账，低至 $0.01 的交互手续费。
-            </p>
+          <button
+            type="button"
+            onClick={() => setCertikCarouselIndex((prev) => (prev === 0 ? 2 : prev - 1))}
+            className="absolute left-1 top-1/2 -translate-y-1/2 z-10 h-9 w-9 rounded-full bg-background/90 border border-border/70 shadow-sm flex items-center justify-center text-foreground hover:bg-muted transition-colors"
+            aria-label="上一张"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setCertikCarouselIndex((prev) => (prev + 1) % 3)}
+            className="absolute right-1 top-1/2 -translate-y-1/2 z-10 h-9 w-9 rounded-full bg-background/90 border border-border/70 shadow-sm flex items-center justify-center text-foreground hover:bg-muted transition-colors"
+            aria-label="下一张"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+          <div className="flex justify-center gap-1.5 pt-2">
+            {[0, 1, 2].map((i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setCertikCarouselIndex(i)}
+                className={cn("h-1.5 rounded-full transition-all", i === certikCarouselIndex ? "w-4 bg-primary" : "w-1.5 bg-muted-foreground/30")}
+                aria-label={`切换到第 ${i + 1} 张`}
+              />
+            ))}
           </div>
+        </div>
+        <div className="hidden md:grid grid-cols-3 gap-3 md:gap-4">
+          <div className="flex flex-col items-center gap-2">
+            <img src={certikAudit} alt="CertiK 审计" className="w-full h-auto object-contain rounded border border-border/60 bg-background/60" />
+            <span className="text-sm text-muted-foreground">Certik审计</span>
+          </div>
+          <a
+            href={certikPdf}
+            target="_blank"
+            rel="noreferrer"
+            className="flex flex-col items-center gap-2 group relative"
+          >
+            <div className="relative w-full">
+              <img src={certikPdfImg} alt="CertiK 审计报告 PDF" className="w-full h-auto object-contain rounded border border-border/60 bg-background/60 group-hover:border-primary/50 transition-colors" />
+              <span className="absolute bottom-1 right-1 flex items-center justify-center w-6 h-6 rounded-full bg-primary/90 text-primary-foreground">
+                <FileText className="h-3 w-3" />
+              </span>
+            </div>
+            <span className="text-sm text-muted-foreground">查看PDF</span>
+          </a>
+          <a
+            href="https://github.com/plasma-disassembler/plasma"
+            target="_blank"
+            rel="noreferrer"
+            className="flex flex-col items-center gap-2 group"
+          >
+            <img src={githubImg} alt="GitHub 仓库" className="w-full h-auto object-contain rounded border border-border/60 bg-background/60 group-hover:border-primary/50 transition-colors" />
+            <span className="text-sm text-muted-foreground flex items-center gap-1">GitHub <ExternalLink className="h-3.5 w-3.5" /></span>
+          </a>
         </div>
       </div>
 
       {/* 6. PLASMA 官方社交媒体 */}
-      <div className="mt-8 pt-6 border-t border-border/40 flex justify-center">
+      <div className="mt-8 pt-6 border-t border-border/70 flex justify-center">
         <a
           href="https://x.com/Plasma"
           target="_blank"
