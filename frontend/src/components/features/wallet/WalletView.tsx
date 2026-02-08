@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { AssetCard } from "@/components/ui/asset-card";
 import { useAccount } from "wagmi";
@@ -9,6 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Calendar, type FlowByDate } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Usdt0 } from "@/components/ui/usdt0";
+import { getTransactionCalendar, getTransactionDetails, getWalletInfo, type TransactionDetail, type WalletInfoResponse } from "@/lib/api";
 import { 
   ArrowUpRight, 
   ArrowDownLeft, 
@@ -31,20 +32,128 @@ export function WalletView() {
   const [isReinvesting, setIsReinvesting] = useState(false);
   const [showReinvestDialog, setShowReinvestDialog] = useState(false);
   const [reinvestStepIndex, setReinvestStepIndex] = useState(0);
+  const [calendarData, setCalendarData] = useState<FlowByDate>({});
+  const [rawCalendarData, setRawCalendarData] = useState<any[]>([]); // 保存原始日历数据
+  const [transactions, setTransactions] = useState<TransactionDetail[]>([]);
+  const [currentCategory, setCurrentCategory] = useState<'all' | 'deposit' | 'profit' | 'reinvest' | 'withdraw'>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalTransactions, setTotalTransactions] = useState(0);
+  const [walletInfo, setWalletInfo] = useState<WalletInfoResponse | null>(null);
 
   const now = new Date();
   const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
   const formatDate = () => `${currentMonth}-${String(now.getDate()).padStart(2, "0")} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
 
-  // 模拟资产数据（复投会更新）
-  const [principal, setPrincipal] = useState(12500);
-  const [interest, setInterest] = useState(345.80);
-  const todayInterest = 12.50;
+  // 获取钱包信息
+  const fetchWalletInfo = async () => {
+    if (!isConnected) return;
+    
+    try {
+      const data = await getWalletInfo();
+      setWalletInfo(data);
+      console.log('✅ 钱包信息获取成功:', data);
+    } catch (err) {
+      console.error('❌ 获取钱包信息失败:', err);
+      // 静默处理错误
+    }
+  };
+
+  // 获取交易日历
+  const fetchTransactionCalendar = async (month: string) => {
+    if (!isConnected) return;
+    
+    try {
+      const data = await getTransactionCalendar({ month });
+      
+      // 保存原始日历数据
+      setRawCalendarData(data.calendar);
+      
+      // 转换日历数据为 FlowByDate 格式
+      const calendarMap: FlowByDate = {};
+      data.calendar.forEach(day => {
+        const income = parseFloat(day.total_increase);
+        const expense = parseFloat(day.total_decrease);
+        
+        if (income > 0 || expense > 0) {
+          calendarMap[day.date] = {
+            income,
+            expense,
+          };
+        }
+      });
+      
+      setCalendarData(calendarMap);
+      console.log('✅ 交易日历获取成功:', data);
+    } catch (err) {
+      console.error('❌ 获取交易日历失败:', err);
+      // 静默处理错误
+    }
+  };
+
+  // 获取交易记录
+  const fetchTransactionDetails = async (page: number, category: 'all' | 'deposit' | 'profit' | 'reinvest' | 'withdraw') => {
+    if (!isConnected) return;
+    
+    try {
+      const data = await getTransactionDetails({ page, category });
+      setTransactions(data.list);
+      setTotalTransactions(parseInt(data.total));
+      setCurrentPage(data.page);
+      console.log('✅ 交易记录获取成功:', data);
+    } catch (err) {
+      console.error('❌ 获取交易记录失败:', err);
+      // 静默处理错误
+    }
+  };
+
+  // 组件加载时获取数据
+  useEffect(() => {
+    if (isConnected) {
+      fetchWalletInfo();
+      fetchTransactionCalendar(currentMonth);
+      fetchTransactionDetails(1, 'all');
+    }
+  }, [isConnected]);
+
+  // 监听登录事件，登录后刷新数据
+  useEffect(() => {
+    const handleLogin = () => {
+      console.log('🔄 检测到登录，刷新钱包数据...');
+      fetchWalletInfo();
+      fetchTransactionCalendar(currentMonth);
+      fetchTransactionDetails(1, 'all');
+    };
+    
+    window.addEventListener('auth:login', handleLogin);
+    return () => window.removeEventListener('auth:login', handleLogin);
+  }, []);
+
+  // 切换分类时重新获取交易记录
+  const handleCategoryChange = (category: 'all' | 'deposit' | 'profit' | 'reinvest' | 'withdraw') => {
+    setCurrentCategory(category);
+    fetchTransactionDetails(1, category);
+  };
+
+  // 计算今日收益（从日历数据中获取）
+  const todayIncome = useMemo(() => {
+    if (rawCalendarData.length === 0) return 0;
+    
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+    
+    const todayData = rawCalendarData.find(day => day.date === todayStr);
+    return parseFloat(todayData?.total_increase || "0");
+  }, [rawCalendarData]);
+
+  // 资产数据（使用真实数据）
+  const principal = parseFloat(walletInfo?.capital || "0");
+  const interest = parseFloat(walletInfo?.profit || "0");
+  
   const assets = {
     principal: principal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
     interest: interest.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
     total: (principal + interest).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-    todayInterest: `+${todayInterest}`
+    todayInterest: `+${todayIncome.toFixed(2)}`
   };
 
   // 复投进度
@@ -64,20 +173,12 @@ export function WalletView() {
     if (!canReinvest || isReinvesting || amount > interest) return;
     setIsReinvesting(true);
     setShowReinvestDialog(false);
-    setPrincipal((p) => p + amount);
-    setInterest((i) => i - amount);
-    setTransactions((prev) => [
-      {
-        id: Date.now(),
-        type: "reinvest",
-        amount: amount.toFixed(2),
-        currency: "USDT0",
-        date: formatDate(),
-        status: "completed"
-      },
-      ...prev
-    ]);
-    setTimeout(() => setIsReinvesting(false), 800);
+    // 复投成功后刷新钱包信息和交易记录
+    setTimeout(() => {
+      setIsReinvesting(false);
+      fetchWalletInfo();
+      fetchTransactionDetails(1, currentCategory);
+    }, 800);
   };
 
   const handleReinvestDecrease = () => {
@@ -87,35 +188,8 @@ export function WalletView() {
     if (reinvestStepIndex < reinvestAmountOptions.length - 1) setReinvestStepIndex(reinvestStepIndex + 1);
   };
 
-  // 模拟交易记录数据（含领袖奖励）
-  const [transactions, setTransactions] = useState([
-    { id: 1, type: "stake", amount: "5,000.00", currency: "USDT0", date: `${currentMonth}-15 14:30`, status: "completed" },
-    { id: 2, type: "interest", amount: "12.50", currency: "USDT0", date: `${currentMonth}-14 00:00`, status: "completed" },
-    { id: 3, type: "withdraw", amount: "100.00", currency: "USDT0", date: `${currentMonth}-12 09:15`, status: "processing" },
-    { id: 4, type: "stake", amount: "2,000.00", currency: "USDT0", date: "2024-03-10 16:45", status: "completed" },
-    { id: 5, type: "interest", amount: "10.20", currency: "USDT0", date: `${currentMonth}-13 00:00`, status: "completed" },
-    { id: 6, type: "interest", amount: "11.80", currency: "USDT0", date: `${currentMonth}-01 00:00`, status: "completed" },
-    { id: 7, type: "leader", amount: "88.00", currency: "USDT0", date: `${currentMonth}-10 00:00`, status: "completed" },
-    { id: 8, type: "leader", amount: "56.50", currency: "USDT0", date: `${currentMonth}-05 00:00`, status: "completed" },
-    { id: 9, type: "leader", amount: "120.00", currency: "USDT0", date: "2024-12-28 00:00", status: "completed" },
-  ]);
-
-  // 从交易记录提取每日收支数据
-  const flowByDate = useMemo<FlowByDate>(() => {
-    const map: FlowByDate = {};
-    transactions.forEach((t) => {
-      const dateStr = t.date.split(" ")[0];
-      if (!map[dateStr]) map[dateStr] = { income: 0, expense: 0 };
-      const amount = parseFloat(t.amount.replace(/,/g, ""));
-      const entry = map[dateStr] as { income: number; expense: number };
-      if (t.type === "stake" || t.type === "interest" || t.type === "reinvest" || t.type === "leader") {
-        entry.income += amount;
-      } else if (t.type === "withdraw") {
-        entry.expense += amount;
-      }
-    });
-    return map;
-  }, [transactions]);
+  // 从交易日历获取每日收支数据（使用真实数据）
+  const flowByDate = calendarData;
 
   const selectedDateFlow = useMemo(() => {
     if (!selectedDate) return null;
@@ -146,18 +220,20 @@ export function WalletView() {
             <Wallet className="h-24 w-24 -mr-6 -mt-6 rotate-12" />
           </div>
           <CardContent className="p-6 text-black">
-            <div className="space-y-1">
+            <div className="space-y-2">
               <span className="text-sm font-medium">总资产估值 (USDT0)</span>
-              <p className="text-xs opacity-80 mt-0.5">充币请走 Plasma 网络</p>
-              <div className="flex items-baseline gap-3">
+              <p className="text-xs opacity-80">充币请走 Plasma 网络</p>
+              <div className="space-y-2">
                 <span className="text-4xl font-bold tracking-tight tabular-nums inline-flex items-center gap-2">
                   <Usdt0 iconSize="lg" iconOnly />
                   {assets.total}
                 </span>
-                <Badge variant="outline" className="bg-background/50 border-black/20 text-black h-6 gap-1 px-2 font-normal">
-                  <ArrowUpRight className="h-3 w-3" />
-                  今日 +{assets.todayInterest}
-                </Badge>
+                <div>
+                  <Badge variant="outline" className="bg-background/50 border-black/20 text-black h-6 gap-1 px-2 font-normal whitespace-nowrap">
+                    <ArrowUpRight className="h-3 w-3 shrink-0" />
+                    今日 {assets.todayInterest}
+                  </Badge>
+                </div>
               </div>
             </div>
           </CardContent>
@@ -318,29 +394,17 @@ export function WalletView() {
           资金明细
         </h3>
 
-        <Tabs defaultValue="all" className="w-full">
+        <Tabs value={currentCategory} onValueChange={(value) => handleCategoryChange(value as any)} className="w-full">
           <TabsList className="grid w-full grid-cols-5 h-9 p-1 bg-muted/50 rounded-lg">
             <TabsTrigger value="all" className="rounded-md text-xs h-7">全部</TabsTrigger>
-            <TabsTrigger value="stake" className="rounded-md text-xs h-7">质押</TabsTrigger>
-            <TabsTrigger value="interest" className="rounded-md text-xs h-7">收益</TabsTrigger>
+            <TabsTrigger value="deposit" className="rounded-md text-xs h-7">质押</TabsTrigger>
+            <TabsTrigger value="profit" className="rounded-md text-xs h-7">收益</TabsTrigger>
             <TabsTrigger value="reinvest" className="rounded-md text-xs h-7">复投</TabsTrigger>
-            <TabsTrigger value="leader" className="rounded-md text-xs h-7">领袖</TabsTrigger>
+            <TabsTrigger value="withdraw" className="rounded-md text-xs h-7">提现</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="all" className="mt-4">
+          <TabsContent value={currentCategory} className="mt-4">
             <TransactionList transactions={transactions} />
-          </TabsContent>
-          <TabsContent value="stake" className="mt-4">
-            <TransactionList transactions={transactions.filter(t => t.type === 'stake')} />
-          </TabsContent>
-          <TabsContent value="interest" className="mt-4">
-            <TransactionList transactions={transactions.filter(t => t.type === 'interest')} />
-          </TabsContent>
-          <TabsContent value="reinvest" className="mt-4">
-            <TransactionList transactions={transactions.filter(t => t.type === 'reinvest')} />
-          </TabsContent>
-          <TabsContent value="leader" className="mt-4">
-            <TransactionList transactions={transactions.filter(t => t.type === 'leader')} />
           </TabsContent>
         </Tabs>
       </div>
@@ -349,7 +413,7 @@ export function WalletView() {
 }
 
 // 交易列表组件
-function TransactionList({ transactions }: { transactions: any[] }) {
+function TransactionList({ transactions }: { transactions: TransactionDetail[] }) {
   if (transactions.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-muted-foreground bg-card rounded-xl border border-dashed">
@@ -359,53 +423,88 @@ function TransactionList({ transactions }: { transactions: any[] }) {
     );
   }
 
+  // 根据 protype_name 映射图标和颜色
+  const getTransactionStyle = (protypeName: string, type: string) => {
+    const isIncome = type === '1';
+    
+    // 根据业务类型名称判断
+    if (protypeName.includes('入金') || protypeName.includes('质押')) {
+      return {
+        icon: PiggyBank,
+        bgColor: 'bg-blue-500/10',
+        borderColor: 'border-blue-500/20',
+        textColor: 'text-blue-500',
+      };
+    } else if (protypeName.includes('收益') || protypeName.includes('利息')) {
+      return {
+        icon: Coins,
+        bgColor: 'bg-primary/10',
+        borderColor: 'border-primary/20',
+        textColor: 'text-primary',
+      };
+    } else if (protypeName.includes('复投')) {
+      return {
+        icon: RefreshCw,
+        bgColor: 'bg-primary/10',
+        borderColor: 'border-primary/20',
+        textColor: 'text-primary',
+      };
+    } else if (protypeName.includes('提现') || protypeName.includes('出金')) {
+      return {
+        icon: ArrowDownLeft,
+        bgColor: 'bg-orange-500/10',
+        borderColor: 'border-orange-500/20',
+        textColor: 'text-orange-500',
+      };
+    } else if (protypeName.includes('领袖')) {
+      return {
+        icon: Trophy,
+        bgColor: 'bg-amber-500/10',
+        borderColor: 'border-amber-500/20',
+        textColor: 'text-amber-600 dark:text-amber-400',
+      };
+    }
+    
+    // 默认样式
+    return {
+      icon: isIncome ? ArrowUpRight : ArrowDownLeft,
+      bgColor: isIncome ? 'bg-primary/10' : 'bg-orange-500/10',
+      borderColor: isIncome ? 'border-primary/20' : 'border-orange-500/20',
+      textColor: isIncome ? 'text-primary' : 'text-orange-500',
+    };
+  };
+
   return (
     <Card className="border-border/40 shadow-sm">
       <ScrollArea className="h-[400px]">
         <div className="divide-y divide-border/40">
-          {transactions.map((tx) => (
-            <div key={tx.id} className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors">
-              <div className="flex items-center gap-4">
-                <div className={`flex h-9 w-9 items-center justify-center rounded-full border ${
-                  tx.type === 'stake' ? 'bg-blue-500/10 border-blue-500/20 text-blue-500' :
-                  tx.type === 'interest' ? 'bg-primary/10 border-primary/20 text-primary' :
-                  tx.type === 'reinvest' ? 'bg-primary/10 border-primary/20 text-primary' :
-                  tx.type === 'leader' ? 'bg-amber-500/10 border-amber-500/20 text-amber-600 dark:text-amber-400' :
-                  'bg-orange-500/10 border-orange-500/20 text-orange-500'
-                }`}>
-                  {tx.type === 'stake' && <PiggyBank className="h-4 w-4" />}
-                  {tx.type === 'interest' && <Coins className="h-4 w-4" />}
-                  {tx.type === 'reinvest' && <RefreshCw className="h-4 w-4" />}
-                  {tx.type === 'leader' && <Trophy className="h-4 w-4" />}
-                  {tx.type === 'withdraw' && <ArrowDownLeft className="h-4 w-4" />}
-                </div>
-                <div>
-                  <div className="font-medium text-sm">
-                    {tx.type === 'stake' ? '质押本金' :
-                     tx.type === 'interest' ? '每日收益' :
-                     tx.type === 'reinvest' ? '收益复投' :
-                     tx.type === 'leader' ? '领袖奖励' : '余额提现'}
+          {transactions.map((tx, index) => {
+            const style = getTransactionStyle(tx.protype_name, tx.type);
+            const Icon = style.icon;
+            const isIncome = tx.type === '1';
+            
+            return (
+              <div key={`${tx.time}-${index}`} className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors">
+                <div className="flex items-center gap-4">
+                  <div className={`flex h-9 w-9 items-center justify-center rounded-full border ${style.bgColor} ${style.borderColor} ${style.textColor}`}>
+                    <Icon className="h-4 w-4" />
                   </div>
-                  <div className="text-xs text-muted-foreground">{tx.date}</div>
+                  <div>
+                    <div className="font-medium text-sm">{tx.protype_name}</div>
+                    <div className="text-xs text-muted-foreground">{tx.time_format}</div>
+                  </div>
                 </div>
-              </div>
-              <div className="text-right">
-                <div className={`font-bold text-sm ${
-                  tx.type === 'stake' ? 'text-foreground' :
-                  tx.type === 'interest' || tx.type === 'reinvest' || tx.type === 'leader' ? 'text-primary' : 'text-foreground'
-                }`}>
-                  {tx.type === 'withdraw' ? '-' : '+'}{tx.amount} <span className="text-xs font-normal text-muted-foreground inline-flex items-center gap-0.5">{tx.currency === 'USDT0' ? <Usdt0 iconSize="sm" /> : tx.currency}</span>
-                </div>
-                <div className="text-[10px]">
-                  {tx.status === 'completed' ? (
+                <div className="text-right">
+                  <div className={`font-bold text-sm ${isIncome ? 'text-primary' : 'text-foreground'}`}>
+                    {isIncome ? '+' : '-'}{parseFloat(tx.fee).toFixed(2)} <span className="text-xs font-normal text-muted-foreground inline-flex items-center gap-0.5"><Usdt0 iconSize="sm" /></span>
+                  </div>
+                  <div className="text-[10px]">
                     <span className="text-muted-foreground">已完成</span>
-                  ) : (
-                    <span className="text-orange-500">处理中</span>
-                  )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </ScrollArea>
     </Card>

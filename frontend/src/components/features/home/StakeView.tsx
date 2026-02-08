@@ -9,6 +9,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { cn } from "@/lib/utils";
 import { Usdt0 } from "@/components/ui/usdt0";
 import { CONTRACT_ADDRESS, CONTRACT_ABI, USDT_ADDRESS, USDT_ABI } from "../../../wagmiConfig";
+import { getGlobalConfig, type GlobalConfigResponse } from "@/lib/api";
 import bannerSpline from "@/assets/images/banner.splinecode?url";
 import partner1 from "@/assets/images/partners_1.svg";
 import partner2 from "@/assets/images/partners_2.svg";
@@ -195,6 +196,27 @@ export function StakeView() {
   const amount = STAKE_AMOUNTS[stepIndex];
   const { isConnected, address } = useAccount();
   
+  // 获取全局配置
+  const [globalConfig, setGlobalConfig] = useState<GlobalConfigResponse | null>(null);
+  
+  useEffect(() => {
+    const fetchGlobalConfig = async () => {
+      try {
+        const data = await getGlobalConfig();
+        setGlobalConfig(data);
+        console.log('✅ 全局配置获取成功:', data);
+      } catch (err) {
+        console.error('❌ 获取全局配置失败:', err);
+        // 静默处理错误
+      }
+    };
+    
+    fetchGlobalConfig();
+    // 每30秒刷新一次
+    const interval = setInterval(fetchGlobalConfig, 30000);
+    return () => clearInterval(interval);
+  }, []);
+  
   // 查询 USDT 余额
   const { data: usdtBalance, refetch: refetchUsdtBalance } = useReadContract({
     address: USDT_ADDRESS,
@@ -373,8 +395,9 @@ export function StakeView() {
     });
   };
 
-  // 动态计算预估收益 (月化 20%)
-  const estimatedDailyReward = (amount * 0.20 / 30).toFixed(2);
+  // 动态计算预估收益（使用真实的月化收益率）
+  const monthlyRate = parseFloat(globalConfig?.monthly_return_rate || "20") / 100;
+  const estimatedDailyReward = (amount * monthlyRate / 30).toFixed(2);
 
   if (!mounted) return null;
 
@@ -419,7 +442,7 @@ export function StakeView() {
                 开启 <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-blue-400 to-primary drop-shadow-[0_0_12px_rgba(34,211,238,0.5)]">Web3 财富</span> 之旅
               </h2>
               <p className="text-xs text-gray-300 leading-relaxed">
-                安全、透明的去中心化质押协议。充币请走 Plasma 网络。即刻参与，享受高达 <span className="text-white font-semibold">20%</span> 的月化稳定收益。请点击右上角连接钱包开始。
+                安全、透明的去中心化质押协议。充币请走 Plasma 网络。即刻参与，享受高达 <span className="text-white font-semibold">{globalConfig?.monthly_return_rate || "20"}%</span> 的月化稳定收益。请点击右上角连接钱包开始。
               </p>
             </div>
           </div>
@@ -496,9 +519,9 @@ export function StakeView() {
       {/* 2. 数据指标 (Glassmorphism) */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { icon: TrendingUp, label: "预期月化收益", value: "20%", sub: "稳定回报", color: "text-primary", bg: "bg-primary/10" },
-          { icon: Activity, label: "总质押量", value: "$2.8M", sub: "持续增长", color: "text-blue-500", bg: "bg-blue-500/10" },
-          { icon: Users, label: "参与人数", value: <CountUp end={12500} />, sub: "全球用户", color: "text-violet-500", bg: "bg-violet-500/10" },
+          { icon: TrendingUp, label: "预期月化收益", value: `${globalConfig?.monthly_return_rate || "20"}%`, sub: "稳定回报", color: "text-primary", bg: "bg-primary/10" },
+          { icon: Activity, label: "总质押量", value: `$${globalConfig?.total_staking || "0"}`, sub: "持续增长", color: "text-blue-500", bg: "bg-blue-500/10" },
+          { icon: Users, label: "参与人数", value: <CountUp end={globalConfig?.total_participants_raw || 0} />, sub: "全球用户", color: "text-violet-500", bg: "bg-violet-500/10" },
         ].map((item, index) => (
           <div 
             key={index} 

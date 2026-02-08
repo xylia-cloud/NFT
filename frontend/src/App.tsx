@@ -12,6 +12,8 @@ import { InviteView } from '@/components/features/invite/InviteView';
 import { HelpCenterView } from '@/components/features/profile/HelpCenterView';
 import { AboutView } from '@/components/features/about/AboutView';
 import { Button } from '@/components/ui/button';
+import { useWalletAuth } from '@/hooks/useWalletAuth';
+import { clearToken } from '@/lib/api';
 import { Wallet, X } from 'lucide-react';
 
 const VOCECHAT_URL = "http://67.215.229.143:3009";
@@ -48,6 +50,28 @@ export default function App() {
   const [currentTab, setCurrentTab] = useState(() => hashToTab(window.location.hash));
   const [showVoceChat, setShowVoceChat] = useState(false);
   const { isConnected } = useAccount();
+
+  // 自动登录：钱包连接后自动触发登录
+  useWalletAuth({
+    autoLogin: true,
+    onSuccess: (result) => {
+      console.log('🎉 自动登录成功:', result);
+    },
+    onError: (error) => {
+      console.error('❌ 自动登录失败:', error);
+    },
+  });
+
+  // 监听钱包断开，清除 token
+  useEffect(() => {
+    if (!isConnected) {
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        console.log('🔌 钱包已断开，清除 token');
+        clearToken();
+      }
+    }
+  }, [isConnected]);
 
   // 从 URL hash 同步 tab，并监听 hashchange（浏览器前进/后退、刷新）
   useEffect(() => {

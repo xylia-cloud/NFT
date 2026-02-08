@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -13,40 +13,146 @@ import {
   Wallet,
 } from "lucide-react";
 import { Usdt0 } from "@/components/ui/usdt0";
+import { getTeamInfo, getTeamCalendar, getTeamMembers, type TeamInfoResponse, type TeamMember } from "@/lib/api";
+import { useAccount } from "wagmi";
 
 export function TeamView() {
+  const { isConnected } = useAccount();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  // 模拟团队数据
-  const teamStats = {
-    totalMembers: 128,
-    activeMembers: 45,
-    totalCommission: "2,450.00",
-    todayCommission: "+125.80",
-    level1Members: 80,
-    level2Members: 48,
-    totalPerformance: "125,000.00", // 团队总业绩
-    myAccountBalance: "12,845.80", // 本人账户金额
+  const [teamInfo, setTeamInfo] = useState<TeamInfoResponse | null>(null);
+  const [calendarData, setCalendarData] = useState<FlowByDate>({});
+  const [rawCalendarData, setRawCalendarData] = useState<any[]>([]); // 保存原始日历数据用于计算
+  const [members, setMembers] = useState<TeamMember[]>([]);
+  const [currentTab, setCurrentTab] = useState<"all" | "active">("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalMembers, setTotalMembers] = useState(0);
+
+  // 获取团队详情
+  const fetchTeamInfo = async () => {
+    if (!isConnected) return;
+    
+    try {
+      const data = await getTeamInfo();
+      setTeamInfo(data);
+      console.log('✅ 团队详情获取成功:', data);
+    } catch (err) {
+      console.error('❌ 获取团队详情失败:', err);
+      // 静默处理错误
+    }
   };
 
-  // 模拟每日团队业绩（佣金）
+  // 获取团队日历
+  const fetchTeamCalendar = async (month: string) => {
+    if (!isConnected) return;
+    
+    try {
+      const data = await getTeamCalendar({ month });
+      
+      // 保存原始日历数据
+      setRawCalendarData(data.calendar);
+      
+      // 转换日历数据为 FlowByDate 格式
+      const calendarMap: FlowByDate = {};
+      data.calendar.forEach(day => {
+        const commission = parseFloat(day.team_daily_income_commission);
+        if (commission > 0) {
+          calendarMap[day.date] = {
+            income: commission,
+            expense: 0,
+          };
+        }
+      });
+      
+      setCalendarData(calendarMap);
+      console.log('✅ 团队日历获取成功:', data);
+    } catch (err) {
+      console.error('❌ 获取团队日历失败:', err);
+      // 静默处理错误
+    }
+  };
+
+  // 获取团队成员列表
+  const fetchTeamMembers = async (page: number, activity?: number) => {
+    if (!isConnected) return;
+    
+    try {
+      const data = await getTeamMembers({ page, activity });
+      setMembers(data.list);
+      setTotalMembers(data.total);
+      setCurrentPage(data.page);
+      console.log('✅ 团队成员获取成功:', data);
+    } catch (err) {
+      console.error('❌ 获取团队成员失败:', err);
+      // 静默处理错误
+    }
+  };
+
   const now = new Date();
   const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-  const commissionByDate: FlowByDate = useMemo(() => {
-    const map: FlowByDate = {};
-    [
-      { date: `${currentMonth}-01`, income: 85.5 },
-      { date: `${currentMonth}-05`, income: 120.0 },
-      { date: `${currentMonth}-10`, income: 156.8 },
-      { date: `${currentMonth}-12`, income: 98.2 },
-      { date: `${currentMonth}-14`, income: 125.8 },
-      { date: `${currentMonth}-18`, income: 142.0 },
-      { date: `${currentMonth}-22`, income: 168.5 },
-      { date: `${currentMonth}-25`, income: 95.0 },
-    ].forEach(({ date, income }) => {
-      map[date] = { income, expense: 0 };
-    });
-    return map;
-  }, [currentMonth]);
+
+  // 组件加载时获取数据
+  useEffect(() => {
+    if (isConnected) {
+      fetchTeamInfo();
+      fetchTeamCalendar(currentMonth);
+      fetchTeamMembers(1); // 默认获取第一页全部成员
+    }
+  }, [isConnected]);
+
+  // 监听登录事件，登录后刷新数据
+  useEffect(() => {
+    const handleLogin = () => {
+      console.log('🔄 检测到登录，刷新团队详情...');
+      fetchTeamInfo();
+      fetchTeamCalendar(currentMonth);
+      fetchTeamMembers(1);
+    };
+    
+    window.addEventListener('auth:login', handleLogin);
+    return () => window.removeEventListener('auth:login', handleLogin);
+  }, []);
+
+  // 切换标签时重新获取成员列表
+  const handleTabChange = (tab: "all" | "active") => {
+    setCurrentTab(tab);
+    const activity = tab === "active" ? 1 : undefined;
+    fetchTeamMembers(1, activity);
+  };
+
+  // 计算今日新增佣金（今天 - 昨天）
+  const calculateTodayCommission = useMemo(() => {
+    if (rawCalendarData.length === 0) return "0.00";
+    
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+    const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, "0")}-${String(yesterday.getDate()).padStart(2, "0")}`;
+    
+    const todayData = rawCalendarData.find(day => day.date === todayStr);
+    const yesterdayData = rawCalendarData.find(day => day.date === yesterdayStr);
+    
+    const todayCommission = parseFloat(todayData?.team_daily_income_commission || "0");
+    const yesterdayCommission = parseFloat(yesterdayData?.team_daily_income_commission || "0");
+    
+    const diff = todayCommission - yesterdayCommission;
+    return diff.toFixed(2);
+  }, [rawCalendarData]);
+
+  // 团队数据统计（使用真实数据）
+  const teamStats = {
+    totalMembers: teamInfo?.total_count || 0,
+    level1Members: parseInt(teamInfo?.level1_count || "0"),
+    level2Members: parseInt(teamInfo?.level2_count || "0"),
+    totalPerformance: parseFloat(teamInfo?.team_performance || "0").toFixed(2),
+    totalCommission: parseFloat(teamInfo?.team_earnings || "0").toFixed(2),
+    myAccountBalance: parseFloat(teamInfo?.capital_total || "0").toFixed(2), // 本人账户金额
+    todayCommission: calculateTodayCommission, // 今日新增佣金（今天 - 昨天）
+  };
+
+  // 团队业绩日历（使用真实数据）
+  const commissionByDate: FlowByDate = calendarData;
 
   const selectedDateCommission = useMemo(() => {
     if (!selectedDate) return null;
@@ -57,14 +163,12 @@ export function TeamView() {
     return (flow as { income: number }).income;
   }, [selectedDate, commissionByDate]);
 
-  // 模拟成员列表
-  const members = [
-    { id: 1, address: "0x1234...5678", level: "Lv.2", stake: "5,000", commission: "120.50", status: "active", joinDate: "2024-03-15" },
-    { id: 2, address: "0x8765...4321", level: "Lv.1", stake: "1,000", commission: "25.00", status: "inactive", joinDate: "2024-03-14" },
-    { id: 3, address: "0xabcd...efgh", level: "Lv.1", stake: "500", commission: "12.50", status: "active", joinDate: "2024-03-12" },
-    { id: 4, address: "0x9876...5432", level: "Lv.3", stake: "10,000", commission: "450.00", status: "active", joinDate: "2024-03-10" },
-    { id: 5, address: "0xijkl...mnop", level: "Lv.1", stake: "200", commission: "5.00", status: "inactive", joinDate: "2024-03-08" },
-  ];
+  // 格式化钱包地址（显示前6位和后4位）
+  const formatAddress = (address?: string) => {
+    if (!address) return "未知地址";
+    if (address.length <= 10) return address;
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
 
   return (
     <div className="space-y-4 pb-20 animate-in fade-in duration-500 max-w-4xl mx-auto pt-4">
@@ -141,9 +245,9 @@ export function TeamView() {
               <div className="text-xl font-bold tracking-tight text-orange-600 inline-flex items-center gap-1.5"><Usdt0 iconSize="sm" iconOnly />{teamStats.totalCommission}</div>
               <div className="text-[10px] text-muted-foreground mt-1.5 flex items-center gap-2 flex-wrap">
                 <span className="flex items-center gap-1">
-                  <span className="text-primary font-medium flex items-center">
+                  <span className={`font-medium flex items-center ${parseFloat(teamStats.todayCommission) >= 0 ? 'text-primary' : 'text-red-500'}`}>
                     <TrendingUp className="h-3 w-3 mr-0.5" />
-                    {teamStats.todayCommission}
+                    {parseFloat(teamStats.todayCommission) >= 0 ? '+' : ''}{teamStats.todayCommission}
                   </span>
                   <span className="opacity-60">今日新增</span>
                 </span>
@@ -198,7 +302,7 @@ export function TeamView() {
           团队成员
         </h3>
 
-        <Tabs defaultValue="all" className="w-full">
+        <Tabs value={currentTab} onValueChange={(value) => handleTabChange(value as "all" | "active")} className="w-full">
           <TabsList className="grid w-full grid-cols-2 h-9 p-1 bg-muted/50 rounded-lg mb-4">
             <TabsTrigger value="all" className="text-xs rounded-md h-7">全部成员</TabsTrigger>
             <TabsTrigger value="active" className="text-xs rounded-md h-7">活跃中</TabsTrigger>
@@ -206,41 +310,53 @@ export function TeamView() {
 
           <Card className="border-border/40 shadow-sm bg-card">
             <ScrollArea className="h-[400px]">
-              <div className="flex flex-col divide-y divide-border/40">
-                {members.map((member) => (
-                  <div key={member.id} className="p-4 hover:bg-muted/30 transition-colors flex items-center justify-between group">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-9 w-9 border border-border/50">
-                        <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${member.id}`} />
-                        <AvatarFallback>M</AvatarFallback>
-                      </Avatar>
-                      <div className="space-y-0.5">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-sm text-foreground">{member.address}</span>
-                          <Badge variant="outline" className="text-[10px] h-4 px-1 py-0 border-border/50 bg-secondary/30 text-muted-foreground">
-                            {member.level}
-                          </Badge>
+              {members.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-[400px] text-muted-foreground">
+                  <Users className="h-16 w-16 opacity-20 mb-4" />
+                  <p className="text-sm">暂无团队成员</p>
+                </div>
+              ) : (
+                <div className="flex flex-col divide-y divide-border/40">
+                  {members.map((member, index) => (
+                    <div key={member.id || index} className="p-4 hover:bg-muted/30 transition-colors flex items-center justify-between group">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-9 w-9 border border-border/50">
+                          <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${member.wallet_address || index}`} />
+                          <AvatarFallback>M</AvatarFallback>
+                        </Avatar>
+                        <div className="space-y-0.5">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-sm text-foreground">{formatAddress(member.wallet_address)}</span>
+                            {member.level && (
+                              <Badge variant="outline" className="text-[10px] h-4 px-1 py-0 border-border/50 bg-secondary/30 text-muted-foreground">
+                                Lv.{member.level}
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="text-xs text-muted-foreground flex items-center gap-2">
+                            {member.join_date && <span>加入: {member.join_date}</span>}
+                            {member.status === 'active' ? (
+                              <span className="flex items-center gap-1 text-primary text-[10px]">
+                                <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+                                活跃
+                              </span>
+                            ) : (
+                              <span className="text-muted-foreground/50 text-[10px]">离线</span>
+                            )}
+                          </div>
                         </div>
-                        <div className="text-xs text-muted-foreground flex items-center gap-2">
-                          <span>加入: {member.joinDate}</span>
-                          {member.status === 'active' ? (
-                            <span className="flex items-center gap-1 text-primary text-[10px]">
-                              <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-                              活跃
-                            </span>
-                          ) : (
-                            <span className="text-muted-foreground/50 text-[10px]">离线</span>
-                          )}
+                      </div>
+                      
+                      <div className="text-right">
+                        <div className="text-sm font-bold text-foreground inline-flex items-center gap-1">
+                          {member.stake_amount ? parseFloat(member.stake_amount).toFixed(2) : "0.00"} 
+                          <span className="text-[10px] font-normal text-muted-foreground"><Usdt0 iconSize="sm" /></span>
                         </div>
                       </div>
                     </div>
-                    
-                    <div className="text-right">
-                      <div className="text-sm font-bold text-foreground inline-flex items-center gap-1">{member.stake} <span className="text-[10px] font-normal text-muted-foreground"><Usdt0 iconSize="sm" /></span></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </ScrollArea>
           </Card>
         </Tabs>

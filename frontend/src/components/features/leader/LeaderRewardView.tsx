@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,45 +17,100 @@ import { useAccount } from "wagmi";
 import { Wallet, Trophy, CalendarDays, Gift, Loader2, CheckCircle2, ArrowRight } from "lucide-react";
 import iconManager from "@/assets/images/icon-manager.webp";
 import { Usdt0 } from "@/components/ui/usdt0";
-
-// 模拟用户数据
-const MOCK_USER = {
-  isLeader: false,
-  totalLeaderRewards: 214.80,
-  teamCount: 5,
-  totalTeamStake: 25000,
-};
+import { activateLeader, getLeaderInfo, getLeaderCalendar, getUserInfo, updateUserInfo, type LeaderInfoResponse } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 
 export function LeaderRewardView() {
   const { isConnected } = useAccount();
+  const { toast } = useToast();
   const [inviteCode, setInviteCode] = useState("");
   const [isUpgrading, setIsUpgrading] = useState(false);
-  const [isLeader, setIsLeader] = useState(MOCK_USER.isLeader);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [leaderInfo, setLeaderInfo] = useState<LeaderInfoResponse | null>(null);
+  const [calendarData, setCalendarData] = useState<Record<string, number>>({});
+
+  // 从本地存储的用户信息判断是否为领袖
+  const isLeader = useMemo(() => {
+    const userInfo = getUserInfo();
+    return userInfo?.is_leader === 1;
+  }, [leaderInfo]); // 依赖 leaderInfo 以便在激活后重新计算
 
   const now = new Date();
   const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 
-  // 模拟每日领袖收益（当前月份）
-  const LEADER_DAILY_REWARDS: Record<string, number> = useMemo(() => {
-    const map: Record<string, number> = {};
-    [
-      { day: 5, reward: 12.50 },
-      { day: 8, reward: 15.20 },
-      { day: 10, reward: 11.80 },
-      { day: 12, reward: 18.50 },
-      { day: 15, reward: 14.30 },
-      { day: 18, reward: 16.90 },
-      { day: 20, reward: 13.20 },
-      { day: 22, reward: 19.80 },
-      { day: 25, reward: 15.60 },
-      { day: 28, reward: 17.40 },
-    ].forEach(({ day, reward }) => {
-      map[`${currentMonth}-${String(day).padStart(2, "0")}`] = reward;
-    });
-    return map;
-  }, [currentMonth]);
+  // 获取领袖详情（仅在是领袖时调用）
+  const fetchLeaderInfo = async () => {
+    if (!isConnected) return;
+    
+    const userInfo = getUserInfo();
+    if (!userInfo || userInfo.is_leader !== 1) {
+      console.log('⏭️ 非领袖用户，跳过获取领袖详情');
+      return;
+    }
+    
+    try {
+      const data = await getLeaderInfo();
+      setLeaderInfo(data);
+      console.log('✅ 领袖详情获取成功:', data);
+    } catch (err) {
+      console.error('❌ 获取领袖详情失败:', err);
+      // 静默处理错误
+    }
+  };
+
+  // 获取领袖收益日历
+  const fetchLeaderCalendar = async (month: string) => {
+    if (!isConnected) return;
+    
+    const userInfo = getUserInfo();
+    if (!userInfo || userInfo.is_leader !== 1) {
+      console.log('⏭️ 非领袖用户，跳过获取日历数据');
+      return;
+    }
+    
+    try {
+      const data = await getLeaderCalendar({ month });
+      
+      // 转换日历数据为 Record<string, number> 格式
+      const calendarMap: Record<string, number> = {};
+      data.calendar.forEach(day => {
+        const reward = parseFloat(day.leader_performance);
+        if (reward > 0) {
+          calendarMap[day.date] = reward;
+        }
+      });
+      
+      setCalendarData(calendarMap);
+      console.log('✅ 领袖日历获取成功:', data);
+    } catch (err) {
+      console.error('❌ 获取领袖日历失败:', err);
+      // 静默处理错误
+    }
+  };
+
+  // 组件加载时获取数据
+  useEffect(() => {
+    if (isConnected) {
+      fetchLeaderInfo();
+      fetchLeaderCalendar(currentMonth);
+    }
+  }, [isConnected]);
+
+  // 监听登录事件，登录后刷新数据
+  useEffect(() => {
+    const handleLogin = () => {
+      console.log('🔄 检测到登录，刷新领袖详情...');
+      fetchLeaderInfo();
+      fetchLeaderCalendar(currentMonth);
+    };
+    
+    window.addEventListener('auth:login', handleLogin);
+    return () => window.removeEventListener('auth:login', handleLogin);
+  }, []);
+
+  // 模拟每日领袖收益（当前月份）- 已替换为真实数据
+  const LEADER_DAILY_REWARDS: Record<string, number> = calendarData;
 
   // 选中日期的收益
   const selectedDateReward = useMemo(() => {
@@ -65,13 +120,49 @@ export function LeaderRewardView() {
   }, [selectedDate, LEADER_DAILY_REWARDS]);
 
   const handleUpgrade = async () => {
-    if (!inviteCode.trim()) return;
+    if (!inviteCode.trim()) {
+      toast({
+        variant: 'destructive',
+        title: '激活失败',
+        description: '请输入激活码',
+      });
+      return;
+    }
+
     setIsUpgrading(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setIsLeader(true);
-    setIsUpgrading(false);
-    setInviteCode("");
-    setShowSuccessDialog(true);
+    
+    try {
+      console.log('🔑 激活领袖中...', { code: inviteCode });
+      const result = await activateLeader({ code: inviteCode });
+      console.log('✅ 激活成功:', result);
+      
+      // 更新本地存储的用户信息，标记为领袖
+      updateUserInfo({ is_leader: 1 });
+      console.log('💾 用户信息已更新为领袖');
+      
+      // 激活成功，刷新领袖详情和日历
+      await fetchLeaderInfo();
+      await fetchLeaderCalendar(currentMonth);
+      setInviteCode("");
+      setShowSuccessDialog(true);
+      
+      // 显示成功提示
+      toast({
+        title: '激活成功',
+        description: `领袖身份已激活，有效期至 ${result.expire_date}`,
+      });
+    } catch (err: any) {
+      console.error('❌ 激活失败:', err);
+      
+      // 显示错误提示
+      toast({
+        variant: 'destructive',
+        title: '激活失败',
+        description: err.message || '激活码无效或已被使用',
+      });
+    } finally {
+      setIsUpgrading(false);
+    }
   };
 
   if (!isConnected) {
@@ -119,7 +210,9 @@ export function LeaderRewardView() {
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">累计领袖奖励</p>
-                    <p className="text-xl font-bold text-primary inline-flex items-center gap-1.5">+{MOCK_USER.totalLeaderRewards.toFixed(2)} <Usdt0 iconSize="default" /></p>
+                    <p className="text-xl font-bold text-primary inline-flex items-center gap-1.5">
+                      +{parseFloat(leaderInfo?.total_reward || "0").toFixed(2)} <Usdt0 iconSize="default" />
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -131,8 +224,8 @@ export function LeaderRewardView() {
                     <Gift className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground">团队人数</p>
-                    <p className="text-xl font-bold">{MOCK_USER.teamCount} 人</p>
+                    <p className="text-xs text-muted-foreground">领袖团队人数</p>
+                    <p className="text-xl font-bold">{leaderInfo?.leader_team_count || 0} 人</p>
                   </div>
                 </div>
               </CardContent>
