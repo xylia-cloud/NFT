@@ -71,7 +71,7 @@ npx hardhat node --hostname 127.0.0.1 --port 8546
 npx hardhat ignition deploy ignition/modules/PaymentChannel.ts --network localhost
 ```
 
-部署成功后，记下合约地址（默认为 `0x5FbDB2315678afecb367f032d93F642f64180aa3`）。
+部署成功后，记下合约地址（当前部署：USDT `0x68B1D87F95878fE05B998F19b66F4baba5De1aed`，PaymentChannel `0x3Aa5ebB10DC797CAC828524e59A333d0A371443c`）。
 
 ### 部署到 BSC 测试网
 

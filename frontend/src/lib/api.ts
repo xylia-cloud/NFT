@@ -339,7 +339,47 @@ export async function register(params: RegisterParams): Promise<LoginResponse> {
 }
 
 /**
- * 充值/质押
+ * 充值预下单（获取订单号）
+ */
+export interface RechargePreorderParams {
+  amount: string; // 充值金额（字符串格式）
+}
+
+export interface RechargePreorderResponse {
+  order_id: string; // 订单号
+  amount: number;   // 充值金额
+}
+
+export async function rechargePreorder(params: RechargePreorderParams): Promise<RechargePreorderResponse> {
+  return post<RechargePreorderResponse>('/Api/Recharge/recharge_preorder', params);
+}
+
+/**
+ * 查询订单状态
+ */
+export interface OrderStatusParams {
+  order_id: string; // 订单号
+}
+
+export interface OrderStatusResponse {
+  order_id: string;
+  buy_id: string;
+  name: string;
+  status: 'pending' | 'paid' | 'finished'; // pending: 预下单, paid: 已到账质押处理中, finished: 已质押
+  amount: string;
+  num: string;
+  addtime: string;
+  paytime: string | null;
+  add_date_time: string;
+  pay_date_time: string | null;
+}
+
+export async function getOrderStatus(params: OrderStatusParams): Promise<OrderStatusResponse> {
+  return get<OrderStatusResponse>('/Api/Recharge/order_status', params);
+}
+
+/**
+ * 充值/质押（旧接口，保留兼容）
  */
 export interface RechargeParams {
   amount: number; // 充值金额（500-30000，必须是500或1000的倍数）
@@ -408,6 +448,60 @@ export async function getUserAsset(): Promise<UserAsset> {
 
 /**
  * 获取质押订单列表
+ */
+export interface MyRecordsParams {
+  page?: string;      // 页码，默认 1
+  size?: string;      // 每页数量，默认 100
+  status?: string[];  // 状态筛选：lockin-锁定期, normal-正常, withdrawn-已提现, withdrawing-提现中
+}
+
+export interface StakeRecord {
+  id: string;
+  userid: string;
+  name: string;
+  coinname: string;
+  order_id: string;
+  num: string;
+  amount: string;                      // 质押金额
+  fee: string;
+  addtime: string;                     // 添加时间戳
+  withdrawntime: string;               // 提现时间戳
+  withdrawn_id: string | null;
+  status: 'lockin' | 'normal' | 'withdrawn' | 'withdrawing'; // 状态
+  lockin_time: string;                 // 锁定期结束时间戳
+  withdrawn_addr: string | null;
+  total_profit: string;                // 累计收益
+  current_withdrawn_fee: number;       // 当前可提现金额
+  today_profit: string;                // 今日收益
+  total_profit_with_today: string;     // 累计收益（含今日）
+  add_date_time: string;               // 添加时间（格式化）
+  withdrawn_date_time: string | null;  // 提现时间（格式化）
+  lockin_date_time: string;            // 锁定期结束时间（格式化）
+}
+
+export interface MyRecordsResponse {
+  list: StakeRecord[];
+  count: number;
+  page: number;
+}
+
+export async function getMyRecords(params?: MyRecordsParams): Promise<MyRecordsResponse> {
+  // 构建查询参数
+  const queryParams: Record<string, any> = {
+    page: params?.page || '1',
+    size: params?.size || '100',
+  };
+  
+  // status[] 参数作为 JSON 数组字符串传递
+  if (params?.status && params.status.length > 0) {
+    queryParams['status[]'] = JSON.stringify(params.status);
+  }
+  
+  return get<MyRecordsResponse>('/Api/Recharge/my_records', queryParams);
+}
+
+/**
+ * 获取质押订单列表（旧接口，保留兼容）
  */
 export interface StakeOrder {
   id: string;
@@ -673,6 +767,38 @@ export interface WalletInfoResponse {
 
 export async function getWalletInfo(): Promise<WalletInfoResponse> {
   return get<WalletInfoResponse>('/Api/Wallet/info');
+}
+
+/**
+ * 获取 XPL 汇率
+ */
+export interface XplRateResponse {
+  rate: number;           // XPL 汇率（1 USDT0 = rate XPL）
+  rate_format: string;    // 格式化的汇率
+  source: string;         // 数据源（如 binance）
+  update_time: string;    // 更新时间
+}
+
+export async function getXplRate(): Promise<XplRateResponse> {
+  return get<XplRateResponse>('/Api/Common/get_xpl_rate');
+}
+
+/**
+ * 收益提现
+ */
+export interface ProfitWithdrawRequest {
+  amount: string;  // 提现金额
+}
+
+export interface ProfitWithdrawResponse {
+  transaction_id: string;   // 交易ID
+  fee: string;              // 手续费
+  receipt_amount: number;   // 实际到账金额
+  amount: number;           // 提现金额
+}
+
+export async function profitWithdraw(params: ProfitWithdrawRequest): Promise<ProfitWithdrawResponse> {
+  return post<ProfitWithdrawResponse>('/Api/Wallet/profit_withdraw', params);
 }
 
 /**

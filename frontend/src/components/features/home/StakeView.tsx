@@ -9,7 +9,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { cn } from "@/lib/utils";
 import { Usdt0 } from "@/components/ui/usdt0";
 import { CONTRACT_ADDRESS, CONTRACT_ABI, USDT_ADDRESS, USDT_ABI } from "../../../wagmiConfig";
-import { getGlobalConfig, type GlobalConfigResponse } from "@/lib/api";
+import { getGlobalConfig, rechargePreorder, type GlobalConfigResponse, type RechargePreorderResponse } from "@/lib/api";
 import bannerSpline from "@/assets/images/banner.splinecode?url";
 import partner1 from "@/assets/images/partners_1.svg";
 import partner2 from "@/assets/images/partners_2.svg";
@@ -271,20 +271,30 @@ export function StakeView() {
   useEffect(() => {
     if (isConfirmed && depositStep === 'approving' && pendingDepositAmount) {
       setDepositStep('depositing');
+      // 使用预下单获取的订单号
+      const orderId = (window as any).__currentOrderId || `DEPOSIT-${Date.now()}-${address?.slice(-6)}`;
+      console.log('💰 调用链上充值，订单号:', orderId);
       writeContract({
         address: CONTRACT_ADDRESS,
         abi: CONTRACT_ABI,
         functionName: 'depositUsdt',
-        args: [pendingDepositAmount],
+        args: [pendingDepositAmount, orderId],
       });
       setPendingDepositAmount(null);
     }
-  }, [isConfirmed, depositStep, pendingDepositAmount, writeContract]);
+  }, [isConfirmed, depositStep, pendingDepositAmount, writeContract, address]);
 
   // 当 depositUsdt 交易确认后，重置状态
   useEffect(() => {
     if (isConfirmed && depositStep === 'depositing') {
+      const orderId = (window as any).__currentOrderId;
+      
       // 充值成功：弹窗提示 + 刷新余额
+      console.log('✅ 链上充值成功！');
+      console.log('- 订单号:', orderId);
+      console.log('- 交易哈希:', hash);
+      console.log('- 金额:', amount, 'USDT');
+      
       setDepositSuccessInfo({
         amountUsdt: amount.toLocaleString(),
         txHash: hash,
@@ -293,8 +303,15 @@ export function StakeView() {
       setDepositStep('idle');
       setPendingDepositAmount(null);
       resetWrite();
+      
+      // 清理订单号
+      delete (window as any).__currentOrderId;
+      
       // 刷新顶部余额显示
       void refetchUsdtBalance();
+      
+      // 可选：查询订单状态（后端会监听链上事件并更新订单状态）
+      // 这里可以添加轮询逻辑，定期查询订单状态直到变为 'finished'
     }
   }, [isConfirmed, depositStep, resetWrite, refetchUsdtBalance, amount, hash]);
 
@@ -307,6 +324,8 @@ export function StakeView() {
         (writeError as any)?.name === 'UserRejectedRequestError' ||
         /user rejected|rejected|denied|取消|拒绝/i.test(msg);
 
+      console.error('❌ 交易失败:', msg);
+      
       setTxErrorInfo({
         title: isUserRejected ? '已取消' : `${stepLabel}失败`,
         description: isUserRejected
@@ -318,6 +337,9 @@ export function StakeView() {
       setDepositStep('idle');
       setPendingDepositAmount(null);
       resetWrite();
+      
+      // 清理订单号
+      delete (window as any).__currentOrderId;
     }
   }, [writeError, depositStep, resetWrite]);
 
@@ -381,18 +403,40 @@ export function StakeView() {
       return;
     }
     
-    // 重置状态
-    resetWrite();
-    setDepositStep('approving');
-    setPendingDepositAmount(usdtAmount);
-    
-    // 先 approve，等待交易确认后再调用 depositUsdt（在 useEffect 中处理）
-    writeContract({
-      address: USDT_ADDRESS,
-      abi: USDT_ABI,
-      functionName: 'approve',
-      args: [CONTRACT_ADDRESS, usdtAmount],
-    });
+    try {
+      // 1. 先调用后端预下单接口获取订单号
+      console.log('📝 调用预下单接口，金额:', amount);
+      const preorderResult = await rechargePreorder({ amount: amount.toString() });
+      console.log('✅ 预下单成功，订单号:', preorderResult.order_id);
+      
+      // 2. 使用订单号作为链上充值的订单号
+      const orderId = preorderResult.order_id;
+      
+      // 重置状态
+      resetWrite();
+      setDepositStep('approving');
+      setPendingDepositAmount(usdtAmount);
+      
+      // 3. 先 approve，等待交易确认后再调用 depositUsdt（在 useEffect 中处理）
+      // 将订单号保存到状态中，供后续使用
+      (window as any).__currentOrderId = orderId;
+      
+      writeContract({
+        address: USDT_ADDRESS,
+        abi: USDT_ABI,
+        functionName: 'approve',
+        args: [CONTRACT_ADDRESS, usdtAmount],
+      });
+    } catch (error) {
+      console.error('❌ 预下单失败:', error);
+      // 显示错误提示
+      setTxErrorInfo({
+        title: '预下单失败',
+        description: '无法创建充值订单，请稍后重试',
+        detail: error instanceof Error ? error.message : String(error),
+      });
+      setShowTxErrorDialog(true);
+    }
   };
 
   // 动态计算预估收益（使用真实的月化收益率）

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,16 +6,16 @@ import { Label } from "@/components/ui/label";
 import { useAccount } from "wagmi";
 import { Wallet, ArrowDownToLine, Shield, AlertCircle, Loader2, History } from "lucide-react";
 import { Usdt0 } from "@/components/ui/usdt0";
-
-// 模拟可提取金额
-const WITHDRAWABLE_AMOUNT = 12500;
-// USDT0 兑 XPL 参考汇率（示例：1 USDT0 ≈ 10 XPL，可按实际接口替换）
-const USDT0_TO_XPL_RATE = 10;
+import { getWalletInfo, getXplRate, profitWithdraw } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 
 export function WithdrawView() {
   const { isConnected } = useAccount();
+  const { toast } = useToast();
   const [amount, setAmount] = useState("");
   const [isWithdrawing, setIsWithdrawing] = useState(false);
+  const [withdrawableAmount, setWithdrawableAmount] = useState(0);
+  const [xplRate, setXplRate] = useState(0); // XPL 汇率
   const [withdrawHistory] = useState([
     { id: 1, amount: 500, date: "2025-01-28 14:30", status: "completed" },
     { id: 2, amount: 200, date: "2025-01-20 09:15", status: "completed" },
@@ -23,17 +23,91 @@ export function WithdrawView() {
   ]);
 
   const inputAmount = parseFloat(amount);
-  const isValidAmount = !isNaN(inputAmount) && inputAmount > 0 && inputAmount <= WITHDRAWABLE_AMOUNT;
-  // 根据输入的 USDT0 实时估算约等于的 XPL 数量
-  const estimatedXpl = isNaN(inputAmount) || inputAmount <= 0 ? 0 : inputAmount * USDT0_TO_XPL_RATE;
+  const isValidAmount = !isNaN(inputAmount) && inputAmount > 0 && inputAmount <= withdrawableAmount;
+  // 根据输入的 USDT0 和真实汇率计算 XPL 数量
+  const estimatedXpl = isNaN(inputAmount) || inputAmount <= 0 || xplRate <= 0 ? 0 : inputAmount * xplRate;
+
+  // 获取钱包信息
+  const fetchWalletInfo = async () => {
+    if (!isConnected) return;
+    
+    try {
+      const data = await getWalletInfo();
+      const profit = parseFloat(data.profit || "0");
+      setWithdrawableAmount(profit);
+      console.log('✅ 可提取金额获取成功:', profit);
+    } catch (err) {
+      console.error('❌ 获取可提取金额失败:', err);
+      // 静默处理错误
+    }
+  };
+
+  // 获取 XPL 汇率
+  const fetchXplRate = async () => {
+    try {
+      const data = await getXplRate();
+      const rate = data.rate || 0;
+      setXplRate(rate);
+      console.log('✅ XPL 汇率获取成功:', rate, '来源:', data.source, '更新时间:', data.update_time);
+    } catch (err) {
+      console.error('❌ 获取 XPL 汇率失败:', err);
+      // 静默处理错误，使用默认值 0
+    }
+  };
+
+  // 组件加载时获取钱包信息和汇率
+  useEffect(() => {
+    if (isConnected) {
+      fetchWalletInfo();
+      fetchXplRate();
+    }
+  }, [isConnected]);
+
+  // 监听登录事件，登录后刷新数据
+  useEffect(() => {
+    const handleLogin = () => {
+      console.log('🔄 检测到登录，刷新可提取金额和汇率...');
+      fetchWalletInfo();
+      fetchXplRate();
+    };
+    
+    window.addEventListener('auth:login', handleLogin);
+    return () => window.removeEventListener('auth:login', handleLogin);
+  }, []);
 
   const handleWithdraw = async () => {
     if (!isValidAmount) return;
+    
     setIsWithdrawing(true);
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setIsWithdrawing(false);
-    setAmount("");
-    alert(`成功提现 ${inputAmount} USDT0 至钱包 (模拟)`);
+    try {
+      const result = await profitWithdraw({ amount: inputAmount.toString() });
+      
+      console.log('✅ 提现成功:', result);
+      
+      // 显示成功提示
+      toast({
+        title: "提现成功",
+        description: `已提现 ${result.amount} USDT0，实际到账 ${result.receipt_amount} USDT0 (约 ${(result.receipt_amount * xplRate).toLocaleString(undefined, { maximumFractionDigits: 4 })} XPL)，手续费 ${result.fee} USDT0`,
+      });
+      
+      // 清空输入
+      setAmount("");
+      
+      // 刷新钱包信息
+      fetchWalletInfo();
+      
+    } catch (err: any) {
+      console.error('❌ 提现失败:', err);
+      
+      // 显示错误提示
+      toast({
+        title: "提现失败",
+        description: err.message || "提现失败，请稍后重试",
+        variant: "destructive",
+      });
+    } finally {
+      setIsWithdrawing(false);
+    }
   };
 
   if (!isConnected) {
@@ -57,8 +131,8 @@ export function WithdrawView() {
             <span className="text-sm font-medium text-muted-foreground">可提取金额 (USDT0)</span>
             <div className="flex items-baseline gap-3">
               <span className="text-4xl font-bold tracking-tight text-primary tabular-nums inline-flex items-center gap-2">
-                <Usdt0 iconSize="lg" iconOnly />
-                {WITHDRAWABLE_AMOUNT.toLocaleString()}
+                <Usdt0 iconSize="xl" iconOnly />
+                {withdrawableAmount.toLocaleString()}
               </span>
             </div>
           </div>
@@ -87,7 +161,7 @@ export function WithdrawView() {
               <button
                 type="button"
                 className="text-primary hover:underline"
-                onClick={() => setAmount(WITHDRAWABLE_AMOUNT.toString())}
+                onClick={() => setAmount(withdrawableAmount.toString())}
               >
                 全部提取
               </button>
@@ -95,9 +169,19 @@ export function WithdrawView() {
                 最小提取: 100 USDT0
               </span>
             </div>
-            {inputAmount > 0 && (
+            {inputAmount > 0 && xplRate > 0 && (
+              <div className="rounded-lg bg-primary/5 border border-primary/10 p-3">
+                <p className="text-sm text-muted-foreground">
+                  按当前汇率 (1 USDT0 = {xplRate.toLocaleString(undefined, { maximumFractionDigits: 4 })} XPL)
+                </p>
+                <p className="text-base font-semibold text-primary mt-1">
+                  约 {estimatedXpl.toLocaleString(undefined, { maximumFractionDigits: 4 })} XPL
+                </p>
+              </div>
+            )}
+            {inputAmount > 0 && xplRate <= 0 && (
               <p className="text-sm text-muted-foreground">
-                约 <span className="font-semibold text-foreground tabular-nums">{estimatedXpl.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span> XPL
+                正在获取汇率...
               </p>
             )}
           </div>
@@ -111,10 +195,10 @@ export function WithdrawView() {
                 variant={amount === preset.toString() ? "default" : "outline"}
                 size="sm"
                 className="rounded-lg"
-                onClick={() => setAmount(Math.min(preset, WITHDRAWABLE_AMOUNT).toString())}
-                disabled={preset > WITHDRAWABLE_AMOUNT}
+                onClick={() => setAmount(Math.min(preset, withdrawableAmount).toString())}
+                disabled={preset > withdrawableAmount}
               >
-                {preset > WITHDRAWABLE_AMOUNT ? "MAX" : preset.toLocaleString()}
+                {preset > withdrawableAmount ? "MAX" : preset.toLocaleString()}
               </Button>
             ))}
           </div>
@@ -144,7 +228,7 @@ export function WithdrawView() {
             ) : (
               <>
                 <ArrowDownToLine className="h-4 w-4 mr-2" />
-                确认提现 {isValidAmount ? `${inputAmount.toLocaleString()} USDT0` : ""}
+                确认提现 {isValidAmount && estimatedXpl > 0 ? `${estimatedXpl.toLocaleString(undefined, { maximumFractionDigits: 4 })} XPL` : ""}
               </>
             )}
           </Button>
