@@ -24,8 +24,6 @@ export function TeamView() {
   const [rawCalendarData, setRawCalendarData] = useState<any[]>([]); // 保存原始日历数据用于计算
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [currentTab, setCurrentTab] = useState<"all" | "active">("all");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalMembers, setTotalMembers] = useState(0);
 
   // 获取团队详情
   const fetchTeamInfo = async () => {
@@ -78,8 +76,6 @@ export function TeamView() {
     try {
       const data = await getTeamMembers({ page, activity });
       setMembers(data.list);
-      setTotalMembers(data.total);
-      setCurrentPage(data.page);
       console.log('✅ 团队成员获取成功:', data);
     } catch (err) {
       console.error('❌ 获取团队成员失败:', err);

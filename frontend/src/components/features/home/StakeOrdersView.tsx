@@ -2,7 +2,10 @@ import { useState, useEffect } from "react";
 import { PiggyBank, Loader2 } from "lucide-react";
 import type { StakeOrder } from "./StakeView";
 import { StakeOrderItem } from "./StakeView";
-import { getMyRecords, type StakeRecord } from "@/lib/api";
+import { getMyRecords, capitalWithdraw, type StakeRecord } from "@/lib/api";
+import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { paymentChannelABI, paymentChannelAddress } from "@/wagmiConfig";
+import { toast } from "sonner";
 
 // 将后端返回的记录转换为前端 StakeOrder 格式
 function convertToStakeOrder(record: StakeRecord): StakeOrder {
@@ -36,10 +39,18 @@ function convertToStakeOrder(record: StakeRecord): StakeOrder {
 }
 
 export function StakeOrdersView() {
+  const { address } = useAccount();
   const [stakeOrders, setStakeOrders] = useState<StakeOrder[]>([]);
   const [withdrawingOrderId, setWithdrawingOrderId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentWithdrawOrderId, setCurrentWithdrawOrderId] = useState<string>("");
+  
+  // 合约交互
+  const { writeContract, data: hash } = useWriteContract();
+  const { isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+    hash,
+  });
 
   // 获取质押订单列表
   useEffect(() => {
@@ -55,22 +66,8 @@ export function StakeOrdersView() {
           status: ['lockin', 'normal', 'withdrawing'],
         });
         
-        console.log('✅ 质押订单获取成功:', data);
-        console.log('📋 订单列表:', data.list);
-        
         // 转换为前端格式
-        const orders = data.list.map((record, index) => {
-          console.log(`📝 转换订单 ${index + 1}:`, {
-            id: record.id,
-            amount: record.amount,
-            total_profit_with_today: record.total_profit_with_today,
-            today_profit: record.today_profit,
-            status: record.status,
-          });
-          return convertToStakeOrder(record);
-        });
-        
-        console.log('✅ 转换后的订单:', orders);
+        const orders = data.list.map(convertToStakeOrder);
         setStakeOrders(orders);
       } catch (err) {
         console.error('❌ 获取质押订单失败:', err);
@@ -88,30 +85,83 @@ export function StakeOrdersView() {
   }, []);
 
   const handleWithdrawStakeOrder = async (order: StakeOrder) => {
+    if (!address) {
+      toast.error("请先连接钱包");
+      return;
+    }
+    
     setWithdrawingOrderId(order.id);
     
     try {
-      // TODO: 调用提现接口
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      
-      // 提现成功后，重新获取订单列表
+      // 从后端订单列表中找到对应的原始订单数据
       const data = await getMyRecords({
         page: '1',
         size: '100',
         status: ['lockin', 'normal', 'withdrawing'],
       });
       
-      const orders = data.list.map(convertToStakeOrder);
-      setStakeOrders(orders);
+      const originalOrder = data.list.find(r => parseInt(r.id) === order.id);
+      if (!originalOrder) {
+        throw new Error('订单不存在');
+      }
       
-      alert(`已提取本金 ${order.amount.toLocaleString()} USDT0 至钱包`);
-    } catch (err) {
-      console.error('❌ 提现失败:', err);
-      alert('提现失败，请稍后重试');
-    } finally {
+      // 步骤1: 调用后端本金提现接口
+      const withdrawResult = await capitalWithdraw({ order_id: originalOrder.order_id });
+      
+      setCurrentWithdrawOrderId(withdrawResult.transaction_id);
+      
+      // 步骤2: 调用智能合约提现（使用签名验证）
+      const { withdraw_signature } = withdrawResult;
+      
+      // USDT 金额（已经是 wei 格式，6位精度）
+      const usdtAmountWei = BigInt(withdraw_signature.amount_wei);
+      
+      // 调用 withdrawWithSignature 函数（本金提现，转 USDT）
+      writeContract({
+        address: paymentChannelAddress,
+        abi: paymentChannelABI,
+        functionName: 'withdrawWithSignature',
+        args: [
+          usdtAmountWei,
+          withdrawResult.transaction_id,
+          BigInt(withdraw_signature.nonce),
+          withdraw_signature.signature as `0x${string}`,
+        ],
+      });
+      
+    } catch (err: any) {
+      console.error('❌ 本金提现失败:', err);
       setWithdrawingOrderId(null);
+      toast.error(err.message || "提现失败，请稍后重试");
     }
   };
+  
+  // 监听交易确认
+  useEffect(() => {
+    if (isConfirmed && hash && currentWithdrawOrderId) {
+      toast.success("本金提现成功");
+      
+      // 清空状态
+      setCurrentWithdrawOrderId("");
+      setWithdrawingOrderId(null);
+      
+      // 刷新订单列表
+      const fetchOrders = async () => {
+        try {
+          const data = await getMyRecords({
+            page: '1',
+            size: '100',
+            status: ['lockin', 'normal', 'withdrawing'],
+          });
+          const orders = data.list.map(convertToStakeOrder);
+          setStakeOrders(orders);
+        } catch (err) {
+          console.error('❌ 刷新订单列表失败:', err);
+        }
+      };
+      fetchOrders();
+    }
+  }, [isConfirmed, hash, currentWithdrawOrderId]);
 
   if (loading) {
     return (

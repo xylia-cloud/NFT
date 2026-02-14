@@ -9,7 +9,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { cn } from "@/lib/utils";
 import { Usdt0 } from "@/components/ui/usdt0";
 import { CONTRACT_ADDRESS, CONTRACT_ABI, USDT_ADDRESS, USDT_ABI } from "../../../wagmiConfig";
-import { getGlobalConfig, rechargePreorder, type GlobalConfigResponse, type RechargePreorderResponse } from "@/lib/api";
+import { getGlobalConfig, rechargePreorder, type GlobalConfigResponse } from "@/lib/api";
 import bannerSpline from "@/assets/images/banner.splinecode?url";
 import partner1 from "@/assets/images/partners_1.svg";
 import partner2 from "@/assets/images/partners_2.svg";

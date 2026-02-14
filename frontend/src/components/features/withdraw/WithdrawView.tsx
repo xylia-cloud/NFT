@@ -3,29 +3,35 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAccount } from "wagmi";
+import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { Wallet, ArrowDownToLine, Shield, AlertCircle, Loader2, History } from "lucide-react";
 import { Usdt0 } from "@/components/ui/usdt0";
-import { getWalletInfo, getXplRate, profitWithdraw } from "@/lib/api";
-import { useToast } from "@/hooks/use-toast";
+import { getWalletInfo, getXplRate, profitWithdraw, getTransactionDetails, type TransactionDetail } from "@/lib/api";
+import { toast } from "sonner";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { paymentChannelABI, paymentChannelAddress } from "@/wagmiConfig";
 
 export function WithdrawView() {
-  const { isConnected } = useAccount();
-  const { toast } = useToast();
+  const { isConnected, address } = useAccount();
   const [amount, setAmount] = useState("");
   const [isWithdrawing, setIsWithdrawing] = useState(false);
   const [withdrawableAmount, setWithdrawableAmount] = useState(0);
   const [xplRate, setXplRate] = useState(0); // XPL 汇率
-  const [withdrawHistory] = useState([
-    { id: 1, amount: 500, date: "2025-01-28 14:30", status: "completed" },
-    { id: 2, amount: 200, date: "2025-01-20 09:15", status: "completed" },
-    { id: 3, amount: 1000, date: "2025-01-15 16:45", status: "completed" },
-  ]);
+  const [withdrawHistory, setWithdrawHistory] = useState<TransactionDetail[]>([]);
+  const [currentOrderId, setCurrentOrderId] = useState<string>("");
+  
+  // 合约交互
+  const { writeContract, data: hash, isPending: isContractPending } = useWriteContract();
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+    hash,
+  });
 
   const inputAmount = parseFloat(amount);
   const isValidAmount = !isNaN(inputAmount) && inputAmount > 0 && inputAmount <= withdrawableAmount;
   // 根据输入的 USDT0 和真实汇率计算 XPL 数量
-  const estimatedXpl = isNaN(inputAmount) || inputAmount <= 0 || xplRate <= 0 ? 0 : inputAmount * xplRate;
+  // xplRate 是 XPL 的 USDT 价格（1 XPL = xplRate USDT）
+  // 所以 XPL 数量 = USDT 数量 / xplRate
+  const estimatedXpl = isNaN(inputAmount) || inputAmount <= 0 || xplRate <= 0 ? 0 : inputAmount / xplRate;
 
   // 获取钱包信息
   const fetchWalletInfo = async () => {
@@ -55,11 +61,26 @@ export function WithdrawView() {
     }
   };
 
+  // 获取提现记录
+  const fetchWithdrawHistory = async () => {
+    if (!isConnected) return;
+    
+    try {
+      const data = await getTransactionDetails({ page: 1, category: 'withdraw' });
+      setWithdrawHistory(data.list);
+      console.log('✅ 提现记录获取成功:', data.list.length, '条');
+    } catch (err) {
+      console.error('❌ 获取提现记录失败:', err);
+      // 静默处理错误
+    }
+  };
+
   // 组件加载时获取钱包信息和汇率
   useEffect(() => {
     if (isConnected) {
       fetchWalletInfo();
       fetchXplRate();
+      fetchWithdrawHistory();
     }
   }, [isConnected]);
 
@@ -69,6 +90,7 @@ export function WithdrawView() {
       console.log('🔄 检测到登录，刷新可提取金额和汇率...');
       fetchWalletInfo();
       fetchXplRate();
+      fetchWithdrawHistory();
     };
     
     window.addEventListener('auth:login', handleLogin);
@@ -76,39 +98,85 @@ export function WithdrawView() {
   }, []);
 
   const handleWithdraw = async () => {
-    if (!isValidAmount) return;
+    if (!isValidAmount || !address) return;
     
     setIsWithdrawing(true);
     try {
-      const result = await profitWithdraw({ amount: inputAmount.toString() });
+      // 步骤1: 调用后端创建提现订单并获取签名
+      console.log('📝 创建提现订单...', { amount: inputAmount });
+      const orderResult = await profitWithdraw({ amount: inputAmount.toString() });
       
-      console.log('✅ 提现成功:', result);
-      
-      // 显示成功提示
-      toast({
-        title: "提现成功",
-        description: `已提现 ${result.amount} USDT0，实际到账 ${result.receipt_amount} USDT0 (约 ${(result.receipt_amount * xplRate).toLocaleString(undefined, { maximumFractionDigits: 4 })} XPL)，手续费 ${result.fee} USDT0`,
+      console.log('✅ 订单创建成功:', orderResult);
+      console.log('📊 订单详情:', {
+        transaction_id: orderResult.transaction_id,
+        amount: orderResult.amount,
+        fee: orderResult.fee,
+        receipt_amount: orderResult.receipt_amount,
+        xpl_rate: orderResult.xpl_rate,
+        xpl_amount: orderResult.xpl_amount,
+        withdraw_signature: orderResult.withdraw_signature,
       });
       
-      // 清空输入
-      setAmount("");
+      setCurrentOrderId(orderResult.transaction_id);
       
-      // 刷新钱包信息
-      fetchWalletInfo();
+      // 步骤2: 调用智能合约提现（使用签名验证）
+      console.log('🔗 调用智能合约 withdrawXplWithSignature...');
+      
+      const { withdraw_signature } = orderResult;
+      
+      // XPL 金额（已经是 wei 格式，18位精度）
+      const xplAmountWei = BigInt(withdraw_signature.amount_wei);
+      
+      // USDT 价值（需要转换为 wei，6位精度）
+      const usdtValueWei = BigInt(Math.floor(orderResult.receipt_amount * 1e6));
+      
+      console.log('🔢 合约参数:', {
+        xplAmountWei: xplAmountWei.toString(),
+        usdtValueWei: usdtValueWei.toString(),
+        orderId: orderResult.transaction_id,
+        nonce: withdraw_signature.nonce,
+        signature: withdraw_signature.signature,
+      });
+      
+      // 调用 withdrawXplWithSignature 函数（收益提现，转 XPL）
+      writeContract({
+        address: paymentChannelAddress,
+        abi: paymentChannelABI,
+        functionName: 'withdrawXplWithSignature',
+        args: [
+          xplAmountWei,
+          usdtValueWei,
+          orderResult.transaction_id,
+          BigInt(withdraw_signature.nonce),
+          withdraw_signature.signature as `0x${string}`,
+        ],
+      });
       
     } catch (err: any) {
       console.error('❌ 提现失败:', err);
-      
-      // 显示错误提示
-      toast({
-        title: "提现失败",
-        description: err.message || "提现失败，请稍后重试",
-        variant: "destructive",
-      });
-    } finally {
       setIsWithdrawing(false);
+      
+      toast.error(err.message || "创建订单失败，请稍后重试");
     }
   };
+  
+  // 监听交易确认
+  useEffect(() => {
+    if (isConfirmed && hash && currentOrderId) {
+      console.log('✅ 交易已确认:', hash);
+      
+      toast.success("提现成功");
+      
+      // 清空输入和状态
+      setAmount("");
+      setCurrentOrderId("");
+      setIsWithdrawing(false);
+      
+      // 刷新数据
+      fetchWalletInfo();
+      fetchWithdrawHistory();
+    }
+  }, [isConfirmed, hash, currentOrderId]);
 
   if (!isConnected) {
     return (
@@ -172,7 +240,7 @@ export function WithdrawView() {
             {inputAmount > 0 && xplRate > 0 && (
               <div className="rounded-lg bg-primary/5 border border-primary/10 p-3">
                 <p className="text-sm text-muted-foreground">
-                  按当前汇率 (1 USDT0 = {xplRate.toLocaleString(undefined, { maximumFractionDigits: 4 })} XPL)
+                  按当前汇率 (1 XPL = {xplRate.toLocaleString(undefined, { maximumFractionDigits: 4 })} USDT0)
                 </p>
                 <p className="text-base font-semibold text-primary mt-1">
                   约 {estimatedXpl.toLocaleString(undefined, { maximumFractionDigits: 4 })} XPL
@@ -188,19 +256,23 @@ export function WithdrawView() {
 
           {/* 快捷金额 */}
           <div className="grid grid-cols-4 gap-2">
-            {[1000, 2000, 5000, 10000].map((preset) => (
-              <Button
-                key={preset}
-                type="button"
-                variant={amount === preset.toString() ? "default" : "outline"}
-                size="sm"
-                className="rounded-lg"
-                onClick={() => setAmount(Math.min(preset, withdrawableAmount).toString())}
-                disabled={preset > withdrawableAmount}
-              >
-                {preset > withdrawableAmount ? "MAX" : preset.toLocaleString()}
-              </Button>
-            ))}
+            {[1000, 2000, 5000, 10000].map((preset) => {
+              const isMax = preset > withdrawableAmount;
+              const displayAmount = isMax ? withdrawableAmount : preset;
+              
+              return (
+                <Button
+                  key={preset}
+                  type="button"
+                  variant={amount === displayAmount.toString() ? "default" : "outline"}
+                  size="sm"
+                  className="rounded-lg"
+                  onClick={() => setAmount(displayAmount.toString())}
+                >
+                  {isMax ? "MAX" : preset.toLocaleString()}
+                </Button>
+              );
+            })}
           </div>
 
           {/* 提现说明 */}
@@ -218,12 +290,22 @@ export function WithdrawView() {
           <Button
             className="w-full h-12 rounded-xl text-base font-bold"
             onClick={handleWithdraw}
-            disabled={!isValidAmount || isWithdrawing}
+            disabled={!isValidAmount || isWithdrawing || isContractPending || isConfirming}
           >
-            {isWithdrawing ? (
+            {isWithdrawing && !hash ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                处理中...
+                创建订单中...
+              </>
+            ) : isContractPending ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                等待钱包确认...
+              </>
+            ) : isConfirming ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                交易确认中...
               </>
             ) : (
               <>
@@ -241,29 +323,40 @@ export function WithdrawView() {
           <History className="h-5 w-5 text-primary" />
           提现记录
         </h3>
-        <Card className="border-border/40 shadow-sm">
-          <div className="divide-y divide-border/40">
-            {withdrawHistory.map((item) => (
-              <div key={item.id} className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-500">
-                    <ArrowDownToLine className="h-4 w-4" />
+        {withdrawHistory.length === 0 ? (
+          <Card className="border-border/40 shadow-sm">
+            <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+              <History className="h-10 w-10 opacity-20 mb-2" />
+              <p className="text-sm">暂无提现记录</p>
+            </div>
+          </Card>
+        ) : (
+          <Card className="border-border/40 shadow-sm">
+            <ScrollArea className="h-[400px]">
+              <div className="divide-y divide-border/40">
+                {withdrawHistory.map((item, index) => (
+                  <div key={`${item.time}-${index}`} className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors">
+                    <div className="flex items-center gap-4">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-500">
+                        <ArrowDownToLine className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <div className="font-medium text-sm">{item.protype_name}</div>
+                        <div className="text-xs text-muted-foreground">{item.time_format}</div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-bold text-sm text-foreground inline-flex items-center gap-1">
+                        -{parseFloat(item.fee).toFixed(2)} <span className="text-xs font-normal text-muted-foreground"><Usdt0 iconSize="sm" /></span>
+                      </div>
+                      <div className="text-[10px] text-muted-foreground">已完成</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="font-medium text-sm">余额提现</div>
-                    <div className="text-xs text-muted-foreground">{item.date}</div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="font-bold text-sm text-foreground inline-flex items-center gap-1">
-                    -{item.amount.toLocaleString()} <span className="text-xs font-normal text-muted-foreground"><Usdt0 iconSize="sm" /></span>
-                  </div>
-                  <div className="text-[10px] text-muted-foreground">已完成</div>
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </Card>
+            </ScrollArea>
+          </Card>
+        )}
       </div>
     </div>
   );

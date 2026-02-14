@@ -784,21 +784,104 @@ export async function getXplRate(): Promise<XplRateResponse> {
 }
 
 /**
- * 收益提现
+ * 创建提现订单
+ */
+export interface CreateWithdrawOrderRequest {
+  amount: string;  // 提现金额
+}
+
+export interface CreateWithdrawOrderResponse {
+  order_id: string;         // 订单号
+  amount: number;           // USDT0 金额
+  xpl_amount: number;       // XPL 金额
+  fee: string;              // 手续费
+  receipt_amount: number;   // 实际到账金额（USDT0）
+}
+
+export async function createWithdrawOrder(params: CreateWithdrawOrderRequest): Promise<CreateWithdrawOrderResponse> {
+  return post<CreateWithdrawOrderResponse>('/Api/Wallet/create_withdraw_order', params);
+}
+
+/**
+ * 确认提现（链上交易完成后调用）
+ */
+export interface ConfirmWithdrawRequest {
+  order_id: string;     // 订单号
+  tx_hash: string;      // 交易哈希
+}
+
+export interface ConfirmWithdrawResponse {
+  success: boolean;
+  message: string;
+}
+
+export async function confirmWithdraw(params: ConfirmWithdrawRequest): Promise<ConfirmWithdrawResponse> {
+  return post<ConfirmWithdrawResponse>('/Api/Wallet/confirm_withdraw', params);
+}
+
+/**
+ * 收益提现（创建提现订单）
  */
 export interface ProfitWithdrawRequest {
   amount: string;  // 提现金额
 }
 
+export interface WithdrawSignature {
+  signature: string;        // 签名
+  nonce: string;            // nonce
+  amount_wei: string;       // 金额（wei格式）
+  contract_address: string; // 合约地址
+  chain_id: number;         // 链ID
+}
+
 export interface ProfitWithdrawResponse {
-  transaction_id: string;   // 交易ID
-  fee: string;              // 手续费
-  receipt_amount: number;   // 实际到账金额
-  amount: number;           // 提现金额
+  transaction_id: string;      // 交易ID（订单号）
+  fee: number;                 // 手续费
+  receipt_amount: number;      // 实际到账金额（USDT0）
+  amount: number;              // 提现金额
+  xpl_rate: number;            // XPL/USDT 汇率
+  xpl_amount: number;          // 换算后的 XPL 数量
+  withdraw_signature: WithdrawSignature; // 签名数据
 }
 
 export async function profitWithdraw(params: ProfitWithdrawRequest): Promise<ProfitWithdrawResponse> {
   return post<ProfitWithdrawResponse>('/Api/Wallet/profit_withdraw', params);
+}
+
+/**
+ * 本金提现
+ */
+export interface CapitalWithdrawRequest {
+  order_id: string;  // 订单号
+}
+
+export interface CapitalWithdrawResponse {
+  transaction_id: string;      // 交易ID（订单号）
+  fee: number;                 // 手续费
+  mum: number;                 // 实际到账 USDT 金额
+  withdraw_signature: WithdrawSignature; // 签名数据
+}
+
+export async function capitalWithdraw(params: CapitalWithdrawRequest): Promise<CapitalWithdrawResponse> {
+  return post<CapitalWithdrawResponse>('/Api/Recharge/withdraw', params);
+}
+
+/**
+ * 收益复投
+ */
+export interface ProfitReinvestRequest {
+  amount: string;  // 复投金额（必须是100的倍数）
+}
+
+export interface ProfitReinvestResponse {
+  transaction_id: string;   // 交易ID
+  fee: string;              // 手续费
+  receipt_amount: number;   // 实际到账金额
+  amount: number;           // 复投金额
+}
+
+export async function profitReinvest(params: ProfitReinvestRequest): Promise<ProfitReinvestResponse> {
+  return post<ProfitReinvestResponse>('/Api/Wallet/profit_reinvest', params);
 }
 
 /**

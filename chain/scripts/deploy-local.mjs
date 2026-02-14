@@ -51,7 +51,14 @@ async function main() {
   const usdtAddress = await usdt.getAddress();
   console.log("✅ MockUSDT 已部署:", usdtAddress);
 
-  // 2. 部署 PaymentChannel
+  // 2. 部署 MockXPL（使用 MockUSDT 合约，只是名称不同）
+  console.log("\n📦 部署 MockXPL 合约...");
+  const xpl = await MockUSDT.deploy();
+  await xpl.waitForDeployment();
+  const xplAddress = await xpl.getAddress();
+  console.log("✅ MockXPL 已部署:", xplAddress);
+
+  // 3. 部署 PaymentChannel
   console.log("\n📦 部署 PaymentChannel 合约...");
   const PaymentChannel = await ethers.getContractFactory("PaymentChannel");
   const paymentChannel = await PaymentChannel.deploy();
@@ -59,26 +66,49 @@ async function main() {
   const paymentChannelAddress = await paymentChannel.getAddress();
   console.log("✅ PaymentChannel 已部署:", paymentChannelAddress);
 
-  // 3. 配置 PaymentChannel 使用 USDT
+  // 4. 配置 PaymentChannel
   console.log("\n⚙️  配置 PaymentChannel...");
   const setUsdtTx = await paymentChannel.setUsdtToken(usdtAddress);
   await setUsdtTx.wait();
   console.log("✅ USDT 代币已设置");
+  
+  const setXplTx = await paymentChannel.setXplToken(xplAddress);
+  await setXplTx.wait();
+  console.log("✅ XPL 代币已设置");
 
-  // 4. 给测试账户铸造 USDT
-  console.log("\n💵 给测试账户铸造 USDT...");
+  // 5. 给测试账户铸造 USDT 和 XPL
+  console.log("\n💵 给测试账户铸造 USDT 和 XPL...");
   for (const account of TEST_ACCOUNTS) {
-    const mintAmount = BigInt(10000) * BigInt(1e6); // 10000 USDT
+    const mintAmount = BigInt(10000) * BigInt(1e6); // 10000 USDT (6位精度)
+    const xplMintAmount = BigInt(100000) * BigInt(10) ** BigInt(18); // 100000 XPL (18位精度)
+    
     // 使用 ethers.getAddress 来获取正确的校验和地址
     const checksumAddress = ethers.getAddress(account.address);
-    const tx = await usdt.mint(checksumAddress, mintAmount);
-    await tx.wait();
     
-    const balance = await usdt.balanceOf(checksumAddress);
-    console.log(`✅ ${checksumAddress}: ${Number(balance) / 1e6} USDT`);
+    // 铸造 USDT
+    const usdtTx = await usdt.mint(checksumAddress, mintAmount);
+    await usdtTx.wait();
+    
+    // 铸造 XPL
+    const xplTx = await xpl.mint(checksumAddress, xplMintAmount);
+    await xplTx.wait();
+    
+    const usdtBalance = await usdt.balanceOf(checksumAddress);
+    const xplBalance = await xpl.balanceOf(checksumAddress);
+    console.log(`✅ ${checksumAddress}:`);
+    console.log(`   - USDT: ${Number(usdtBalance) / 1e6}`);
+    console.log(`   - XPL: ${Number(xplBalance) / 1e18}`);
   }
 
-  // 5. 生成配置文件
+  // 6. 给 PaymentChannel 合约铸造 XPL（用于提现）
+  console.log("\n💰 给 PaymentChannel 合约铸造 XPL...");
+  const contractXplAmount = BigInt(1000000) * BigInt(10) ** BigInt(18); // 1,000,000 XPL
+  const contractXplTx = await xpl.mint(paymentChannelAddress, contractXplAmount);
+  await contractXplTx.wait();
+  const contractXplBalance = await xpl.balanceOf(paymentChannelAddress);
+  console.log(`✅ PaymentChannel 合约 XPL 余额: ${Number(contractXplBalance) / 1e18}`);
+
+  // 7. 生成配置文件
   console.log("\n📝 生成配置文件...");
   
   const config = {
@@ -94,17 +124,18 @@ async function main() {
     },
     contracts: {
       USDT: usdtAddress,
+      XPL: xplAddress,
       PaymentChannel: paymentChannelAddress
     },
     adminAccount: {
       address: ethers.getAddress(TEST_ACCOUNTS[0].address),
       privateKey: TEST_ACCOUNTS[0].privateKey,
-      note: "管理员账户，用于后端执行提现操作"
+      note: "管理员账户，用于后端签名授权提现操作"
     },
     testAccounts: TEST_ACCOUNTS.map(acc => ({
       address: ethers.getAddress(acc.address),
       privateKey: acc.privateKey,
-      xplBalance: "10000",
+      xplBalance: "100000",
       usdtBalance: "10000"
     }))
   };
@@ -113,13 +144,14 @@ async function main() {
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
   console.log("✅ 配置文件已生成:", configPath);
 
-  // 6. 输出摘要信息
+  // 8. 输出摘要信息
   console.log("\n" + "=".repeat(60));
   console.log("✅ 部署完成！");
   console.log("=".repeat(60));
   
   console.log("\n📋 合约地址:");
   console.log("- MockUSDT:", usdtAddress);
+  console.log("- MockXPL:", xplAddress);
   console.log("- PaymentChannel:", paymentChannelAddress);
   
   console.log("\n🔗 网络信息:");
@@ -130,27 +162,34 @@ async function main() {
   console.log("\n👛 测试账户 (前3个):");
   TEST_ACCOUNTS.forEach((acc, i) => {
     console.log(`\n${i + 1}. ${acc.address}`);
-    console.log(`   - XPL: 10000`);
+    console.log(`   - Native XPL: 10000`);
+    console.log(`   - XPL Token: 100000`);
     console.log(`   - USDT: 10000`);
     console.log(`   - 私钥: ${acc.privateKey}`);
   });
 
+  console.log("\n💰 PaymentChannel 合约余额:");
+  console.log(`- XPL Token: ${Number(contractXplBalance) / 1e18} (用于收益提现)`);
+
   console.log("\n📄 配置文件:");
   console.log("- JSON: local-testnet-config.json");
-  console.log("- 文档: LOCAL_TESTNET_GUIDE.md");
 
   console.log("\n🎯 下一步:");
-  console.log("1. 如果后端需要远程访问:");
+  console.log("1. 更新前端配置:");
+  console.log("   - 编辑 frontend/src/wagmiConfig.ts");
+  console.log("   - 更新 paymentChannelAddress 为:", paymentChannelAddress);
+  console.log("2. 如果后端需要远程访问:");
   console.log("   - 启动 ngrok: ngrok http 8546");
   console.log("   - 复制 ngrok URL（如 https://abc123.ngrok.io）");
   console.log("   - 编辑 local-testnet-config.json，将 rpcUrl 改为 ngrok URL");
-  console.log("2. 将 local-testnet-config.json 和 BACKEND_GUIDE.md 发送给后端");
-  console.log("3. 后端根据文档配置并开始联调");
+  console.log("3. 后端配置:");
+  console.log("   - 使用 adminAccount 的私钥进行签名");
+  console.log("   - 签名消息格式: keccak256(abi.encodePacked(user, amount, orderId, nonce, chainId, contractAddress))");
   
   console.log("\n💡 提示:");
-  console.log("- 本地测试: 使用 http://127.0.0.1:8546");
-  console.log("- 远程测试: 使用 ngrok 提供的 HTTPS URL");
-  console.log("- 详细说明请查看 FRONTEND_GUIDE.md");
+  console.log("- 收益提现: 调用 withdrawXplWithSignature，转 XPL token");
+  console.log("- 本金提现: 调用 withdrawWithSignature，转 USDT token");
+  console.log("- PaymentChannel 合约已预充 1,000,000 XPL 用于提现测试");
   
   console.log("\n" + "=".repeat(60) + "\n");
 }

@@ -5,7 +5,7 @@
 
 import { useState, useCallback } from 'react';
 import { ApiError } from '@/lib/api';
-import { getErrorMessage, isAuthError, isInsufficientBalanceError, isAccountFrozenError } from '@/lib/errorCodes';
+import { isAuthError, isInsufficientBalanceError, isAccountFrozenError } from '@/lib/errorCodes';
 
 export interface ErrorState {
   code: number | null;

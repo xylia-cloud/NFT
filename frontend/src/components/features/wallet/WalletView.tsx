@@ -9,7 +9,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Calendar, type FlowByDate } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Usdt0 } from "@/components/ui/usdt0";
-import { getTransactionCalendar, getTransactionDetails, getWalletInfo, type TransactionDetail, type WalletInfoResponse } from "@/lib/api";
+import { getTransactionCalendar, getTransactionDetails, getWalletInfo, profitReinvest, type TransactionDetail, type WalletInfoResponse } from "@/lib/api";
+import { useApiError } from "@/hooks/useApiError";
+import { toast } from "sonner";
 import { 
   ArrowUpRight, 
   ArrowDownLeft, 
@@ -28,6 +30,7 @@ const REINVEST_THRESHOLD = 100;
 
 export function WalletView() {
   const { isConnected } = useAccount();
+  const { handleError } = useApiError();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isReinvesting, setIsReinvesting] = useState(false);
   const [showReinvestDialog, setShowReinvestDialog] = useState(false);
@@ -36,13 +39,10 @@ export function WalletView() {
   const [rawCalendarData, setRawCalendarData] = useState<any[]>([]); // 保存原始日历数据
   const [transactions, setTransactions] = useState<TransactionDetail[]>([]);
   const [currentCategory, setCurrentCategory] = useState<'all' | 'deposit' | 'profit' | 'reinvest' | 'withdraw'>('all');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalTransactions, setTotalTransactions] = useState(0);
   const [walletInfo, setWalletInfo] = useState<WalletInfoResponse | null>(null);
 
   const now = new Date();
   const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-  const formatDate = () => `${currentMonth}-${String(now.getDate()).padStart(2, "0")} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
 
   // 获取钱包信息
   const fetchWalletInfo = async () => {
@@ -97,8 +97,6 @@ export function WalletView() {
     try {
       const data = await getTransactionDetails({ page, category });
       setTransactions(data.list);
-      setTotalTransactions(parseInt(data.total));
-      setCurrentPage(data.page);
       console.log('✅ 交易记录获取成功:', data);
     } catch (err) {
       console.error('❌ 获取交易记录失败:', err);
@@ -169,16 +167,42 @@ export function WalletView() {
   }, [maxReinvest]);
   const reinvestAmount = reinvestAmountOptions[Math.min(reinvestStepIndex, reinvestAmountOptions.length - 1)] ?? 100;
 
-  const handleReinvest = (amount: number) => {
+  const handleReinvest = async (amount: number) => {
     if (!canReinvest || isReinvesting || amount > interest) return;
+    
     setIsReinvesting(true);
     setShowReinvestDialog(false);
-    // 复投成功后刷新钱包信息和交易记录
-    setTimeout(() => {
+    
+    try {
+      console.log('🔄 开始复投:', { amount });
+      
+      // 调用复投接口
+      const result = await profitReinvest({ amount: amount.toString() });
+      
+      console.log('✅ 复投成功:', result);
+      
+      // 显示成功提示
+      toast.success("复投成功");
+      
+      // 刷新钱包信息和交易记录
+      await Promise.all([
+        fetchWalletInfo(),
+        fetchTransactionCalendar(currentMonth),
+        fetchTransactionDetails(1, currentCategory),
+      ]);
+      
+    } catch (error) {
+      console.error('❌ 复投失败:', error);
+      
+      // 使用 handleError 处理错误
+      handleError(error);
+      
+      // 显示错误提示
+      const errorMessage = error instanceof Error ? error.message : '复投失败，请稍后重试';
+      toast.error(errorMessage);
+    } finally {
       setIsReinvesting(false);
-      fetchWalletInfo();
-      fetchTransactionDetails(1, currentCategory);
-    }, 800);
+    }
   };
 
   const handleReinvestDecrease = () => {

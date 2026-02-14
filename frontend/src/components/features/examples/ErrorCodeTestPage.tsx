@@ -22,14 +22,6 @@ export function ErrorCodeTestPage() {
     }
   };
 
-  const testToast = (code: number) => {
-    const errorInfo = ERROR_CODES[code];
-    if (errorInfo) {
-      handleError(new ApiError(code, errorInfo.message, errorInfo.category));
-      setShowToast(true);
-    }
-  };
-
   const errorsByCategory = Object.entries(ERROR_CATEGORIES).map(([key, category]) => ({
     name: key,
     category,

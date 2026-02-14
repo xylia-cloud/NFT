@@ -14,4 +14,8 @@ export default defineConfig({
     global: "window",
     "process.env": {},
   },
+  optimizeDeps: {
+    include: ['sonner'],
+    force: true,
+  },
 })

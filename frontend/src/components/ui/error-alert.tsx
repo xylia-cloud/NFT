@@ -6,7 +6,7 @@
 import { AlertTriangle, X, Info, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { ERROR_CATEGORIES, type ErrorCategory } from '@/lib/errorCodes';
+import { ERROR_CATEGORIES } from '@/lib/errorCodes';
 
 export interface ErrorAlertProps {
   code?: number | null;
@@ -60,7 +60,7 @@ export function ErrorAlert({
 }: ErrorAlertProps) {
   if (!message) return null;
 
-  const style = getErrorStyle(category);
+  const style = getErrorStyle(category || null);
   const Icon = style.icon;
 
   return (
@@ -149,7 +149,7 @@ export function ErrorToast({
 }: ErrorToastProps) {
   if (!message) return null;
 
-  const style = getErrorStyle(category);
+  const style = getErrorStyle(category || null);
   const Icon = style.icon;
 
   // 自动关闭

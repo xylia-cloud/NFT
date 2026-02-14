@@ -12,6 +12,7 @@ import { InviteView } from '@/components/features/invite/InviteView';
 import { HelpCenterView } from '@/components/features/profile/HelpCenterView';
 import { AboutView } from '@/components/features/about/AboutView';
 import { Button } from '@/components/ui/button';
+import { Toaster } from '@/components/ui/sonner';
 import { useWalletAuth } from '@/hooks/useWalletAuth';
 import { clearToken } from '@/lib/api';
 import { Wallet, X } from 'lucide-react';
@@ -146,6 +147,7 @@ export default function App() {
           />
         </div>
       )}
+      <Toaster />
     </>
   );
 }
