@@ -15,6 +15,7 @@ export function MainLayout({ children, currentTab, onTabChange, onOpenCustomerSe
       case 'invite': return '邀请好友';
       case 'help-center': return '帮助中心';
       case 'orders': return '质押订单';
+      case 'plasma-one': return 'Plasma One';
       default: return undefined;
     }
   };

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import logoWhite from "@/assets/images/logo-white.svg";
 import logoDark from "@/assets/images/logo-dark.svg";
-import { Globe, ChevronLeft, Wallet, Menu, X, Home, CreditCard, Users, Share2, HelpCircle, HeadphonesIcon, Building2, LogOut, Trophy, PiggyBank } from "lucide-react";
+import { Globe, ChevronLeft, Wallet, Menu, X, Home, CreditCard, Users, Share2, HelpCircle, HeadphonesIcon, Building2, LogOut, Trophy, PiggyBank, Sparkles } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useAccount, useDisconnect } from "wagmi";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,7 @@ const NAV_ITEMS = [
   { id: "invite", label: "邀请好友", icon: Share2 },
   { id: "help-center", label: "帮助中心", icon: HelpCircle },
   { id: "about", label: "关于我们", icon: Building2 },
+  { id: "plasma-one", label: "Plasma One", icon: Sparkles },
 ] as const;
 
 interface HeaderProps {
