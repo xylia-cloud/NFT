@@ -7,6 +7,7 @@ import { StakeOrdersView } from '@/components/features/home/StakeOrdersView';
 import { WalletView } from '@/components/features/wallet/WalletView';
 import { WithdrawView } from '@/components/features/withdraw/WithdrawView';
 import { LeaderRewardView } from '@/components/features/leader/LeaderRewardView';
+import { SuperNodeView } from '@/components/features/supernode/SuperNodeView';
 import { TeamView } from '@/components/features/team/TeamView';
 import { InviteView } from '@/components/features/invite/InviteView';
 import { HelpCenterView } from '@/components/features/profile/HelpCenterView';
@@ -19,7 +20,7 @@ import { clearToken } from '@/lib/api';
 import { Wallet, X } from 'lucide-react';
 
 const VOCECHAT_URL = "http://67.215.229.143:3009";
-const VALID_TABS = ['home', 'wallet', 'withdraw', 'leader', 'team', 'invite', 'help-center', 'orders', 'about', 'plasma-one'] as const;
+const VALID_TABS = ['home', 'wallet', 'withdraw', 'leader', 'supernode', 'team', 'invite', 'help-center', 'orders', 'about', 'plasma-one'] as const;
 
 function ConnectWalletGate() {
   return (
@@ -104,6 +105,8 @@ export default function App() {
         return isConnected ? <WithdrawView /> : <ConnectWalletGate />;
       case "leader":
         return isConnected ? <LeaderRewardView /> : <ConnectWalletGate />;
+      case "supernode":
+        return isConnected ? <SuperNodeView /> : <ConnectWalletGate />;
       case "team":
         return isConnected ? <TeamView /> : <ConnectWalletGate />;
       case "invite":

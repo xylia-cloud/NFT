@@ -387,18 +387,18 @@ export function WalletView() {
               flowByDate={flowByDate}
             />
             {selectedDate && selectedDateFlow && (
-              <div className="mt-4 pt-4 border-t border-border/40 space-y-2">
+              <div className="mt-4 pt-4 border-t border-border/40 space-y-3">
                 <p className="text-xs text-muted-foreground">
                   {selectedDate.getFullYear()}/{selectedDate.getMonth() + 1}/{selectedDate.getDate()} 收支
                 </p>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex items-center gap-2">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">收入</span>
                     <span className="text-base font-bold text-primary">
                       +{selectedDateFlow.income.toFixed(2)} USDT0
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">支出</span>
                     <span className="text-base font-bold text-orange-500">
                       -{selectedDateFlow.expense.toFixed(2)} USDT0
