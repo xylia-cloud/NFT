@@ -29,6 +29,8 @@ import certikPdf from "@/assets/images/REP-PLASMA--28Threshold-lib-29__final-202
 import githubImg from "@/assets/images/GitHub.webp";
 import video01 from "@/assets/images/01.mp4";
 import video02 from "@/assets/images/02.mp4";
+import video01Poster from "@/assets/images/01.webp";
+import video02Poster from "@/assets/images/02.webp";
 
 // 声明 spline-viewer 自定义元素类型
 /* eslint-disable @typescript-eslint/no-namespace */
@@ -983,7 +985,7 @@ export function StakeView() {
               className="w-full h-auto"
               preload="metadata"
               controls
-              poster={`${video01}#t=0.1`}
+              poster={video01Poster}
             >
               <source src={video01} type="video/mp4" />
             </video>
@@ -1006,7 +1008,7 @@ export function StakeView() {
               className="w-full h-auto"
               preload="metadata"
               controls
-              poster={`${video02}#t=0.1`}
+              poster={video02Poster}
             >
               <source src={video02} type="video/mp4" />
             </video>
