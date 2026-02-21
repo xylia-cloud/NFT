@@ -243,8 +243,8 @@ export function StakeView() {
   const [txErrorInfo, setTxErrorInfo] = useState<{ title: string; description: string; detail?: string } | null>(null);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [certikCarouselIndex, setCertikCarouselIndex] = useState(0);
-  const [showVideoDialog, setShowVideoDialog] = useState(false);
-  const [currentVideo, setCurrentVideo] = useState<string | null>(null);
+  const video1Ref = useRef<HTMLVideoElement>(null);
+  const video2Ref = useRef<HTMLVideoElement>(null);
 
   const partnersRow1 = [partner1, partner2, partner3, partner4, partner5];
   const partnersRow2 = [partner6, partner7, partner8, partner9, partner10];
@@ -966,49 +966,49 @@ export function StakeView() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* 视频 1 */}
-          <button
+          <div
             onClick={() => {
-              setCurrentVideo(video01);
-              setShowVideoDialog(true);
+              if (video1Ref.current) {
+                if (video1Ref.current.paused) {
+                  video1Ref.current.play();
+                } else {
+                  video1Ref.current.pause();
+                }
+              }
             }}
             className="relative rounded-xl overflow-hidden border border-border/40 bg-card/50 shadow-sm hover:shadow-md transition-all group cursor-pointer"
           >
             <video
-              className="w-full h-auto pointer-events-none"
+              ref={video1Ref}
+              className="w-full h-auto"
               preload="metadata"
+              controls
             >
               <source src={video01} type="video/mp4" />
             </video>
-            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-              <div className="h-16 w-16 rounded-full bg-white/90 flex items-center justify-center">
-                <svg className="h-8 w-8 text-primary ml-1" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              </div>
-            </div>
-          </button>
+          </div>
           {/* 视频 2 */}
-          <button
+          <div
             onClick={() => {
-              setCurrentVideo(video02);
-              setShowVideoDialog(true);
+              if (video2Ref.current) {
+                if (video2Ref.current.paused) {
+                  video2Ref.current.play();
+                } else {
+                  video2Ref.current.pause();
+                }
+              }
             }}
             className="relative rounded-xl overflow-hidden border border-border/40 bg-card/50 shadow-sm hover:shadow-md transition-all group cursor-pointer"
           >
             <video
-              className="w-full h-auto pointer-events-none"
+              ref={video2Ref}
+              className="w-full h-auto"
               preload="metadata"
+              controls
             >
               <source src={video02} type="video/mp4" />
             </video>
-            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-              <div className="h-16 w-16 rounded-full bg-white/90 flex items-center justify-center">
-                <svg className="h-8 w-8 text-primary ml-1" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              </div>
-            </div>
-          </button>
+          </div>
         </div>
       </div>
 
@@ -1196,25 +1196,6 @@ export function StakeView() {
           <ArrowUp className="h-5 w-5" />
         </button>
       )}
-
-      {/* 视频播放弹窗 */}
-      <Dialog open={showVideoDialog} onOpenChange={setShowVideoDialog}>
-        <DialogContent className="max-w-5xl w-[95vw] p-0 bg-black border-none">
-          <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-            {currentVideo && (
-              <video
-                key={currentVideo}
-                controls
-                autoPlay
-                className="absolute inset-0 w-full h-full"
-              >
-                <source src={currentVideo} type="video/mp4" />
-                {t('common.videoNotSupported')}
-              </video>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
 
     </div>
   );
