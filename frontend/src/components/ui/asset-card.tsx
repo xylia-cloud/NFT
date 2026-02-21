@@ -1,4 +1,5 @@
 import { type LucideIcon } from "lucide-react";
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Usdt0 } from "@/components/ui/usdt0";
@@ -10,7 +11,6 @@ export interface AssetCardProps {
   iconBg?: string;
   iconColor?: string;
   subtitle?: React.ReactNode;
-  /** 复投相关：不传则不显示复投区域 */
   reinvest?: {
     progress: number;
     threshold: number;
@@ -18,7 +18,6 @@ export interface AssetCardProps {
     isReinvesting: boolean;
     onReinvest: () => void;
   };
-  /** 点击提现时回调，不传则不显示提现按钮 */
   onWithdraw?: () => void;
 }
 
@@ -32,6 +31,8 @@ export function AssetCard({
   reinvest,
   onWithdraw,
 }: AssetCardProps) {
+  const { t } = useTranslation();
+  
   return (
     <Card className="border-border/40 shadow-sm bg-card/50">
       <CardContent className="p-4">
@@ -65,7 +66,7 @@ export function AssetCard({
                   disabled={!reinvest.canReinvest || reinvest.isReinvesting}
                   onClick={reinvest.onReinvest}
                 >
-                  {reinvest.isReinvesting ? "处理中" : "复投"}
+                  {reinvest.isReinvesting ? t('common.loading') : t('wallet.reinvest')}
                 </Button>
               )}
               {onWithdraw && (
@@ -75,7 +76,7 @@ export function AssetCard({
                   className="h-8 flex-1 min-w-0 text-xs"
                   onClick={onWithdraw}
                 >
-                  提现
+                  {t('wallet.withdraw')}
                 </Button>
               )}
             </div>

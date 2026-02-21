@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { useTranslation } from 'react-i18next';
 import logoWhite from "@/assets/images/logo-white.svg";
 import logoDark from "@/assets/images/logo-dark.svg";
-import { Globe, ChevronLeft, Wallet, Menu, X, Home, CreditCard, Users, Share2, HelpCircle, HeadphonesIcon, Building2, LogOut, Trophy, PiggyBank, Sparkles, Server } from "lucide-react";
+import { Globe, ChevronLeft, Wallet, Menu, X, Home, CreditCard, Users, Share2, HelpCircle, HeadphonesIcon, Building2, LogOut, Trophy, PiggyBank, Sparkles, Server, Check } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useAccount, useDisconnect } from "wagmi";
 import { Button } from "@/components/ui/button";
@@ -16,16 +17,16 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
-  { id: "home", label: "首页", icon: Home },
-  { id: "wallet", label: "我的钱包", icon: CreditCard },
-  { id: "leader", label: "领袖奖励", icon: Trophy },
-  { id: "supernode", label: "超级节点", icon: Server },
-  { id: "orders", label: "质押订单", icon: PiggyBank },
-  { id: "team", label: "我的团队", icon: Users },
-  { id: "invite", label: "邀请好友", icon: Share2 },
-  { id: "help-center", label: "帮助中心", icon: HelpCircle },
-  { id: "about", label: "关于我们", icon: Building2 },
-  { id: "plasma-one", label: "Plasma One", icon: Sparkles },
+  { id: "home", labelKey: "nav.home", icon: Home },
+  { id: "wallet", labelKey: "nav.wallet", icon: CreditCard },
+  { id: "leader", labelKey: "nav.leader", icon: Trophy },
+  { id: "supernode", labelKey: "nav.supernode", icon: Server },
+  { id: "orders", labelKey: "nav.orders", icon: PiggyBank },
+  { id: "team", labelKey: "nav.team", icon: Users },
+  { id: "invite", labelKey: "nav.invite", icon: Share2 },
+  { id: "help-center", labelKey: "nav.helpCenter", icon: HelpCircle },
+  { id: "about", labelKey: "nav.about", icon: Building2 },
+  { id: "plasma-one", labelKey: "nav.plasmaOne", icon: Sparkles },
 ] as const;
 
 interface HeaderProps {
@@ -43,6 +44,24 @@ export function Header({ title, showBack, onBack, currentTab, onTabChange, onOpe
   const { disconnect } = useDisconnect();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const { t, i18n } = useTranslation();
+  
+  const languages = [
+    { code: 'en', name: 'English' },
+    { code: 'zh-CN', name: '简体中文' },
+    { code: 'zh-TW', name: '繁體中文' },
+    { code: 'ja', name: '日本語' },
+    { code: 'ko', name: '한국어' },
+    { code: 'es', name: 'Español' },
+    { code: 'fr', name: 'Français' },
+    { code: 'de', name: 'Deutsch' },
+  ];
+  
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+    localStorage.setItem('i18nextLng', lng);
+  };
+  
   const resolvedTheme =
     theme === "system"
       ? typeof window !== "undefined" &&
@@ -85,7 +104,7 @@ export function Header({ title, showBack, onBack, currentTab, onTabChange, onOpe
                   className="h-9 gap-2 px-3"
                 >
                   <Wallet className="h-[1.2rem] w-[1.2rem]" />
-                  连接钱包
+                  {t('common.connectWallet')}
                 </Button>
               );
             }}
@@ -97,15 +116,19 @@ export function Header({ title, showBack, onBack, currentTab, onTabChange, onOpe
                 <span className="sr-only">切换语言</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>English</DropdownMenuItem>
-              <DropdownMenuItem>简体中文</DropdownMenuItem>
-              <DropdownMenuItem>繁體中文</DropdownMenuItem>
-              <DropdownMenuItem>日本語</DropdownMenuItem>
-              <DropdownMenuItem>한국어</DropdownMenuItem>
-              <DropdownMenuItem>Español</DropdownMenuItem>
-              <DropdownMenuItem>Français</DropdownMenuItem>
-              <DropdownMenuItem>Deutsch</DropdownMenuItem>
+            <DropdownMenuContent align="end" className="w-48">
+              {languages.map((lang) => (
+                <DropdownMenuItem
+                  key={lang.code}
+                  onClick={() => changeLanguage(lang.code)}
+                  className="flex items-center justify-between cursor-pointer"
+                >
+                  <span>{lang.name}</span>
+                  {i18n.language === lang.code && (
+                    <Check className="h-4 w-4 text-primary" />
+                  )}
+                </DropdownMenuItem>
+              ))}
             </DropdownMenuContent>
           </DropdownMenu>
           <Button
@@ -115,7 +138,7 @@ export function Header({ title, showBack, onBack, currentTab, onTabChange, onOpe
             onClick={() => setIsMenuOpen(true)}
           >
             <Menu className="h-[1.35rem] w-[1.35rem]" />
-            <span className="sr-only">打开菜单</span>
+            <span className="sr-only">{t("nav.openMenu")}</span>
           </Button>
         </div>
       </div>
@@ -133,7 +156,7 @@ export function Header({ title, showBack, onBack, currentTab, onTabChange, onOpe
             {/* 右侧 Panel */}
             <div className="absolute right-0 top-0 h-full w-72 max-w-[80%] bg-background border-l border-border shadow-xl flex flex-col animate-in slide-in-from-right">
               <div className="flex items-center justify-between px-4 py-3 border-b border-border/60">
-                <span className="text-sm font-semibold text-foreground">菜单</span>
+                <span className="text-sm font-semibold text-foreground">{t("nav.menu")}</span>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -163,7 +186,7 @@ export function Header({ title, showBack, onBack, currentTab, onTabChange, onOpe
                         )}
                       >
                         <Icon className="h-5 w-5" />
-                        <span>{item.label}</span>
+                        <span>{t(item.labelKey)}</span>
                       </button>
                     );
                   })}
@@ -177,7 +200,7 @@ export function Header({ title, showBack, onBack, currentTab, onTabChange, onOpe
                     className="w-full flex items-center gap-2 px-3 py-2 text-base rounded-md hover:bg-muted text-left"
                   >
                     <HeadphonesIcon className="h-5 w-5" />
-                    <span>联系客服</span>
+                    <span>{t('nav.customerService')}</span>
                   </button>
                 </div>
                 {isConnected && (
@@ -190,7 +213,7 @@ export function Header({ title, showBack, onBack, currentTab, onTabChange, onOpe
                       className="w-full flex items-center gap-2 px-3 py-2 text-base rounded-md hover:bg-destructive/10 text-destructive text-left"
                     >
                       <LogOut className="h-5 w-5" />
-                      <span>断开钱包连接</span>
+                      <span>{t('common.disconnect')}</span>
                     </button>
                   </div>
                 )}

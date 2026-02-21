@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
+import { useTranslation } from 'react-i18next';
 import { Plus, Minus, Loader2, Wallet, TrendingUp, Shield, Users, Activity, Zap, ChevronLeft, ChevronRight, Lock, PiggyBank, Calendar, Unlock, Clock, ArrowDownToLine, AlertTriangle, Twitter, ArrowUp, FileText, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,6 +27,8 @@ import certikAudit from "@/assets/images/CERTIK.webp";
 import certikPdfImg from "@/assets/images/CERTIK2.webp";
 import certikPdf from "@/assets/images/REP-PLASMA--28Threshold-lib-29__final-20231011T224322Z__02.pdf";
 import githubImg from "@/assets/images/GitHub.webp";
+import video01 from "@/assets/images/01.mp4";
+import video02 from "@/assets/images/02.mp4";
 
 // 声明 spline-viewer 自定义元素类型
 /* eslint-disable @typescript-eslint/no-namespace */
@@ -71,6 +75,7 @@ export function StakeOrderItem({
   onWithdraw: (order: StakeOrder) => void;
   isWithdrawing: boolean;
 }) {
+  const { t } = useTranslation();
   // 按天计算倒计时
   const [remainingDays, setRemainingDays] = useState<number>(0);
   const isLocked = order.status === "locked";
@@ -112,7 +117,7 @@ export function StakeOrderItem({
                   isLocked ? "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400" : "border-primary/30 bg-primary/10 text-primary"
                 )}
               >
-                {isLocked ? <><Lock className="h-2.5 w-2.5 mr-0.5 inline" /> 提现冷却期</> : <><Unlock className="h-2.5 w-2.5 mr-0.5 inline" /> 可提取</>}
+                {isLocked ? <><Lock className="h-2.5 w-2.5 mr-0.5 inline" /> {t('stake.cooldownPeriod')}</> : <><Unlock className="h-2.5 w-2.5 mr-0.5 inline" /> {t('stake.withdrawable')}</>}
               </Badge>
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -121,21 +126,21 @@ export function StakeOrderItem({
                 {order.startDate} ~ {order.lockEndDate}
               </span>
               <span className="hidden sm:inline">·</span>
-              <span>{order.lockDays} 天锁仓</span>
+              <span>{order.lockDays} {t('home.days')}</span>
             </div>
           </div>
         </div>
         <div className="flex-1 min-w-0 flex flex-row items-end justify-end gap-2 sm:gap-4">
           <div className="flex-1 min-w-0 text-left sm:text-right">
-            <div className="text-xs text-muted-foreground mb-0.5">累计收益</div>
+            <div className="text-xs text-muted-foreground mb-0.5">{t('stake.accruedInterest')}</div>
             <div className="text-lg font-bold text-primary">+{order.accruedInterest.toFixed(2)} USDT0</div>
           </div>
           {isLocked && (
             <div className="flex-1 min-w-0 text-left sm:text-right">
-              <div className="text-xs text-muted-foreground mb-0.5">冷却倒计时</div>
+              <div className="text-xs text-muted-foreground mb-0.5">{t('stake.cooldownCountdown')}</div>
               <div className="text-lg font-bold text-foreground flex items-center gap-1 sm:justify-end">
                 <Clock className="h-4 w-4 shrink-0" />
-                {remainingDays} 天
+                {remainingDays} {t('home.days')}
               </div>
             </div>
           )}
@@ -146,7 +151,7 @@ export function StakeOrderItem({
       {!isLocked && (
         <div className="flex items-center justify-between gap-4 pt-4 border-t border-border/70">
           <div className="text-sm text-muted-foreground">
-            本金 <span className="font-semibold text-foreground">{order.amount.toLocaleString()} USDT0</span> 可提至钱包
+            {t('stake.principalWithdrawable', { amount: order.amount.toLocaleString() })}
           </div>
           <Button
             size="sm"
@@ -155,7 +160,7 @@ export function StakeOrderItem({
             disabled={isWithdrawing}
           >
             {isWithdrawing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ArrowDownToLine className="h-3.5 w-3.5" />}
-            提取本金
+            {t('stake.withdrawPrincipal')}
           </Button>
         </div>
       )}
@@ -195,6 +200,7 @@ export function StakeView() {
   const [stepIndex, setStepIndex] = useState(0);
   const amount = STAKE_AMOUNTS[stepIndex];
   const { isConnected, address } = useAccount();
+  const { t } = useTranslation();
   
   // 获取全局配置
   const [globalConfig, setGlobalConfig] = useState<GlobalConfigResponse | null>(null);
@@ -237,6 +243,8 @@ export function StakeView() {
   const [txErrorInfo, setTxErrorInfo] = useState<{ title: string; description: string; detail?: string } | null>(null);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [certikCarouselIndex, setCertikCarouselIndex] = useState(0);
+  const [showVideoDialog, setShowVideoDialog] = useState(false);
+  const [currentVideo, setCurrentVideo] = useState<string | null>(null);
 
   const partnersRow1 = [partner1, partner2, partner3, partner4, partner5];
   const partnersRow2 = [partner6, partner7, partner8, partner9, partner10];
@@ -318,7 +326,7 @@ export function StakeView() {
   // 当交易失败时，重置状态
   useEffect(() => {
     if (writeError) {
-      const stepLabel = depositStep === 'approving' ? '授权' : depositStep === 'depositing' ? '充值' : '交易';
+      const stepLabel = depositStep === 'approving' ? t('common.approving').replace('...', '') : depositStep === 'depositing' ? t('common.depositing').replace('...', '') : t('common.transaction');
       const msg = (writeError as any)?.shortMessage ?? (writeError as any)?.message ?? String(writeError);
       const isUserRejected =
         (writeError as any)?.name === 'UserRejectedRequestError' ||
@@ -327,10 +335,10 @@ export function StakeView() {
       console.error('❌ 交易失败:', msg);
       
       setTxErrorInfo({
-        title: isUserRejected ? '已取消' : `${stepLabel}失败`,
+        title: isUserRejected ? t('home.txCancelled') : t('home.txFailed', { action: stepLabel }),
         description: isUserRejected
-          ? `你已取消本次${stepLabel}操作（未扣费）。`
-          : `本次${stepLabel}未成功，请重试。`,
+          ? t('home.txCancelledDesc', { action: stepLabel })
+          : t('home.txFailedDesc', { action: stepLabel }),
         detail: msg,
       });
       setShowTxErrorDialog(true);
@@ -431,8 +439,8 @@ export function StakeView() {
       console.error('❌ 预下单失败:', error);
       // 显示错误提示
       setTxErrorInfo({
-        title: '预下单失败',
-        description: '无法创建充值订单，请稍后重试',
+        title: t('home.preorderFailed'),
+        description: t('home.preorderFailedDesc'),
         detail: error instanceof Error ? error.message : String(error),
       });
       setShowTxErrorDialog(true);
@@ -480,13 +488,17 @@ export function StakeView() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-400"></span>
                 </span>
-                Plasma 链上质押正在进行中
+                {t('home.liveStatus')}
               </div>
               <h2 className="text-2xl md:text-4xl font-bold tracking-tight text-white leading-tight">
-                开启 <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-blue-400 to-primary drop-shadow-[0_0_12px_rgba(34,211,238,0.5)]">Web3 财富</span> 之旅
+                {t('home.heroTitle').split(' ').map((word, i) => 
+                  word === 'Web3' || word === '财富' ? (
+                    <span key={i} className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-blue-400 to-primary drop-shadow-[0_0_12px_rgba(34,211,238,0.5)]">{word} </span>
+                  ) : word + ' '
+                )}
               </h2>
               <p className="text-xs text-gray-300 leading-relaxed">
-                安全、透明的去中心化质押协议。充币请走 Plasma 网络。即刻参与，享受高达 <span className="text-white font-semibold">{globalConfig?.monthly_return_rate || "20"}%</span> 的月化稳定收益。请点击右上角连接钱包开始。
+                {t('home.heroSubtitle', { rate: globalConfig?.monthly_return_rate || "20" })}
               </p>
             </div>
           </div>
@@ -523,7 +535,7 @@ export function StakeView() {
                           </div>
                         </div>
                         <div className="space-y-0.5">
-                          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">Connected</p>
+                          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">{t('common.connected')}</p>
                           <h3 className="font-bold text-sm tracking-tight text-foreground">{account.displayName}</h3>
                         </div>
                       </div>
@@ -538,7 +550,7 @@ export function StakeView() {
                             <span className="font-medium text-xs">{chain.name}</span>
                           </div>
                           <div className="w-px h-3 bg-border/50 mx-1"></div>
-                          <span className="text-[10px] font-medium text-muted-foreground">已连接</span>
+                          <span className="text-[10px] font-medium text-muted-foreground">{t('common.connected')}</span>
                         </div>
 
                           <Button
@@ -563,9 +575,9 @@ export function StakeView() {
       {/* 2. 数据指标 (Glassmorphism) */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { icon: TrendingUp, label: "预期月化收益", value: `${globalConfig?.monthly_return_rate || "20"}%`, sub: "稳定回报", color: "text-primary", bg: "bg-primary/10" },
-          { icon: Activity, label: "总质押量", value: `$${globalConfig?.total_staking || "0"}`, sub: "持续增长", color: "text-blue-500", bg: "bg-blue-500/10" },
-          { icon: Users, label: "参与人数", value: <CountUp end={globalConfig?.total_participants_raw || 0} />, sub: "全球用户", color: "text-violet-500", bg: "bg-violet-500/10" },
+          { icon: TrendingUp, label: t('home.monthlyReturn'), value: `${globalConfig?.monthly_return_rate || "20"}%`, sub: t('home.stableReturn'), color: "text-primary", bg: "bg-primary/10" },
+          { icon: Activity, label: t('home.totalStaking'), value: `${globalConfig?.total_staking || "0"}`, sub: t('home.continuousGrowth'), color: "text-blue-500", bg: "bg-blue-500/10" },
+          { icon: Users, label: t('home.totalParticipants'), value: <CountUp end={globalConfig?.total_participants_raw || 0} />, sub: t('home.globalUsers'), color: "text-violet-500", bg: "bg-violet-500/10" },
         ].map((item, index) => (
           <div 
             key={index} 
@@ -593,13 +605,13 @@ export function StakeView() {
         <CardHeader className="p-6 pb-0">
           <div className="flex items-center justify-between mb-1">
             <CardTitle className="text-xl font-bold flex items-center gap-2">
-              质押挖矿
+              {t('home.stakeMining')}
               <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold tracking-wide uppercase border border-primary/20">Live</span>
             </CardTitle>
             <Lock className="h-4 w-4 text-muted-foreground/50" />
           </div>
           <CardDescription className="text-sm">
-            选择质押金额，即刻开始赚取被动收益
+            {t('home.selectStakeAmount')}
           </CardDescription>
         </CardHeader>
 
@@ -658,8 +670,8 @@ export function StakeView() {
             {/* 收益预估卡片 */}
             <div className="bg-secondary/20 rounded-xl p-4 border border-border/30 flex items-center justify-between">
               <div className="flex flex-col gap-0.5">
-                <span className="text-sm text-muted-foreground font-medium">每日预估收益</span>
-                <span className="text-xs text-muted-foreground/60">基于当前 APY 实时计算</span>
+                <span className="text-sm text-muted-foreground font-medium">{t('home.estimatedDailyReward')}</span>
+                <span className="text-xs text-muted-foreground/60">{t('home.basedOnApy')}</span>
               </div>
               <div className="text-right">
                 <span className="block text-2xl font-bold text-foreground">
@@ -672,7 +684,7 @@ export function StakeView() {
             {/* 复投提示 */}
             <p className="text-xs text-muted-foreground/80 flex items-center gap-2">
               <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-primary text-[10px]">i</span>
-              利息累计满 100 USDT0 可复投一次，收益自动滚入本金
+              {t('home.reinvestTip')}
             </p>
           </div>
         </CardContent>
@@ -683,7 +695,7 @@ export function StakeView() {
               if (!mounted || !account) {
                 return (
                   <p className="w-full text-center py-4 text-sm text-muted-foreground">
-                    请先在顶部连接钱包后即可质押
+                    {t('home.connectWalletFirst')}
                   </p>
                 )
               }
@@ -698,21 +710,21 @@ export function StakeView() {
                     {isPending && depositStep === 'approving' ? (
                       <>
                         <Loader2 className="h-5 w-5 animate-spin" />
-                        授权中...
+                        {t('common.approving')}
                       </>
                     ) : isPending && depositStep === 'depositing' ? (
                       <>
                         <Loader2 className="h-5 w-5 animate-spin" />
-                        充值中...
+                        {t('common.depositing')}
                       </>
                     ) : isConfirming ? (
                       <>
                         <Loader2 className="h-5 w-5 animate-spin" />
-                        打包中...
+                        {t('common.packaging')}
                       </>
                     ) : (
                       <>
-                        立即质押
+                        {t('home.stakeNow')}
                         <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                       </>
                     )}
@@ -731,24 +743,24 @@ export function StakeView() {
             <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-amber-500/10 flex items-center justify-center">
               <AlertTriangle className="h-7 w-7 text-amber-500" />
             </div>
-            <DialogTitle className="text-xl">余额不足</DialogTitle>
+            <DialogTitle className="text-xl">{t('home.insufficientBalance')}</DialogTitle>
             <DialogDescription className="text-base">
-              当前 USDT0 余额不足以完成本次质押。
+              {t('home.insufficientBalanceDesc')}
             </DialogDescription>
           </DialogHeader>
           <div className="px-6 pb-2">
             <div className="rounded-xl border border-border/70 bg-muted/20 p-4 text-sm">
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">当前余额</span>
+                <span className="text-muted-foreground">{t('home.currentBalance')}</span>
                 <span className="font-semibold">{insufficientInfo?.balanceUsdt ?? "0.00"} USDT0</span>
               </div>
               <div className="mt-2 flex items-center justify-between">
-                <span className="text-muted-foreground">需要金额</span>
+                <span className="text-muted-foreground">{t('home.requiredAmount')}</span>
                 <span className="font-semibold">{insufficientInfo?.requiredUsdt ?? amount.toLocaleString()} USDT0</span>
               </div>
             </div>
             <p className="mt-3 text-xs text-muted-foreground">
-              请先获取/充值测试 USDT0 后再尝试质押（必要时刷新页面以更新余额）。
+              {t('home.insufficientTip')}
             </p>
           </div>
           <DialogFooter>
@@ -757,7 +769,7 @@ export function StakeView() {
               className="w-full h-11 rounded-xl"
               onClick={() => setShowInsufficientDialog(false)}
             >
-              我知道了
+              {t('common.iKnow')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -770,24 +782,24 @@ export function StakeView() {
             <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
               <PiggyBank className="h-7 w-7 text-primary" />
             </div>
-            <DialogTitle className="text-xl">确认质押</DialogTitle>
+            <DialogTitle className="text-xl">{t("home.confirmStake")}</DialogTitle>
             <DialogDescription className="text-base">
-              你将质押 <span className="font-semibold text-foreground">{amount.toLocaleString()} USDT0</span>。
+              {t("home.stakeAmountText")} <span className="font-bold text-foreground">{amount.toLocaleString()} USDT0</span>
             </DialogDescription>
           </DialogHeader>
           <div className="px-6 pb-2">
             <div className="rounded-xl border border-border/70 bg-muted/20 p-4 text-sm space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">钱包余额</span>
+                <span className="text-muted-foreground">{t("home.walletBalance")}</span>
                 <span className="font-semibold">{usdtBalance ? (Number(usdtBalance) / 1e6).toFixed(2) : "0.00"} USDT0</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">合约地址</span>
+                <span className="text-muted-foreground">{t("home.contractAddress")}</span>
                 <span className="font-mono text-xs truncate max-w-[180px] text-right">{CONTRACT_ADDRESS}</span>
               </div>
             </div>
             <p className="mt-3 text-xs text-muted-foreground">
-              点击“确认质押”后会先发起授权（Approve），随后发起充值（Deposit）两笔交易。
+              {t("home.confirmStakeTip")}
             </p>
           </div>
           <DialogFooter>
@@ -796,7 +808,7 @@ export function StakeView() {
               className="w-full h-11 rounded-xl"
               onClick={() => setShowStakeConfirmDialog(false)}
             >
-              取消
+              {t("common.cancel")}
             </Button>
             <Button
               className="w-full h-11 rounded-xl"
@@ -805,7 +817,7 @@ export function StakeView() {
                 await handleStake();
               }}
             >
-              确认质押
+              {t("home.confirmStake")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -818,15 +830,15 @@ export function StakeView() {
             <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
               <PiggyBank className="h-7 w-7 text-primary" />
             </div>
-            <DialogTitle className="text-xl">质押成功</DialogTitle>
+            <DialogTitle className="text-xl">{t("home.stakeSuccess")}</DialogTitle>
             <DialogDescription className="text-base">
-              已成功充值 {depositSuccessInfo?.amountUsdt ?? amount.toLocaleString()} USDT0 到合约。
+              已成功充值 <span className="font-bold text-foreground">{depositSuccessInfo?.amountUsdt ?? amount.toLocaleString()} USDT0</span> 到合约
             </DialogDescription>
           </DialogHeader>
           <div className="px-6 pb-2">
             <div className="rounded-xl border border-border/70 bg-muted/20 p-4 text-sm">
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">交易哈希</span>
+                <span className="text-muted-foreground">{t("home.txHash")}</span>
                 <span className="font-mono text-xs truncate max-w-[180px] text-right">
                   {depositSuccessInfo?.txHash ?? "-"}
                 </span>
@@ -838,7 +850,7 @@ export function StakeView() {
               className="w-full h-11 rounded-xl"
               onClick={() => setShowDepositSuccessDialog(false)}
             >
-              好的
+              {t("common.ok")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -851,9 +863,9 @@ export function StakeView() {
             <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-destructive/10 flex items-center justify-center">
               <AlertTriangle className="h-7 w-7 text-destructive" />
             </div>
-            <DialogTitle className="text-xl">{txErrorInfo?.title ?? "交易未完成"}</DialogTitle>
+            <DialogTitle className="text-xl">{txErrorInfo?.title ?? t("home.txNotCompleted")}</DialogTitle>
             <DialogDescription className="text-base">
-              {txErrorInfo?.description ?? "请稍后重试。"}
+              {txErrorInfo?.description ?? t("home.txFailedGeneric")}
             </DialogDescription>
           </DialogHeader>
           {txErrorInfo?.detail && (
@@ -865,80 +877,138 @@ export function StakeView() {
           )}
           <DialogFooter>
             <Button className="w-full h-11 rounded-xl" onClick={() => setShowTxErrorDialog(false)}>
-              好的
+              {t("common.ok")}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* 4. 安全与合规保障 */}
+      {/* 4. 安全与合规 */}
       <div className="mt-6 space-y-5">
         <div className="space-y-1 text-center">
-          <h3 className="text-xl font-semibold text-foreground">安全与合规保障</h3>
+          <h3 className="text-xl font-semibold text-foreground">{t("home.securityCompliance")}</h3>
           <p className="text-sm text-muted-foreground">
-            PLASMA 实行全球领先的安全与合规体系，多维度守护您的资产与数据安全。
+            {t('home.securityDesc')}
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 text-sm text-muted-foreground">
           <div className="space-y-2.5 rounded-xl bg-background/60 border border-border/70 p-4">
-            <p className="text-sm font-semibold text-foreground">资产安全</p>
+            <p className="text-sm font-semibold text-foreground">{t("home.assetSecurity")}</p>
             <ul className="space-y-2">
               <li className="flex items-start gap-2">
                 <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary/70" />
-                <span>冷热钱包分离，核心资产离线隔离</span>
+                <span>{t("home.assetSecurityItem1")}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary/70" />
-                <span>多重签名提币，防范内外风险</span>
+                <span>{t("home.assetSecurityItem2")}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary/70" />
-                <span>7×24 小时智能风控与威胁预警</span>
+                <span>{t("home.assetSecurityItem3")}</span>
               </li>
             </ul>
           </div>
           <div className="space-y-2.5 rounded-xl bg-background/60 border border-border/70 p-4">
-            <p className="text-sm font-semibold text-foreground">合规体系</p>
+            <p className="text-sm font-semibold text-foreground">{t("home.complianceSystem")}</p>
             <ul className="space-y-2">
               <li className="flex items-start gap-2">
                 <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary/70" />
-                <span>英国金融背景，持有 MSB 等国际资质</span>
+                <span>{t("home.complianceItem1")}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary/70" />
-                <span>严格遵守多地法律法规，合规运营</span>
+                <span>{t("home.complianceItem2")}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary/70" />
-                <span>完善 KYC 与 AML 身份及反洗钱体系</span>
+                <span>{t("home.complianceItem3")}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary/70" />
-                <span>定期合规审查与风险评估</span>
+                <span>{t("home.complianceItem4")}</span>
               </li>
             </ul>
           </div>
           <div className="space-y-2.5 rounded-xl bg-background/60 border border-border/70 p-4">
-            <p className="text-sm font-semibold text-foreground">用户保护</p>
+            <p className="text-sm font-semibold text-foreground">{t("home.userProtection")}</p>
             <ul className="space-y-2">
               <li className="flex items-start gap-2">
                 <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary/70" />
-                <span>先进端到端加密，全面保障用户数据安全</span>
+                <span>{t("home.userProtectionItem1")}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary/70" />
-                <span>双因素认证，多重防护账户安全</span>
+                <span>{t("home.userProtectionItem2")}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary/70" />
-                <span>智能反钓鱼系统，防止恶意仿冒风险</span>
+                <span>{t("home.userProtectionItem3")}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary/70" />
-                <span>AI 智能风控，实时识别并拦截异常操作</span>
+                <span>{t("home.userProtectionItem4")}</span>
               </li>
             </ul>
           </div>
+        </div>
+      </div>
+
+      {/* 视频展示区域 */}
+      <div className="space-y-3 mt-8">
+        <div className="text-center space-y-1">
+          <p className="text-xl font-semibold text-foreground">
+            {t("home.platformIntro")}
+          </p>
+          <p className="text-sm text-muted-foreground">
+            {t("home.platformIntroDesc")}
+          </p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* 视频 1 */}
+          <button
+            onClick={() => {
+              setCurrentVideo(video01);
+              setShowVideoDialog(true);
+            }}
+            className="relative rounded-xl overflow-hidden border border-border/40 bg-card/50 shadow-sm hover:shadow-md transition-all group cursor-pointer"
+          >
+            <video
+              className="w-full h-auto pointer-events-none"
+              preload="metadata"
+            >
+              <source src={video01} type="video/mp4" />
+            </video>
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="h-16 w-16 rounded-full bg-white/90 flex items-center justify-center">
+                <svg className="h-8 w-8 text-primary ml-1" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </div>
+            </div>
+          </button>
+          {/* 视频 2 */}
+          <button
+            onClick={() => {
+              setCurrentVideo(video02);
+              setShowVideoDialog(true);
+            }}
+            className="relative rounded-xl overflow-hidden border border-border/40 bg-card/50 shadow-sm hover:shadow-md transition-all group cursor-pointer"
+          >
+            <video
+              className="w-full h-auto pointer-events-none"
+              preload="metadata"
+            >
+              <source src={video02} type="video/mp4" />
+            </video>
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="h-16 w-16 rounded-full bg-white/90 flex items-center justify-center">
+                <svg className="h-8 w-8 text-primary ml-1" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </div>
+            </div>
+          </button>
         </div>
       </div>
 
@@ -946,10 +1016,10 @@ export function StakeView() {
       <div className="space-y-3 mt-4">
         <div className="text-center space-y-1">
           <p className="text-xl font-semibold text-foreground">
-            投资人&合作伙伴
+            {t("home.partners")}
           </p>
           <p className="text-sm text-muted-foreground">
-            PLASMA由全球知名投资机构战略加持，与顶尖科技及金融服务伙伴深度合作，共建开放共赢生态
+            {t("home.partnersDesc")}
           </p>
         </div>
         <div className="partner-container relative overflow-hidden">
@@ -986,9 +1056,9 @@ export function StakeView() {
               <Shield className="h-4 w-4" />
             </div>
             <div>
-              <h4 className="font-semibold text-foreground text-sm mb-0.5">CertiK 权威审计</h4>
+              <h4 className="font-semibold text-foreground text-sm mb-0.5">{t('home.certikAudit')}</h4>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                智能合约代码已通过 CertiK 全面安全审计，多重签名机制保护，确保资金绝对安全。
+                {t('home.certikAuditDesc')}
               </p>
             </div>
           </div>
@@ -997,9 +1067,9 @@ export function StakeView() {
               <Zap className="h-4 w-4" />
             </div>
             <div>
-              <h4 className="font-semibold text-foreground text-sm mb-0.5">极速链上结算</h4>
+              <h4 className="font-semibold text-foreground text-sm mb-0.5">{t('home.fastSettlement')}</h4>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                基于 Plasma 高性能网络，收益实时计算，秒级到账，低至 $0.01 的交互手续费。
+                {t('home.fastSettlementDesc')}
               </p>
             </div>
           </div>
@@ -1012,7 +1082,7 @@ export function StakeView() {
           >
             <div className="flex-shrink-0 w-full flex flex-col items-center gap-2 p-4 rounded-xl">
               <img src={certikAudit} alt="CertiK 审计" className="w-full h-auto object-contain rounded border border-border/60 bg-background/60" />
-              <span className="text-sm text-muted-foreground">Certik审计</span>
+              <span className="text-sm text-muted-foreground">{t("home.certikAuditLabel")}</span>
             </div>
             <a
               href={certikPdf}
@@ -1026,7 +1096,7 @@ export function StakeView() {
                   <FileText className="h-3 w-3" />
                 </span>
               </div>
-              <span className="text-sm text-muted-foreground">查看PDF</span>
+              <span className="text-sm text-muted-foreground">{t("home.viewPdf")}</span>
             </a>
             <a
               href="https://github.com/plasma-disassembler/plasma"
@@ -1069,7 +1139,7 @@ export function StakeView() {
         <div className="hidden md:grid grid-cols-3 gap-3 md:gap-4">
           <div className="flex flex-col items-center gap-2">
             <img src={certikAudit} alt="CertiK 审计" className="w-full h-auto object-contain rounded border border-border/60 bg-background/60" />
-            <span className="text-sm text-muted-foreground">Certik审计</span>
+            <span className="text-sm text-muted-foreground">{t("home.certikAuditLabel")}</span>
           </div>
           <a
             href={certikPdf}
@@ -1083,7 +1153,7 @@ export function StakeView() {
                 <FileText className="h-3 w-3" />
               </span>
             </div>
-            <span className="text-sm text-muted-foreground">查看PDF</span>
+            <span className="text-sm text-muted-foreground">{t("home.viewPdf")}</span>
           </a>
           <a
             href="https://github.com/plasma-disassembler/plasma"
@@ -1126,6 +1196,25 @@ export function StakeView() {
           <ArrowUp className="h-5 w-5" />
         </button>
       )}
+
+      {/* 视频播放弹窗 */}
+      <Dialog open={showVideoDialog} onOpenChange={setShowVideoDialog}>
+        <DialogContent className="max-w-5xl w-[95vw] p-0 bg-black border-none">
+          <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+            {currentVideo && (
+              <video
+                key={currentVideo}
+                controls
+                autoPlay
+                className="absolute inset-0 w-full h-full"
+              >
+                <source src={currentVideo} type="video/mp4" />
+                {t('common.videoNotSupported')}
+              </video>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
     </div>
   );

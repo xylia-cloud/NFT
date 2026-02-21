@@ -1,28 +1,64 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { useTranslation } from 'react-i18next';
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Share2, Trophy, Twitter, Send, User } from "lucide-react";
-import { useState } from "react";
+import { Share2, Twitter, Send, User } from "lucide-react";
+import { useState, useMemo } from "react";
+import { useAccount } from "wagmi";
+import { getUserInfo } from "@/lib/api";
 
 export function InviteView() {
+  const { address } = useAccount();
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
-  const inviteLink = "https://plasma.to/register?code=PLM888";
-  // 模拟上级用户钱包地址
-  const parentAddress = "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb";
+  
+  // 获取用户信息
+  const userInfo = getUserInfo();
+  
+  // 自动获取前端域名并拼接邀请链接
+  const inviteLink = useMemo(() => {
+    if (!address) return "";
+    
+    // 获取当前域名（包括协议和端口）
+    const origin = window.location.origin;
+    
+    // 拼接邀请链接，使用钱包地址作为邀请码
+    return `${origin}/?invit=${address}`;
+  }, [address]);
+  
+  // 上级用户钱包地址（从用户信息中获取，如果有的话）
+  const parentAddress = userInfo?.leve_user || t("invite.noParent");
 
   const handleCopy = () => {
+    if (!inviteLink) return;
     navigator.clipboard.writeText(inviteLink);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   const handleCopyParentAddress = () => {
+    if (parentAddress === t("invite.noParent")) return;
     navigator.clipboard.writeText(parentAddress);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const level = "Lv.3 黄金合伙人";
+  // Share on Twitter
+  const handleShareTwitter = () => {
+    if (!inviteLink) return;
+    
+    const text = t("invite.shareTwitterText");
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(inviteLink)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  // Share on Telegram
+  const handleShareTelegram = () => {
+    if (!inviteLink) return;
+    
+    const text = t("invite.shareTelegramText");
+    const url = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
 
   return (
     <div className="space-y-6 pb-20 animate-in fade-in duration-500 max-w-4xl mx-auto pt-4">
@@ -33,48 +69,55 @@ export function InviteView() {
         <div className="absolute bottom-0 left-0 -mb-8 -ml-8 h-48 w-48 rounded-full bg-black/10 blur-3xl" />
         
         <CardContent className="p-6 relative z-10">
-          <div className="flex justify-between items-start mb-6">
-            <div>
-              <p className="text-primary-foreground/80 text-sm mt-1">赚取高达 15% 的质押佣金</p>
-            </div>
-            <Badge variant="secondary" className="bg-white/20 hover:bg-white/30 text-white border-transparent backdrop-blur-sm">
-              <Trophy className="mr-1 h-3 w-3 text-yellow-300" />
-              {level}
-            </Badge>
+          <div className="mb-6">
+            <p className="text-primary-foreground/80 text-sm">{t("invite.subtitle")}</p>
           </div>
 
           <div className="flex flex-col md:flex-row gap-6 items-center">
             {/* QR Code Area */}
             <div className="bg-white p-2 rounded-xl shrink-0 shadow-sm">
-               <img 
-                 src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(inviteLink)}`} 
-                 alt="Invite QR Code" 
-                 className="w-[100px] h-[100px]"
-               />
+               {inviteLink && (
+                 <img 
+                   src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(inviteLink)}`} 
+                   alt="Invite QR Code" 
+                   className="w-[100px] h-[100px]"
+                 />
+               )}
             </div>
 
             <div className="flex-1 w-full space-y-4">
               <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 flex items-center gap-3 border border-white/10">
                 <div className="flex-1 truncate text-sm font-mono text-white/90">
-                  {inviteLink}
+                  {inviteLink || t("invite.connectWalletFirst")}
                 </div>
                 <Button 
                   size="sm" 
                   variant="secondary" 
                   className="h-8 shrink-0 bg-white/20 hover:bg-white/30 text-white border border-white/20 backdrop-blur-sm font-medium"
                   onClick={handleCopy}
+                  disabled={!inviteLink}
                 >
-                  {copied ? "已复制" : "复制"}
+                  {copied ? t("common.copied") : t("common.copy")}
                 </Button>
               </div>
 
               {/* Social Share Buttons */}
               <div className="flex gap-3">
-                <Button variant="secondary" className="flex-1 bg-white/20 hover:bg-white/30 text-white border border-white/20 backdrop-blur-sm h-9">
+                <Button 
+                  variant="secondary" 
+                  className="flex-1 bg-white/20 hover:bg-white/30 text-white border border-white/20 backdrop-blur-sm h-9"
+                  onClick={handleShareTwitter}
+                  disabled={!inviteLink}
+                >
                   <Twitter className="h-4 w-4 mr-2" />
                   Twitter
                 </Button>
-                <Button variant="secondary" className="flex-1 bg-white/20 hover:bg-white/30 text-white border border-white/20 backdrop-blur-sm h-9">
+                <Button 
+                  variant="secondary" 
+                  className="flex-1 bg-white/20 hover:bg-white/30 text-white border border-white/20 backdrop-blur-sm h-9"
+                  onClick={handleShareTelegram}
+                  disabled={!inviteLink}
+                >
                   <Send className="h-4 w-4 mr-2" />
                   Telegram
                 </Button>
@@ -83,31 +126,33 @@ export function InviteView() {
           </div>
 
           {/* 上级用户钱包地址 */}
-          <div className="mt-6 pt-6 border-t border-white/20">
-            <div className="flex items-center gap-2 mb-2">
-              <User className="h-4 w-4 text-white/80" />
-              <span className="text-sm text-white/80">上级用户</span>
-            </div>
-            <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 flex items-center gap-3 border border-white/10">
-              <div className="flex-1 truncate text-sm font-mono text-white/90">
-                {parentAddress}
+          {parentAddress && parentAddress !== t("invite.noParent") && (
+            <div className="mt-6 pt-6 border-t border-white/20">
+              <div className="flex items-center gap-2 mb-2">
+                <User className="h-4 w-4 text-white/80" />
+                <span className="text-sm text-white/80">{t("invite.parentUser")}</span>
               </div>
-              <Button 
-                size="sm" 
-                variant="secondary" 
-                className="h-8 shrink-0 bg-white/20 hover:bg-white/30 text-white border border-white/20 backdrop-blur-sm font-medium"
-                onClick={handleCopyParentAddress}
-              >
-                {copied ? "已复制" : "复制"}
-              </Button>
+              <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 flex items-center gap-3 border border-white/10">
+                <div className="flex-1 truncate text-sm font-mono text-white/90">
+                  {parentAddress}
+                </div>
+                <Button 
+                  size="sm" 
+                  variant="secondary" 
+                  className="h-8 shrink-0 bg-white/20 hover:bg-white/30 text-white border border-white/20 backdrop-blur-sm font-medium"
+                  onClick={handleCopyParentAddress}
+                >
+                  {copied ? t("common.copied") : t("common.copy")}
+                </Button>
+              </div>
             </div>
-          </div>
+          )}
         </CardContent>
       </Card>
 
       {/* 2. 邀请规则说明 */}
       <div className="space-y-4">
-        <h3 className="text-sm font-semibold text-muted-foreground px-1">邀请规则</h3>
+        <h3 className="text-sm font-semibold text-muted-foreground px-1">{t("invite.rules")}</h3>
         <Card className="border-border/40 shadow-sm bg-card/50">
           <CardContent className="p-6 space-y-6">
             <div className="flex gap-4">
@@ -115,9 +160,9 @@ export function InviteView() {
                 <Share2 className="h-5 w-5" />
               </div>
               <div className="space-y-1">
-                <h4 className="text-sm font-medium">1. 分享链接</h4>
+                <h4 className="text-sm font-medium">{t("invite.rule1")}</h4>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  复制您的专属邀请链接或二维码，分享给好友或社交媒体群组。
+                  {t("invite.rule1Desc")}
                 </p>
               </div>
             </div>
@@ -127,9 +172,9 @@ export function InviteView() {
                 <Users className="h-5 w-5" />
               </div>
               <div className="space-y-1">
-                <h4 className="text-sm font-medium">2. 好友注册并质押</h4>
+                <h4 className="text-sm font-medium">{t("invite.rule2")}</h4>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  好友通过您的链接注册并完成首次质押，即可绑定为您的团队成员。
+                  {t("invite.rule2Desc")}
                 </p>
               </div>
             </div>
@@ -139,9 +184,9 @@ export function InviteView() {
                 <Coins className="h-5 w-5" />
               </div>
               <div className="space-y-1">
-                <h4 className="text-sm font-medium">3. 获得佣金奖励</h4>
+                <h4 className="text-sm font-medium">{t("invite.rule3")}</h4>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  您将获得好友质押收益的 10% 作为直推奖励，以及二级好友收益的 5% 作为间推奖励。
+                  {t("invite.rule3Desc")}
                 </p>
               </div>
             </div>

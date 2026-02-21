@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from "@/components/ui/card";
 import { AssetCard } from "@/components/ui/asset-card";
 import { useAccount } from "wagmi";
@@ -31,6 +32,7 @@ const REINVEST_THRESHOLD = 100;
 export function WalletView() {
   const { isConnected } = useAccount();
   const { handleError } = useApiError();
+  const { t } = useTranslation();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isReinvesting, setIsReinvesting] = useState(false);
   const [showReinvestDialog, setShowReinvestDialog] = useState(false);
@@ -154,11 +156,11 @@ export function WalletView() {
     todayInterest: `+${todayIncome.toFixed(2)}`
   };
 
-  // 复投进度
+  // {t("wallet.reinvest")}进度
   const reinvestProgress = interest % REINVEST_THRESHOLD;
   const canReinvest = interest >= REINVEST_THRESHOLD;
 
-  // 复投可选金额：100, 200, 300, ... 最大为当前利息向下取整到百位
+  // {t("wallet.reinvest")}可选金额：100, 200, 300, ... 最大为当前利息向下取整到百位
   const maxReinvest = Math.max(100, Math.floor(interest / 100) * 100);
   const reinvestAmountOptions = useMemo(() => {
     const list: number[] = [];
@@ -182,7 +184,7 @@ export function WalletView() {
       console.log('✅ 复投成功:', result);
       
       // 显示成功提示
-      toast.success("复投成功");
+      toast.success(t("wallet.reinvestSuccess"));
       
       // 刷新钱包信息和交易记录
       await Promise.all([
@@ -198,7 +200,7 @@ export function WalletView() {
       handleError(error);
       
       // 显示错误提示
-      const errorMessage = error instanceof Error ? error.message : '复投失败，请稍后重试';
+      const errorMessage = error instanceof Error ? error.message : t("errors.reinvest.failed");
       toast.error(errorMessage);
     } finally {
       setIsReinvesting(false);
@@ -228,7 +230,7 @@ export function WalletView() {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh] text-muted-foreground space-y-4">
         <Wallet className="h-16 w-16 opacity-20" />
-        <p>请先在首页连接钱包</p>
+        <p>{t('wallet.connectWalletFirst')}</p>
       </div>
     );
   }
@@ -245,8 +247,8 @@ export function WalletView() {
           </div>
           <CardContent className="p-6 text-black">
             <div className="space-y-2">
-              <span className="text-sm font-medium">总资产估值 (USDT0)</span>
-              <p className="text-xs opacity-80">充币请走 Plasma 网络</p>
+              <span className="text-sm font-medium">{t('wallet.totalAssets')}</span>
+              <p className="text-xs opacity-80">{t('wallet.depositTip')}</p>
               <div className="space-y-2">
                 <span className="text-4xl font-bold tracking-tight tabular-nums inline-flex items-center gap-2">
                   <Usdt0 iconSize="lg" iconOnly />
@@ -255,7 +257,7 @@ export function WalletView() {
                 <div>
                   <Badge variant="outline" className="bg-background/50 border-black/20 text-black h-6 gap-1 px-2 font-normal whitespace-nowrap">
                     <ArrowUpRight className="h-3 w-3 shrink-0" />
-                    今日 {assets.todayInterest}
+                    {t('wallet.today')} {assets.todayInterest}
                   </Badge>
                 </div>
               </div>
@@ -266,15 +268,15 @@ export function WalletView() {
         {/* 分项资产 (Grid) */}
         <div className="grid grid-cols-2 gap-4">
           <AssetCard
-            title="质押本金"
+            title={t("wallet.capital")}
             amount={assets.principal}
             icon={PiggyBank}
             iconBg="bg-blue-500/10"
             iconColor="text-blue-500"
-            subtitle="当前锁仓中"
+            subtitle={t("wallet.currentlyLocked")}
           />
           <AssetCard
-            title="累计利息"
+            title={t("wallet.accumulatedInterest")}
             amount={assets.interest}
             icon={Coins}
             iconBg="bg-primary/10"
@@ -296,12 +298,12 @@ export function WalletView() {
         </div>
       </div>
 
-      {/* 复投弹窗 */}
+      {/* {t("wallet.reinvest")}弹窗 */}
       <Dialog open={showReinvestDialog} onOpenChange={setShowReinvestDialog}>
         <DialogContent className="sm:max-w-md p-0 gap-0 overflow-hidden">
           <DialogHeader className="px-6 pt-6 pb-2 text-left">
-            <DialogTitle>复投</DialogTitle>
-            <p className="text-sm text-muted-foreground mt-1.5">选择复投金额，将利息转为本金</p>
+            <DialogTitle>{t("wallet.reinvest")}</DialogTitle>
+            <p className="text-sm text-muted-foreground mt-1.5">{t("wallet.reinvestDesc")}</p>
           </DialogHeader>
           <div className="px-6 pb-6 space-y-5">
             <div className="flex items-center justify-between gap-4">
@@ -353,13 +355,13 @@ export function WalletView() {
               className="h-11 flex-1 rounded-xl font-medium"
               onClick={() => setShowReinvestDialog(false)}
             >
-              取消
+              {t('common.cancel')}
             </Button>
             <Button
               className="h-11 flex-1 rounded-xl font-medium bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={() => handleReinvest(reinvestAmount)}
             >
-              确认复投
+              {t("wallet.confirmReinvest")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -369,16 +371,16 @@ export function WalletView() {
       <div className="space-y-4">
         <h3 className="text-lg font-semibold tracking-tight px-1 flex items-center gap-2">
           <CalendarDays className="h-5 w-5 text-primary" />
-          收支日历
+          {t('wallet.calendar')}
         </h3>
         <Card className="border-border/40 shadow-sm">
           <CardContent className="p-4">
             <div className="flex items-center justify-end gap-4 mb-2 text-[10px] text-muted-foreground">
               <span className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary" /> 收入
+                <span className="w-1.5 h-1.5 rounded-full bg-primary" /> {t('wallet.income')}
               </span>
               <span className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-orange-500" /> 支出
+                <span className="w-1.5 h-1.5 rounded-full bg-orange-500" /> {t('wallet.expense')}
               </span>
             </div>
             <Calendar
@@ -389,17 +391,17 @@ export function WalletView() {
             {selectedDate && selectedDateFlow && (
               <div className="mt-4 pt-4 border-t border-border/40 space-y-3">
                 <p className="text-xs text-muted-foreground">
-                  {selectedDate.getFullYear()}/{selectedDate.getMonth() + 1}/{selectedDate.getDate()} 收支
+                  {selectedDate.getFullYear()}/{selectedDate.getMonth() + 1}/{selectedDate.getDate()} {t('wallet.dailyFlow')}
                 </p>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">收入</span>
+                    <span className="text-sm text-muted-foreground">{t('wallet.income')}</span>
                     <span className="text-base font-bold text-primary">
                       +{selectedDateFlow.income.toFixed(2)} USDT0
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">支出</span>
+                    <span className="text-sm text-muted-foreground">{t('wallet.expense')}</span>
                     <span className="text-base font-bold text-orange-500">
                       -{selectedDateFlow.expense.toFixed(2)} USDT0
                     </span>
@@ -415,16 +417,16 @@ export function WalletView() {
       <div className="space-y-4">
         <h3 className="text-lg font-semibold tracking-tight px-1 flex items-center gap-2">
           <History className="h-5 w-5 text-primary" />
-          资金明细
+          {t('wallet.transactions')}
         </h3>
 
         <Tabs value={currentCategory} onValueChange={(value) => handleCategoryChange(value as any)} className="w-full">
           <TabsList className="grid w-full grid-cols-5 h-9 p-1 bg-muted/50 rounded-lg">
-            <TabsTrigger value="all" className="rounded-md text-xs h-7">全部</TabsTrigger>
-            <TabsTrigger value="deposit" className="rounded-md text-xs h-7">质押</TabsTrigger>
-            <TabsTrigger value="profit" className="rounded-md text-xs h-7">收益</TabsTrigger>
-            <TabsTrigger value="reinvest" className="rounded-md text-xs h-7">复投</TabsTrigger>
-            <TabsTrigger value="withdraw" className="rounded-md text-xs h-7">提现</TabsTrigger>
+            <TabsTrigger value="all" className="rounded-md text-xs h-7">{t("common.all")}</TabsTrigger>
+            <TabsTrigger value="deposit" className="rounded-md text-xs h-7">{t("wallet.deposit")}</TabsTrigger>
+            <TabsTrigger value="profit" className="rounded-md text-xs h-7">{t("wallet.profit")}</TabsTrigger>
+            <TabsTrigger value="reinvest" className="rounded-md text-xs h-7">{t("wallet.reinvest")}</TabsTrigger>
+            <TabsTrigger value="withdraw" className="rounded-md text-xs h-7">{t("wallet.withdraw")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value={currentCategory} className="mt-4">
@@ -438,11 +440,31 @@ export function WalletView() {
 
 // 交易列表组件
 function TransactionList({ transactions }: { transactions: TransactionDetail[] }) {
+  const { t } = useTranslation();
+  
+  // 交易类型翻译映射
+  const getTransactionTypeName = (protype: string) => {
+    const typeMap: Record<string, string> = {
+      '1': t('transaction.deposit'),        // 入金
+      '6': t('transaction.dailyReward'),    // 日收益
+      '8': t('transaction.referralReward'), // 推荐收益
+      '9': t('transaction.teamReward'),     // 团队收益
+      '10': t('transaction.teamBonus'),     // 团队奖励
+      '16': t('transaction.inviteBonus'),   // 推荐奖励
+      '20': t('transaction.withdraw'),      // 提现
+      '2001': t('transaction.leaderReward'),// 领袖奖励
+      '2003': t('transaction.reinvest'),    // 复投
+      '2004': t('transaction.supernodeReward'), // 超级节点奖励
+    };
+    
+    return typeMap[protype] || protype;
+  };
+  
   if (transactions.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-muted-foreground bg-card rounded-xl border border-dashed">
         <History className="h-10 w-10 opacity-20 mb-2" />
-        <p className="text-sm">暂无记录</p>
+        <p className="text-sm">{t('wallet.noRecords')}</p>
       </div>
     );
   }
@@ -452,35 +474,35 @@ function TransactionList({ transactions }: { transactions: TransactionDetail[] }
     const isIncome = type === '1';
     
     // 根据业务类型名称判断
-    if (protypeName.includes('入金') || protypeName.includes('质押')) {
+    if (protypeName.includes('入金') || protypeName.includes('充值') || protypeName.includes('Deposit')) {
       return {
         icon: PiggyBank,
         bgColor: 'bg-blue-500/10',
         borderColor: 'border-blue-500/20',
         textColor: 'text-blue-500',
       };
-    } else if (protypeName.includes('收益') || protypeName.includes('利息')) {
+    } else if (protypeName.includes('收益') || protypeName.includes('利息') || protypeName.includes('Reward') || protypeName.includes('Interest')) {
       return {
         icon: Coins,
         bgColor: 'bg-primary/10',
         borderColor: 'border-primary/20',
         textColor: 'text-primary',
       };
-    } else if (protypeName.includes('复投')) {
+    } else if (protypeName.includes('复投') || protypeName.includes('Reinvest')) {
       return {
         icon: RefreshCw,
         bgColor: 'bg-primary/10',
         borderColor: 'border-primary/20',
         textColor: 'text-primary',
       };
-    } else if (protypeName.includes('提现') || protypeName.includes('出金')) {
+    } else if (protypeName.includes('提现') || protypeName.includes('出金') || protypeName.includes('Withdraw')) {
       return {
         icon: ArrowDownLeft,
         bgColor: 'bg-orange-500/10',
         borderColor: 'border-orange-500/20',
         textColor: 'text-orange-500',
       };
-    } else if (protypeName.includes('领袖')) {
+    } else if (protypeName.includes('领袖') || protypeName.includes('Leader')) {
       return {
         icon: Trophy,
         bgColor: 'bg-amber-500/10',
@@ -503,7 +525,8 @@ function TransactionList({ transactions }: { transactions: TransactionDetail[] }
       <ScrollArea className="h-[400px]">
         <div className="divide-y divide-border/40">
           {transactions.map((tx, index) => {
-            const style = getTransactionStyle(tx.protype_name, tx.type);
+            const translatedName = getTransactionTypeName(tx.protype);
+            const style = getTransactionStyle(translatedName, tx.type);
             const Icon = style.icon;
             const isIncome = tx.type === '1';
             
@@ -514,7 +537,7 @@ function TransactionList({ transactions }: { transactions: TransactionDetail[] }
                     <Icon className="h-4 w-4" />
                   </div>
                   <div>
-                    <div className="font-medium text-sm">{tx.protype_name}</div>
+                    <div className="font-medium text-sm">{translatedName}</div>
                     <div className="text-xs text-muted-foreground">{tx.time_format}</div>
                   </div>
                 </div>
@@ -523,7 +546,7 @@ function TransactionList({ transactions }: { transactions: TransactionDetail[] }
                     {isIncome ? '+' : '-'}{parseFloat(tx.fee).toFixed(2)} <span className="text-xs font-normal text-muted-foreground inline-flex items-center gap-0.5"><Usdt0 iconSize="sm" /></span>
                   </div>
                   <div className="text-[10px]">
-                    <span className="text-muted-foreground">已完成</span>
+                    <span className="text-muted-foreground">{t('wallet.completed')}</span>
                   </div>
                 </div>
               </div>

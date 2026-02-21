@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +24,7 @@ import { useToast } from "@/hooks/use-toast";
 export function LeaderRewardView() {
   const { isConnected } = useAccount();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [inviteCode, setInviteCode] = useState("");
   const [isUpgrading, setIsUpgrading] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
@@ -123,8 +125,8 @@ export function LeaderRewardView() {
     if (!inviteCode.trim()) {
       toast({
         variant: 'destructive',
-        title: '激活失败',
-        description: '请输入激活码',
+        title: t('leader.activationFailed'),
+        description: t('leader.enterCode'),
       });
       return;
     }
@@ -148,8 +150,8 @@ export function LeaderRewardView() {
       
       // 显示成功提示
       toast({
-        title: '激活成功',
-        description: `领袖身份已激活，有效期至 ${result.expire_date}`,
+        title: t('leader.activationSuccess'),
+        description: `${t("leader.activated")}，${t("leader.validUntil")} ${result.expire_date}`,
       });
     } catch (err: any) {
       console.error('❌ 激活失败:', err);
@@ -157,8 +159,8 @@ export function LeaderRewardView() {
       // 显示错误提示
       toast({
         variant: 'destructive',
-        title: '激活失败',
-        description: err.message || '激活码无效或已被使用',
+        title: t('leader.activationFailed'),
+        description: err.message || t('errors.leader.codeInvalid'),
       });
     } finally {
       setIsUpgrading(false);
@@ -169,14 +171,14 @@ export function LeaderRewardView() {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh] text-muted-foreground space-y-4">
         <Wallet className="h-16 w-16 opacity-20" />
-        <p>请先在首页连接钱包</p>
+        <p>{t('wallet.connectWalletFirst')}</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-6 pb-20 animate-in fade-in duration-500 max-w-4xl mx-auto pt-5">
-      {/* 领袖状态卡片 - 仅激活后显示 */}
+      {/* {t("leader.status")}卡片 - 仅激活后显示 */}
       {isLeader && (
         <Card className="bg-primary/5 border-primary/10 shadow-sm overflow-hidden relative">
           <div className="absolute top-0 right-0 p-4 opacity-5">
@@ -185,13 +187,13 @@ export function LeaderRewardView() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between gap-4">
               <div className="space-y-1 min-w-0">
-                <span className="text-sm font-medium text-muted-foreground">领袖状态</span>
+                <span className="text-sm font-medium text-muted-foreground">{t("leader.status")}</span>
                 <div className="flex items-baseline gap-3">
-                  <span className="text-4xl font-bold tracking-tight text-primary tabular-nums">已激活</span>
-                  <Badge className="bg-primary text-primary-foreground">+10% 收益加成</Badge>
+                  <span className="text-4xl font-bold tracking-tight text-primary tabular-nums">{t("leader.activated")}</span>
+                  <Badge className="bg-primary text-primary-foreground">{t("leader.bonusRate")}</Badge>
                 </div>
               </div>
-              <img src={iconManager} alt="领袖" className="h-14 w-14 object-contain shrink-0" />
+              <img src={iconManager} alt={t("leader.title")} className="h-14 w-14 object-contain shrink-0" />
             </div>
           </CardContent>
         </Card>
@@ -209,7 +211,7 @@ export function LeaderRewardView() {
                     <Usdt0 iconSize="lg" iconOnly />
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground">累计领袖奖励</p>
+                    <p className="text-xs text-muted-foreground">{t("leader.totalReward")}</p>
                     <p className="text-xl font-bold text-primary inline-flex items-center gap-1.5">
                       +{parseFloat(leaderInfo?.total_reward || "0").toFixed(2)} <Usdt0 iconSize="default" />
                     </p>
@@ -224,8 +226,8 @@ export function LeaderRewardView() {
                     <Gift className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground">领袖团队人数</p>
-                    <p className="text-xl font-bold">{leaderInfo?.leader_team_count || 0} 人</p>
+                    <p className="text-xs text-muted-foreground">{t("leader.teamCount")}</p>
+                    <p className="text-xl font-bold">{leaderInfo?.leader_team_count || 0} {t("leader.people")}</p>
                   </div>
                 </div>
               </CardContent>
@@ -236,7 +238,7 @@ export function LeaderRewardView() {
 <div className="space-y-4">
             <h3 className="text-lg font-semibold tracking-tight px-1 flex items-center gap-2">
               <CalendarDays className="h-5 w-5 text-primary" />
-              每日领袖奖励
+              {t("leader.dailyReward")}
             </h3>
             <Card className="border-border/40 shadow-sm">
               <CardContent className="p-4">
@@ -249,13 +251,13 @@ export function LeaderRewardView() {
                 {selectedDate && selectedDateReward && (
                   <div className="mt-4 pt-4 border-t border-border/40">
                     <p className="text-sm text-muted-foreground mb-2">
-                      {selectedDate.getFullYear()}/{selectedDate.getMonth() + 1}/{selectedDate.getDate()} 领袖奖励
+                      {selectedDate.getFullYear()}/{selectedDate.getMonth() + 1}/{selectedDate.getDate()} {t("leader.title")}
                     </p>
                     <div className="flex items-center gap-2">
                       <span className="text-2xl font-bold text-primary">
                         +{selectedDateReward.toFixed(2)} USDT0
                       </span>
-                      <Badge variant="outline" className="text-xs">额外10%收益</Badge>
+                      <Badge variant="outline" className="text-xs">{t("leader.extraBonus")}</Badge>
                     </div>
                   </div>
                 )}
@@ -275,16 +277,16 @@ export function LeaderRewardView() {
                 <Trophy className="h-10 w-10" />
               </div>
               <div className="space-y-2">
-                <h3 className="text-2xl font-bold">升级为领袖</h3>
-                <p className="text-sm text-muted-foreground">解锁额外收益加成，享受专属权益</p>
+                <h3 className="text-2xl font-bold">{t("leader.upgradeToLeader")}</h3>
+                <p className="text-sm text-muted-foreground">{t("leader.upgradeDesc")}</p>
               </div>
             </div>
 
             <div className="space-y-3">
-              <Label htmlFor="inviteCode" className="text-sm font-medium">邀请码</Label>
+              <Label htmlFor="inviteCode" className="text-sm font-medium">{t("leader.inviteCode")}</Label>
               <Input
                 id="inviteCode"
-                placeholder="请输入邀请码"
+                placeholder={t("leader.enterCode")}
                 value={inviteCode}
                 onChange={(e) => setInviteCode(e.target.value)}
                 className="h-12"
@@ -299,11 +301,11 @@ export function LeaderRewardView() {
               {isUpgrading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  验证中...
+                  {t("leader.activating")}
                 </>
               ) : (
                 <>
-                  确认升级
+                  {t("leader.activate")}
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </>
               )}
@@ -316,44 +318,44 @@ export function LeaderRewardView() {
       {isLeader && (
         <>
           <p className="text-sm text-muted-foreground">
-            领袖可享受额外 10% 收益加成，收益每日发放
+            {t("leader.leaderDesc")}
           </p>
           <div className="rounded-xl bg-muted/30 p-4 space-y-2">
             <div className="flex items-start gap-2 text-sm text-muted-foreground">
               <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5 text-primary" />
-              <span>升级后立即享受额外 10% 收益</span>
+              <span>{t("leader.benefit1")}</span>
             </div>
             <div className="flex items-start gap-2 text-sm text-muted-foreground">
               <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5 text-primary" />
-              <span>可查看每日领袖奖励明细</span>
+              <span>{t("leader.benefit2")}</span>
             </div>
             <div className="flex items-start gap-2 text-sm text-muted-foreground">
               <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5 text-primary" />
-              <span>团队成员越多，奖励越丰厚</span>
+              <span>{t("leader.benefit3")}</span>
             </div>
           </div>
           <Card className="border-border/40 shadow-sm">
             <CardContent className="p-4">
               <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
                 <Trophy className="h-4 w-4 text-primary" />
-                领袖权益说明
+                {t("leader.rightsDesc")}
               </h4>
               <div className="space-y-3 text-sm text-muted-foreground">
                 <div className="flex items-start gap-2">
                   <span className="h-1.5 w-1.5 rounded-full bg-primary mt-2 shrink-0" />
-                  <span>领袖在基础收益上额外获得 10% 收益加成</span>
+                  <span>{t("leader.right1")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <span className="h-1.5 w-1.5 rounded-full bg-primary mt-2 shrink-0" />
-                  <span>每日收益自动结算，可在日历中查看明细</span>
+                  <span>{t("leader.right2")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <span className="h-1.5 w-1.5 rounded-full bg-primary mt-2 shrink-0" />
-                  <span>邀请码由管理员发放，升级后立即生效</span>
+                  <span>{t("leader.right3")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <span className="h-1.5 w-1.5 rounded-full bg-primary mt-2 shrink-0" />
-                  <span>领袖奖励可随时提取至钱包</span>
+                  <span>{t("leader.right4")}</span>
                 </div>
               </div>
             </CardContent>
@@ -368,9 +370,9 @@ export function LeaderRewardView() {
             <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
               <Trophy className="h-7 w-7 text-primary" />
             </div>
-            <DialogTitle className="text-xl">升级成功！</DialogTitle>
+            <DialogTitle className="text-xl">{t("leader.upgradeSuccess")}</DialogTitle>
             <DialogDescription className="text-base">
-              恭喜您已成为领袖，享受额外 10% 收益加成
+              {t("leader.upgradeSuccessDesc")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -378,7 +380,7 @@ export function LeaderRewardView() {
               className="w-full h-11 rounded-xl"
               onClick={() => setShowSuccessDialog(false)}
             >
-              开始享受领袖权益
+              {t("leader.startEnjoy")}
             </Button>
           </DialogFooter>
         </DialogContent>

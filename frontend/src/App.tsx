@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAccount } from 'wagmi';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -15,7 +16,9 @@ import { AboutView } from '@/components/features/about/AboutView';
 import { PlasmaOneView } from '@/components/features/plasma-one/PlasmaOneView';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
+import { GlobalLoading } from '@/components/ui/GlobalLoading';
 import { useWalletAuth } from '@/hooks/useWalletAuth';
+import { useLoadingStore } from '@/store/loadingStore';
 import { clearToken } from '@/lib/api';
 import { Wallet, X } from 'lucide-react';
 
@@ -23,19 +26,21 @@ const VOCECHAT_URL = "http://67.215.229.143:3009";
 const VALID_TABS = ['home', 'wallet', 'withdraw', 'leader', 'supernode', 'team', 'invite', 'help-center', 'orders', 'about', 'plasma-one'] as const;
 
 function ConnectWalletGate() {
+  const { t } = useTranslation();
+  
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4 space-y-6">
       <div className="rounded-2xl bg-primary/10 p-6 border border-primary/20">
         <Wallet className="h-16 w-16 text-primary mx-auto mb-4" />
-        <h2 className="text-lg font-semibold text-foreground mb-2">连接钱包以访问</h2>
+        <h2 className="text-lg font-semibold text-foreground mb-2">{t('common.connectWalletToAccess')}</h2>
         <p className="text-sm text-muted-foreground mb-6 max-w-sm">
-          请先连接您的钱包（OKX、TokenPocket、MetaMask 等）以使用 PLASMA 平台的完整功能
+          {t('common.connectWalletDesc')}
         </p>
         <ConnectButton.Custom>
           {({ openConnectModal }) => (
             <Button onClick={openConnectModal} className="gap-2 rounded-xl">
               <Wallet className="h-4 w-4" />
-              连接钱包
+              {t('common.connectWallet')}
             </Button>
           )}
         </ConnectButton.Custom>
@@ -50,9 +55,11 @@ function hashToTab(hash: string): string {
 }
 
 export default function App() {
+  const { t } = useTranslation();
   const [currentTab, setCurrentTab] = useState(() => hashToTab(window.location.hash));
   const [showVoceChat, setShowVoceChat] = useState(false);
   const { isConnected } = useAccount();
+  const { isLoading } = useLoadingStore();
 
   // 自动登录：钱包连接后自动触发登录
   useWalletAuth({
@@ -136,7 +143,7 @@ export default function App() {
       {showVoceChat && (
         <div className="fixed inset-0 z-[100] flex flex-col bg-background">
           <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30 shrink-0">
-            <span className="text-sm font-semibold text-foreground">在线客服</span>
+            <span className="text-sm font-semibold text-foreground">{t('nav.customerService')}</span>
             <Button
               variant="ghost"
               size="icon"
@@ -147,12 +154,13 @@ export default function App() {
             </Button>
           </div>
           <iframe
-            title="VoceChat 在线客服"
+            title={t('nav.customerService')}
             src={VOCECHAT_URL}
             className="flex-1 w-full min-h-0 border-0"
           />
         </div>
       )}
+      <GlobalLoading isLoading={isLoading} />
       <Toaster />
     </>
   );

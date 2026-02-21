@@ -4,6 +4,7 @@
  */
 
 import { getErrorMessage, isAuthError } from './errorCodes';
+import { useLoadingStore } from '@/store/loadingStore';
 
 /**
  * API 响应基础结构
@@ -51,6 +52,7 @@ export interface UserInfo {
   leve_user: string;
   status: number;
   is_leader: number;  // 0: 非领袖, 1: 领袖
+  is_super_node: number;  // 0: 非超级节点, 1: 超级节点
   login_time: number;
   login: boolean;
 }
@@ -132,6 +134,10 @@ async function request<T = any>(
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.timeout);
 
+  // 显示 loading
+  const { showLoading, hideLoading } = useLoadingStore.getState();
+  showLoading();
+
   try {
     const response = await fetch(url, {
       ...options,
@@ -182,6 +188,9 @@ async function request<T = any>(
     }
 
     throw new ApiError(999, '未知错误', 'common');
+  } finally {
+    // 隐藏 loading
+    hideLoading();
   }
 }
 
@@ -897,4 +906,40 @@ export interface GlobalConfigResponse {
 
 export async function getGlobalConfig(): Promise<GlobalConfigResponse> {
   return get<GlobalConfigResponse>('/Api/Index/global_config');
+}
+
+/**
+ * 获取超级节点详情
+ */
+export interface SuperNodeInfoResponse {
+  total_reward: string;           // 累计节点分红
+  account_amount: string;         // 账户总金额（质押 + 复投）
+  is_super_node: number;          // 是否为超级节点：0-否，1-是
+  uid: string;                    // 用户 ID
+}
+
+export async function getSuperNodeInfo(): Promise<SuperNodeInfoResponse> {
+  return post<SuperNodeInfoResponse>('/Api/SuperNode/info');
+}
+
+/**
+ * 获取超级节点收益日历
+ */
+export interface SuperNodeCalendarParams {
+  month: string; // 月份，格式：YYYY-MM
+}
+
+export interface SuperNodeCalendarDay {
+  date: string;                  // 日期，格式：YYYY-MM-DD
+  leader_performance: string;    // 当日节点分红（注意：字段名为 leader_performance）
+}
+
+export interface SuperNodeCalendarResponse {
+  month: string;
+  calendar: SuperNodeCalendarDay[];
+  uid: string;
+}
+
+export async function getSuperNodeCalendar(params: SuperNodeCalendarParams): Promise<SuperNodeCalendarResponse> {
+  return post<SuperNodeCalendarResponse>('/Api/SuperNode/calendar', params);
 }

@@ -2,6 +2,9 @@ import 'dotenv/config';
 import hardhatToolboxMochaEthersPlugin from "@nomicfoundation/hardhat-toolbox-mocha-ethers";
 import { configVariable, defineConfig } from "hardhat/config";
 
+// 固定的助记词，确保每次重启后账户和合约地址不变
+const FIXED_MNEMONIC = "test test test test test test test test test test test junk";
+
 export default defineConfig({
   plugins: [hardhatToolboxMochaEthersPlugin],
   solidity: {
@@ -24,16 +27,22 @@ export default defineConfig({
     hardhatMainnet: {
       type: "edr-simulated",
       chainType: "l1",
+      accounts: {
+        mnemonic: FIXED_MNEMONIC,
+        path: "m/44'/60'/0'/0",
+        initialIndex: 0,
+        count: 20,
+      },
     },
     hardhatOp: {
       type: "edr-simulated",
       chainType: "op",
-    },
-    bscTestnet: {
-      type: "http",
-      chainType: "l1",
-      url: process.env.BSC_TESTNET_RPC_URL || "",
-      accounts: process.env.BSC_TESTNET_PRIVATE_KEY ? [process.env.BSC_TESTNET_PRIVATE_KEY] : [],
+      accounts: {
+        mnemonic: FIXED_MNEMONIC,
+        path: "m/44'/60'/0'/0",
+        initialIndex: 0,
+        count: 20,
+      },
     },
     bscTestnet: {
       type: "http",
@@ -45,6 +54,12 @@ export default defineConfig({
       type: "http",
       chainType: "l1",
       url: "http://127.0.0.1:8546",
+      accounts: {
+        mnemonic: FIXED_MNEMONIC,
+        path: "m/44'/60'/0'/0",
+        initialIndex: 0,
+        count: 20,
+      },
       mining: {
         auto: true,
         interval: 0

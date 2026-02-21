@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useTranslation } from 'react-i18next';
 import { Header } from "./Header";
 
 interface MainLayoutProps {
@@ -9,14 +10,16 @@ interface MainLayoutProps {
 }
 
 export function MainLayout({ children, currentTab, onTabChange, onOpenCustomerService }: MainLayoutProps) {
+  const { t } = useTranslation();
+  
   const getPageTitle = () => {
     switch(currentTab) {
-      case 'team': return '我的团队';
-      case 'invite': return '邀请好友';
-      case 'help-center': return '帮助中心';
-      case 'orders': return '质押订单';
-      case 'plasma-one': return 'Plasma One';
-      case 'supernode': return '超级节点';
+      case 'team': return t('nav.team');
+      case 'invite': return t('nav.invite');
+      case 'help-center': return t('nav.helpCenter');
+      case 'orders': return t('nav.orders');
+      case 'plasma-one': return t('nav.plasmaOne');
+      case 'supernode': return t('nav.supernode');
       default: return undefined;
     }
   };

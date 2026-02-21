@@ -1,4 +1,5 @@
 import { Wallet, Home, User } from "lucide-react";
+import { useTranslation } from 'react-i18next';
 
 interface TabBarProps {
   currentTab: string;
@@ -6,10 +7,12 @@ interface TabBarProps {
 }
 
 export function TabBar({ currentTab, onTabChange }: TabBarProps) {
+  const { t } = useTranslation();
+  
   const tabs = [
-    { id: "home", label: "首页", icon: Home },
-    { id: "wallet", label: "钱包", icon: Wallet },
-    { id: "profile", label: "我的", icon: User },
+    { id: "home", labelKey: "nav.home", icon: Home },
+    { id: "wallet", labelKey: "nav.wallet", icon: Wallet },
+    { id: "profile", labelKey: "common.profile", icon: User },
   ];
 
   return (
@@ -27,7 +30,7 @@ export function TabBar({ currentTab, onTabChange }: TabBarProps) {
               }`}
             >
               <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
-              <span className="text-xs font-medium">{tab.label}</span>
+              <span className="text-xs font-medium">{t(tab.labelKey)}</span>
             </button>
           );
         })}

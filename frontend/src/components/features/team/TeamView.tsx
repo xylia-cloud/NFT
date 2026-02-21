@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -18,6 +19,7 @@ import { useAccount } from "wagmi";
 
 export function TeamView() {
   const { isConnected } = useAccount();
+  const { t } = useTranslation();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [teamInfo, setTeamInfo] = useState<TeamInfoResponse | null>(null);
   const [calendarData, setCalendarData] = useState<FlowByDate>({});
@@ -161,20 +163,20 @@ export function TeamView() {
 
   // 格式化钱包地址（显示前6位和后4位）
   const formatAddress = (address?: string) => {
-    if (!address) return "未知地址";
+    if (!address) return t("team.unknownAddress");
     if (address.length <= 10) return address;
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
   return (
     <div className="space-y-4 pb-20 animate-in fade-in duration-500 max-w-4xl mx-auto pt-4">
-      {/* 1. 团队总业绩、本人账户金额 */}
+      {/* 1. {t("team.teamPerformance")}、本人账户金额 */}
       <div className="grid grid-cols-2 gap-4">
-        {/* 团队总业绩 */}
+        {/* {t("team.teamPerformance")} */}
         <Card className="shadow-sm border-border/60">
           <CardContent className="p-4 flex flex-col gap-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-muted-foreground">团队总业绩</span>
+              <span className="text-xs font-medium text-muted-foreground">{t("team.teamPerformance")}</span>
               <Badge className="bg-primary text-primary-foreground text-[10px] h-5 px-2">
                 A3
               </Badge>
@@ -189,7 +191,7 @@ export function TeamView() {
         <Card className="shadow-sm border-border/60">
           <CardContent className="p-4 flex flex-col gap-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-muted-foreground">本人账户金额</span>
+              <span className="text-xs font-medium text-muted-foreground">{t("team.myAccountBalance")}</span>
               <div className="p-1.5 rounded-full bg-primary/10 text-primary">
                 <Wallet className="h-3.5 w-3.5" />
               </div>
@@ -207,7 +209,7 @@ export function TeamView() {
         <Card className="shadow-sm border-border/60">
           <CardContent className="p-4 flex flex-col gap-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-muted-foreground">团队总人数</span>
+              <span className="text-xs font-medium text-muted-foreground">{t("team.totalCount")}</span>
               <div className="p-1.5 rounded-full bg-blue-500/10 text-blue-500">
                 <Users className="h-3.5 w-3.5" />
               </div>
@@ -217,11 +219,11 @@ export function TeamView() {
               <div className="flex items-center gap-3 mt-1.5 text-[10px] text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                  <span>一级: {teamStats.level1Members}</span>
+                  <span>{t("team.level1")}: {teamStats.level1Members}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
-                  <span>二级: {teamStats.level2Members}</span>
+                  <span>{t("team.level2")}: {teamStats.level2Members}</span>
                 </div>
               </div>
             </div>
@@ -232,7 +234,7 @@ export function TeamView() {
         <Card className="shadow-sm border-border/60">
           <CardContent className="p-4 flex flex-col gap-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-muted-foreground">累计佣金</span>
+              <span className="text-xs font-medium text-muted-foreground">{t("team.totalCommission")}</span>
               <div className="p-1.5 rounded-full bg-orange-500/10 text-orange-500">
                 <Target className="h-3.5 w-3.5" />
               </div>
@@ -245,7 +247,7 @@ export function TeamView() {
                     <TrendingUp className="h-3 w-3 mr-0.5" />
                     {parseFloat(teamStats.todayCommission) >= 0 ? '+' : ''}{teamStats.todayCommission}
                   </span>
-                  <span className="opacity-60">今日新增</span>
+                  <span className="opacity-60">{t("team.todayNew")}</span>
                 </span>
               </div>
             </div>
@@ -257,13 +259,13 @@ export function TeamView() {
       <div className="space-y-4">
         <h3 className="text-lg font-semibold tracking-tight px-1 flex items-center gap-2">
           <CalendarDays className="h-5 w-5 text-primary" />
-          团队业绩
+          {t("team.teamPerformance")}
         </h3>
         <Card className="border-border/40 shadow-sm">
           <CardContent className="p-4">
             <div className="flex items-center justify-end gap-4 mb-2 text-[10px] text-muted-foreground">
               <span className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary" /> 佣金
+                <span className="w-1.5 h-1.5 rounded-full bg-primary" /> {t("team.commission")}
               </span>
             </div>
             <Calendar
@@ -274,15 +276,15 @@ export function TeamView() {
             {selectedDate && selectedDateCommission !== null && (
               <div className="mt-4 pt-4 border-t border-border/40 space-y-2">
                 <p className="text-xs text-muted-foreground">
-                  {selectedDate.getFullYear()}/{selectedDate.getMonth() + 1}/{selectedDate.getDate()} 业绩
+                  {selectedDate.getFullYear()}/{selectedDate.getMonth() + 1}/{selectedDate.getDate()} {t("team.performance")}
                 </p>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">佣金</span>
+                  <span className="text-sm text-muted-foreground">{t("team.commission")}</span>
                   <span className="text-xl font-bold text-primary">
                     +{selectedDateCommission.toFixed(2)} USDT
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    (领袖奖励 +{(selectedDateCommission * 0.1).toFixed(2)} USDT0)
+                    ({t("leader.title")} +{(selectedDateCommission * 0.1).toFixed(2)} USDT0)
                   </span>
                 </div>
               </div>
@@ -295,13 +297,13 @@ export function TeamView() {
       <div className="space-y-4">
         <h3 className="text-lg font-semibold tracking-tight px-1 flex items-center gap-2">
           <Users className="h-5 w-5 text-primary" />
-          团队成员
+          {t("team.members")}
         </h3>
 
         <Tabs value={currentTab} onValueChange={(value) => handleTabChange(value as "all" | "active")} className="w-full">
           <TabsList className="grid w-full grid-cols-2 h-9 p-1 bg-muted/50 rounded-lg mb-4">
-            <TabsTrigger value="all" className="text-xs rounded-md h-7">全部成员</TabsTrigger>
-            <TabsTrigger value="active" className="text-xs rounded-md h-7">活跃中</TabsTrigger>
+            <TabsTrigger value="all" className="text-xs rounded-md h-7">{t("team.allMembers")}</TabsTrigger>
+            <TabsTrigger value="active" className="text-xs rounded-md h-7">{t("team.activeMembers")}</TabsTrigger>
           </TabsList>
 
           <Card className="border-border/40 shadow-sm bg-card">
@@ -309,7 +311,7 @@ export function TeamView() {
               {members.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-[400px] text-muted-foreground">
                   <Users className="h-16 w-16 opacity-20 mb-4" />
-                  <p className="text-sm">暂无团队成员</p>
+                  <p className="text-sm">{t("team.noMembers")}</p>
                 </div>
               ) : (
                 <div className="flex flex-col divide-y divide-border/40">
@@ -330,14 +332,14 @@ export function TeamView() {
                             )}
                           </div>
                           <div className="text-xs text-muted-foreground flex items-center gap-2">
-                            {member.join_date && <span>加入: {member.join_date}</span>}
+                            {member.join_date && <span>{t("team.joined")}: {member.join_date}</span>}
                             {member.status === 'active' ? (
                               <span className="flex items-center gap-1 text-primary text-[10px]">
                                 <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-                                活跃
+                                {t("team.active")}
                               </span>
                             ) : (
-                              <span className="text-muted-foreground/50 text-[10px]">离线</span>
+                              <span className="text-muted-foreground/50 text-[10px]">{t("team.offline")}</span>
                             )}
                           </div>
                         </div>

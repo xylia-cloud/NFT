@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from 'react-i18next';
 import { PiggyBank, Loader2 } from "lucide-react";
 import type { StakeOrder } from "./StakeView";
 import { StakeOrderItem } from "./StakeView";
@@ -40,6 +41,7 @@ function convertToStakeOrder(record: StakeRecord): StakeOrder {
 
 export function StakeOrdersView() {
   const { address } = useAccount();
+  const { t } = useTranslation();
   const [stakeOrders, setStakeOrders] = useState<StakeOrder[]>([]);
   const [withdrawingOrderId, setWithdrawingOrderId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -167,7 +169,7 @@ export function StakeOrdersView() {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
         <Loader2 className="h-8 w-8 animate-spin mb-3" />
-        <p className="text-sm">加载中...</p>
+        <p className="text-sm">{t('common.loading')}</p>
       </div>
     );
   }
@@ -176,8 +178,8 @@ export function StakeOrdersView() {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-muted-foreground rounded-xl border border-dashed border-border/70">
         <PiggyBank className="h-12 w-12 opacity-20 mb-3" />
-        <p className="text-sm text-destructive">加载失败: {error}</p>
-        <p className="text-xs mt-1">请刷新页面重试</p>
+        <p className="text-sm text-destructive">{t('stake.loadFailed')}: {error}</p>
+        <p className="text-xs mt-1">{t('stake.refreshPage')}</p>
       </div>
     );
   }
@@ -199,8 +201,8 @@ export function StakeOrdersView() {
       ) : (
         <div className="flex flex-col items-center justify-center py-16 text-muted-foreground rounded-xl border border-dashed border-border/70">
           <PiggyBank className="h-12 w-12 opacity-20 mb-3" />
-          <p className="text-sm">暂无质押订单</p>
-          <p className="text-xs mt-1">完成首次质押后订单将显示在此处</p>
+          <p className="text-sm">{t('stake.noOrders')}</p>
+          <p className="text-xs mt-1">{t('stake.noOrdersDesc')}</p>
         </div>
       )}
     </div>

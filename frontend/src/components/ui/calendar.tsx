@@ -1,9 +1,8 @@
 import { useState } from "react";
+import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
-const WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"];
 
 export interface FlowByDate {
   [dateStr: string]: { income: number; expense: number } | number; // "2024-03-14" -> { income: 12.50, expense: 0 } or just 12.50 for rewards
@@ -24,7 +23,18 @@ export function Calendar({
   showAmount = false,
   className,
 }: CalendarProps) {
+  const { t } = useTranslation();
   const [viewDate, setViewDate] = useState(new Date());
+  
+  const WEEKDAYS = [
+    t('calendar.sun'),
+    t('calendar.mon'),
+    t('calendar.tue'),
+    t('calendar.wed'),
+    t('calendar.thu'),
+    t('calendar.fri'),
+    t('calendar.sat')
+  ];
 
   const year = viewDate.getFullYear();
   const month = viewDate.getMonth();
@@ -97,7 +107,7 @@ export function Calendar({
           <ChevronLeft className="h-4 w-4" />
         </Button>
         <span className="text-sm font-semibold text-foreground">
-          {year}年{month + 1}月
+          {year}{t('calendar.year')}{month + 1}{t('calendar.month')}
         </span>
         <Button
           variant="ghost"
@@ -144,10 +154,10 @@ export function Calendar({
               {!showAmount && (hasFlow(d) || hasReward(d)) && !isSelected(d) && (
                 <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 flex gap-0.5 items-center">
                   {hasIncome(d) || hasReward(d) ? (
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" title="收入" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" title={t('wallet.income')} />
                   ) : null}
                   {hasExpense(d) ? (
-                    <span className="w-1.5 h-1.5 rounded-full bg-orange-500 shrink-0" title="支出" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-orange-500 shrink-0" title={t('wallet.expense')} />
                   ) : null}
                 </div>
               )}
