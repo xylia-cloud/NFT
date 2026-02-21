@@ -983,6 +983,7 @@ export function StakeView() {
               className="w-full h-auto"
               preload="metadata"
               controls
+              poster={`${video01}#t=0.1`}
             >
               <source src={video01} type="video/mp4" />
             </video>
@@ -1005,6 +1006,7 @@ export function StakeView() {
               className="w-full h-auto"
               preload="metadata"
               controls
+              poster={`${video02}#t=0.1`}
             >
               <source src={video02} type="video/mp4" />
             </video>
