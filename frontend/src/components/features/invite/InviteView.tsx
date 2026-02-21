@@ -9,7 +9,8 @@ import { getUserInfo } from "@/lib/api";
 export function InviteView() {
   const { address } = useAccount();
   const { t } = useTranslation();
-  const [copied, setCopied] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [copiedParent, setCopiedParent] = useState(false);
   
   // 获取用户信息
   const userInfo = getUserInfo();
@@ -31,15 +32,15 @@ export function InviteView() {
   const handleCopy = () => {
     if (!inviteLink) return;
     navigator.clipboard.writeText(inviteLink);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2000);
   };
 
   const handleCopyParentAddress = () => {
     if (parentAddress === t("invite.noParent")) return;
     navigator.clipboard.writeText(parentAddress);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setCopiedParent(true);
+    setTimeout(() => setCopiedParent(false), 2000);
   };
 
   // Share on Twitter
@@ -97,7 +98,7 @@ export function InviteView() {
                   onClick={handleCopy}
                   disabled={!inviteLink}
                 >
-                  {copied ? t("common.copied") : t("common.copy")}
+                  {copiedLink ? t("common.copied") : t("common.copy")}
                 </Button>
               </div>
 
@@ -142,7 +143,7 @@ export function InviteView() {
                   className="h-8 shrink-0 bg-white/20 hover:bg-white/30 text-white border border-white/20 backdrop-blur-sm font-medium"
                   onClick={handleCopyParentAddress}
                 >
-                  {copied ? t("common.copied") : t("common.copy")}
+                  {copiedParent ? t("common.copied") : t("common.copy")}
                 </Button>
               </div>
             </div>
