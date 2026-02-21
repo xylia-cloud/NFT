@@ -88,13 +88,13 @@
     "heroTitle": "Web3 資産 の旅を始めよう",
     "heroSubtitle": "安全で透明な分散型ステーキングプロトコル。入金は Plasma ネットワークをご利用ください。今すぐ参加して、最大 {{rate}}% の月間安定収益をお楽しみください。右上のウォレット接続ボタンをクリックして開始してください。",
     "liveStatus": "Plasma オンチェーンステーキング実施中",
-    "stakeMining": "ステーキングマイニング",
+    "stakeMining": "無損ステーキング",
     "selectStakeAmount": "ステーキング金額を選択して、すぐにパッシブ収入を獲得開始",
     "estimatedDailyReward": "1日あたりの予想収益",
     "basedOnApy": "現在の APY に基づくリアルタイム計算",
     "reinvestTip": "利息が 100 USDT0 に達すると再投資が可能で、収益は自動的に元本に組み込まれます",
     "connectWalletFirst": "上部でウォレットを接続してからステーキングしてください",
-    "stableReturn": "安定したリターン",
+    "stableReturn": "概算",
     "continuousGrowth": "継続的な成長",
     "globalUsers": "グローバルユーザー",
     "securityCompliance": "セキュリティとコンプライアンス保証",
@@ -485,5 +485,8 @@
     "history": "出金履歴",
     "noHistory": "出金履歴なし",
     "createOrderFailed": "注文作成失敗、後でもう一度お試しください"
+  },
+  "plasmaOne": {
+    "visitWebsite": "Plasma One を訪問"
   }
 }

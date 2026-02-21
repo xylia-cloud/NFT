@@ -88,13 +88,13 @@
     "heroTitle": "開啟 Web3 財富 之旅",
     "heroSubtitle": "安全、透明的去中心化質押協議。充幣請走 Plasma 網路。即刻參與，享受高達 {{rate}}% 的月化穩定收益。請點擊右上角連接錢包開始。",
     "liveStatus": "Plasma 鏈上質押正在進行中",
-    "stakeMining": "質押挖礦",
+    "stakeMining": "無損質押理財",
     "selectStakeAmount": "選擇質押金額，即刻開始賺取被動收益",
     "estimatedDailyReward": "每日預估收益",
     "basedOnApy": "基於當前 APY 即時計算",
     "reinvestTip": "利息累計滿 100 USDT0 可複投一次，收益自動滾入本金",
     "connectWalletFirst": "請先在頂部連接錢包後即可質押",
-    "stableReturn": "穩定回報",
+    "stableReturn": "大概",
     "continuousGrowth": "持續增長",
     "globalUsers": "全球用戶",
     "securityCompliance": "安全與合規保障",
@@ -486,5 +486,8 @@
     "history": "提現記錄",
     "noHistory": "暫無提現記錄",
     "createOrderFailed": "創建訂單失敗，請稍後重試"
+  },
+  "plasmaOne": {
+    "visitWebsite": "訪問 Plasma One"
   }
 }

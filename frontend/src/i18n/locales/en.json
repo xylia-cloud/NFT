@@ -77,13 +77,13 @@
     "heroTitle": "Start Your Web3 Wealth Journey",
     "heroSubtitle": "Secure and transparent decentralized staking protocol. Deposit via Plasma network. Join now and enjoy up to {{rate}}% stable monthly returns. Click the top right to connect your wallet.",
     "liveStatus": "Plasma on-chain staking is live",
-    "stakeMining": "Stake Mining",
+    "stakeMining": "Risk-Free Staking",
     "selectStakeAmount": "Select stake amount to start earning passive income",
     "estimatedDailyReward": "Estimated Daily Reward",
     "basedOnApy": "Based on current APY real-time calculation",
     "reinvestTip": "When interest accumulates to 100 USDT0, you can reinvest once, and earnings will automatically roll into principal",
     "connectWalletFirst": "Please connect your wallet at the top to stake",
-    "stableReturn": "Stable Return",
+    "stableReturn": "Approx.",
     "continuousGrowth": "Continuous Growth",
     "globalUsers": "Global Users",
     "securityCompliance": "Security & Compliance",
@@ -480,5 +480,8 @@
     "history": "Withdrawal History",
     "noHistory": "No withdrawal history",
     "createOrderFailed": "Failed to create order, please try again later"
+  },
+  "plasmaOne": {
+    "visitWebsite": "Visit Plasma One"
   }
 }

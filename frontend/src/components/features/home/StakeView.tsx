@@ -220,9 +220,6 @@ export function StakeView() {
     };
     
     fetchGlobalConfig();
-    // 每30秒刷新一次
-    const interval = setInterval(fetchGlobalConfig, 30000);
-    return () => clearInterval(interval);
   }, []);
   
   // 查询 USDT 余额

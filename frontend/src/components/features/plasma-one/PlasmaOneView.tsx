@@ -1,8 +1,11 @@
 import plasmaOneImage from "@/assets/images/Plasma One.webp";
 import { ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from 'react-i18next';
 
 export function PlasmaOneView() {
+  const { t } = useTranslation();
+  
   const handleOpenLink = () => {
     window.open('https://www.plasma.to/one?r=0', '_blank', 'noopener,noreferrer');
   };
@@ -26,7 +29,7 @@ export function PlasmaOneView() {
             size="lg"
             className="gap-2 rounded-xl px-8 py-6 text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
           >
-            <span>访问 Plasma One 官网</span>
+            <span>{t('plasmaOne.visitWebsite')}</span>
             <ExternalLink className="h-5 w-5" />
           </Button>
         </div>

@@ -89,13 +89,13 @@
     "heroTitle": "Commencez Votre Voyage de Richesse Web3",
     "heroSubtitle": "Protocole de staking décentralisé sécurisé et transparent. Déposez via le réseau Plasma. Participez maintenant et profitez jusqu'à {{rate}}% de rendement mensuel stable. Cliquez en haut à droite pour connecter votre portefeuille.",
     "liveStatus": "Staking on-chain Plasma en cours",
-    "stakeMining": "Mining de Staking",
+    "stakeMining": "Staking Sans Risque",
     "selectStakeAmount": "Sélectionnez le montant de staking pour commencer à gagner des revenus passifs",
     "estimatedDailyReward": "Récompense Quotidienne Estimée",
     "basedOnApy": "Calcul en temps réel basé sur l'APY actuel",
     "reinvestTip": "Lorsque les intérêts atteignent 100 USDT0, vous pouvez réinvestir une fois et les gains seront automatiquement ajoutés au principal",
     "connectWalletFirst": "Connectez d'abord votre portefeuille en haut pour staker",
-    "stableReturn": "Rendement Stable",
+    "stableReturn": "Approx.",
     "continuousGrowth": "Croissance Continue",
     "globalUsers": "Utilisateurs Mondiaux",
     "securityCompliance": "Sécurité et Conformité",
@@ -484,5 +484,8 @@
     "history": "Historique des Retraits",
     "noHistory": "Aucun historique de retrait",
     "createOrderFailed": "Échec de création de commande, réessayez plus tard"
+  },
+  "plasmaOne": {
+    "visitWebsite": "Visiter Plasma One"
   }
 }

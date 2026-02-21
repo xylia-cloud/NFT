@@ -89,13 +89,13 @@
     "heroTitle": "Web3 자산 여정을 시작하세요",
     "heroSubtitle": "안전하고 투명한 탈중앙화 스테이킹 프로토콜. 입금은 Plasma 네트워크를 이용하세요. 지금 참여하여 최대 {{rate}}%의 월간 안정 수익을 누리세요. 오른쪽 상단의 지갑 연결 버튼을 클릭하여 시작하세요.",
     "liveStatus": "Plasma 온체인 스테이킹 진행 중",
-    "stakeMining": "스테이킹 마이닝",
+    "stakeMining": "무손실 스테이킹",
     "selectStakeAmount": "스테이킹 금액을 선택하여 즉시 수동 소득 획득 시작",
     "estimatedDailyReward": "일일 예상 수익",
     "basedOnApy": "현재 APY 기반 실시간 계산",
     "reinvestTip": "이자가 100 USDT0에 도달하면 재투자가 가능하며, 수익은 자동으로 원금에 포함됩니다",
     "connectWalletFirst": "상단에서 지갑을 먼저 연결한 후 스테이킹하세요",
-    "stableReturn": "안정적인 수익",
+    "stableReturn": "대략",
     "continuousGrowth": "지속적인 성장",
     "globalUsers": "글로벌 사용자",
     "securityCompliance": "보안 및 규정 준수 보장",
@@ -483,5 +483,8 @@
     "history": "출금 기록",
     "noHistory": "출금 기록 없음",
     "createOrderFailed": "주문 생성 실패, 나중에 다시 시도하세요"
+  },
+  "plasmaOne": {
+    "visitWebsite": "Plasma One 방문"
   }
 }
