@@ -149,7 +149,13 @@ export function isAccountFrozenError(code: number): boolean {
  * @returns 该类别下的所有错误码信息
  */
 export function getErrorsByCategory(category: string): ErrorCodeInfo[] {
-  return Object.values(ERROR_CODES).filter((error) => error.category === category);
+  return Object.entries(ERROR_CODE_KEYS)
+    .filter(([_, info]) => info.category === category)
+    .map(([code, info]) => ({
+      code: Number(code),
+      message: i18n.t(info.key),
+      category: info.category
+    }));
 }
 
 /**

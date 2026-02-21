@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ErrorAlert, ErrorToast } from '@/components/ui/error-alert';
 import { ApiError } from '@/lib/api';
-import { ERROR_CODES, ERROR_CATEGORIES } from '@/lib/errorCodes';
+import { ERROR_CODE_KEYS, ERROR_CATEGORIES, getErrorMessage } from '@/lib/errorCodes';
 import { useApiError } from '@/hooks/useApiError';
 
 export function ErrorCodeTestPage() {
@@ -16,16 +16,20 @@ export function ErrorCodeTestPage() {
   const { error, handleError, clearError } = useApiError();
 
   const testError = (code: number) => {
-    const errorInfo = ERROR_CODES[code];
-    if (errorInfo) {
-      handleError(new ApiError(code, errorInfo.message, errorInfo.category));
-    }
+    const errorInfo = getErrorMessage(code);
+    handleError(new ApiError(code, errorInfo.message, errorInfo.category));
   };
 
   const errorsByCategory = Object.entries(ERROR_CATEGORIES).map(([key, category]) => ({
     name: key,
     category,
-    errors: Object.values(ERROR_CODES).filter(e => e.category === category)
+    errors: Object.entries(ERROR_CODE_KEYS)
+      .filter(([_, info]) => info.category === category)
+      .map(([code, info]) => ({
+        code: Number(code),
+        message: getErrorMessage(Number(code)).message,
+        category: info.category
+      }))
   }));
 
   return (
