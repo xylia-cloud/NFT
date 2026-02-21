@@ -10,7 +10,6 @@ export function InviteView() {
   const { address } = useAccount();
   const { t } = useTranslation();
   const [copiedLink, setCopiedLink] = useState(false);
-  const [copiedParent, setCopiedParent] = useState(false);
   
   // 获取用户信息
   const userInfo = getUserInfo();
@@ -34,13 +33,6 @@ export function InviteView() {
     navigator.clipboard.writeText(inviteLink);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
-  };
-
-  const handleCopyParentAddress = () => {
-    if (parentAddress === t("invite.noParent")) return;
-    navigator.clipboard.writeText(parentAddress);
-    setCopiedParent(true);
-    setTimeout(() => setCopiedParent(false), 2000);
   };
 
   // Share on Twitter
@@ -87,8 +79,8 @@ export function InviteView() {
             </div>
 
             <div className="flex-1 w-full space-y-4">
-              <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 flex items-center gap-3 border border-white/10">
-                <div className="flex-1 truncate text-sm font-mono text-white/90">
+              <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 flex items-start gap-3 border border-white/10">
+                <div className="flex-1 break-all text-sm font-mono text-white/90">
                   {inviteLink || t("invite.connectWalletFirst")}
                 </div>
                 <Button 
@@ -133,18 +125,10 @@ export function InviteView() {
                 <User className="h-4 w-4 text-white/80" />
                 <span className="text-sm text-white/80">{t("invite.parentUser")}</span>
               </div>
-              <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 flex items-center gap-3 border border-white/10">
-                <div className="flex-1 truncate text-sm font-mono text-white/90">
+              <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/10">
+                <div className="break-all text-sm font-mono text-white/90">
                   {parentAddress}
                 </div>
-                <Button 
-                  size="sm" 
-                  variant="secondary" 
-                  className="h-8 shrink-0 bg-white/20 hover:bg-white/30 text-white border border-white/20 backdrop-blur-sm font-medium"
-                  onClick={handleCopyParentAddress}
-                >
-                  {copiedParent ? t("common.copied") : t("common.copy")}
-                </Button>
               </div>
             </div>
           )}
