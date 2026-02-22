@@ -654,8 +654,11 @@ export function StakeView() {
                 <div className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full border-2 border-card" />
               )}
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground leading-relaxed line-clamp-1">
+            <div 
+              className="flex-1 min-w-0 cursor-pointer"
+              onClick={() => window.location.hash = `#news?id=${latestNews.id}`}
+            >
+              <p className="text-sm font-medium text-foreground leading-relaxed line-clamp-1 hover:text-primary transition-colors">
                 {latestNews.title}
               </p>
               <p className="text-xs text-muted-foreground">

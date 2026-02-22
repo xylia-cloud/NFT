@@ -632,6 +632,7 @@ export async function getLeaderCalendar(params: LeaderCalendarParams): Promise<L
  * 获取团队详情
  */
 export interface TeamInfoResponse {
+  level_user: string;         // 团队等级
   total_count: number;        // 团队总人数
   level1_count: string;       // 一级成员数量
   level2_count: string;       // 二级成员数量
@@ -986,5 +987,34 @@ export async function getNewsList(params?: NewsListParams): Promise<NewsListResp
   const data = await get<NewsItem[]>('/Api/News/news_list', queryParams);
   return {
     list: Array.isArray(data) ? data : [],
+  };
+}
+
+/**
+ * 获取通知详情
+ */
+export interface NewsDetailParams {
+  id: string;  // 通知ID
+}
+
+export interface NewsDetail {
+  id: string;
+  title: string;
+  title_en: string | null;
+  content: string;              // HTML内容
+  content_en: string | null;
+  addtime: string;              // 添加时间
+  img: string;                  // 图片
+  [key: string]: any;           // 其他字段
+}
+
+export interface NewsDetailResponse {
+  detail: NewsDetail;
+}
+
+export async function getNewsDetail(params: NewsDetailParams): Promise<NewsDetailResponse> {
+  const data = await get<NewsDetail>('/Api/News/news_mas', { id: params.id });
+  return {
+    detail: data,
   };
 }

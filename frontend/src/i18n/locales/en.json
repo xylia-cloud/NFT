@@ -533,6 +533,7 @@
   "news": {
     "title": "System Notifications",
     "subtitle": "View all system notifications and announcements",
-    "noNews": "No notifications yet"
+    "noNews": "No notifications yet",
+    "notFound": "Notification not found"
   }
 }

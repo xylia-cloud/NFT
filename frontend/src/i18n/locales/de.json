@@ -535,6 +535,7 @@
   "news": {
     "title": "Systembenachrichtigungen",
     "subtitle": "Alle Systembenachrichtigungen und Ankündigungen anzeigen",
-    "noNews": "Noch keine Benachrichtigungen"
+    "noNews": "Noch keine Benachrichtigungen",
+    "notFound": "Benachrichtigung nicht gefunden"
   }
 }

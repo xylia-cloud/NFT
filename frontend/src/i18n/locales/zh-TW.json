@@ -94,7 +94,7 @@
     "basedOnApy": "基於當前 APY 即時計算",
     "reinvestTip": "利息累計滿 100 USDT0 可複投一次，收益自動滾入本金",
     "connectWalletFirst": "請先在頂部連接錢包後即可質押",
-    "stableReturn": "大概",
+    "stableReturn": "大约",
     "continuousGrowth": "持續增長",
     "globalUsers": "全球用戶",
     "securityCompliance": "安全與合規保障",
@@ -539,6 +539,7 @@
   "news": {
     "title": "系統通知",
     "subtitle": "查看所有系統通知和公告",
-    "noNews": "暫無通知"
+    "noNews": "暫無通知",
+    "notFound": "通知不存在"
   }
 }

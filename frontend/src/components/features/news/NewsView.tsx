@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getNewsList, type NewsItem } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { NewsDetailView } from "./NewsDetailView";
 
 export function NewsView() {
   const { t } = useTranslation();
@@ -12,8 +13,35 @@ export function NewsView() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [selectedNewsId, setSelectedNewsId] = useState<string | null>(null);
+
+  // 从URL参数中读取通知ID
+  useEffect(() => {
+    const handleHashChange = () => {
+      const params = new URLSearchParams(window.location.hash.split('?')[1]);
+      const id = params.get('id');
+      if (id) {
+        setSelectedNewsId(id);
+      } else if (window.location.hash === '#news') {
+        setSelectedNewsId(null);
+      }
+    };
+    
+    // 初始加载时检查
+    handleHashChange();
+    
+    // 监听hash变化
+    window.addEventListener('hashchange', handleHashChange);
+    
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
+  }, []);
 
   useEffect(() => {
+    // 如果显示详情页，不需要加载列表
+    if (selectedNewsId) return;
+    
     const fetchNews = async () => {
       try {
         setLoading(true);
@@ -39,13 +67,23 @@ export function NewsView() {
     };
     
     fetchNews();
-  }, [page]);
+  }, [page, selectedNewsId]);
 
   const loadMore = () => {
     if (!loading && hasMore) {
       setPage(prev => prev + 1);
     }
   };
+
+  // 如果选中了通知，显示详情页
+  if (selectedNewsId) {
+    return (
+      <NewsDetailView 
+        newsId={selectedNewsId} 
+        onBack={() => setSelectedNewsId(null)} 
+      />
+    );
+  }
 
   return (
     <div className="space-y-4 animate-in fade-in duration-700 pb-20 pt-4 relative max-w-4xl mx-auto">
@@ -61,6 +99,7 @@ export function NewsView() {
             {newsList.map((news) => (
               <Card
                 key={news.id}
+                onClick={() => setSelectedNewsId(news.id)}
                 className="border border-border/70 shadow-none bg-card/30 hover:bg-card/50 transition-all cursor-pointer"
               >
                 <CardContent className="p-4 flex items-center justify-between gap-3">

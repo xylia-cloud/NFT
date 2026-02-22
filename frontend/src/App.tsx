@@ -51,8 +51,9 @@ function ConnectWalletGate() {
 }
 
 function hashToTab(hash: string): string {
-  const tab = hash.replace(/^#/, '').toLowerCase() || 'home';
-  return VALID_TABS.includes(tab as typeof VALID_TABS[number]) ? tab : 'home';
+  // 移除 # 并提取路径部分（忽略查询参数）
+  const path = hash.replace(/^#/, '').split('?')[0].toLowerCase() || 'home';
+  return VALID_TABS.includes(path as typeof VALID_TABS[number]) ? path : 'home';
 }
 
 export default function App() {

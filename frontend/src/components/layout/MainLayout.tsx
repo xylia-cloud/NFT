@@ -20,6 +20,7 @@ export function MainLayout({ children, currentTab, onTabChange, onOpenCustomerSe
       case 'orders': return t('nav.orders');
       case 'plasma-one': return t('nav.plasmaOne');
       case 'supernode': return t('nav.supernode');
+      case 'news': return t('news.title');
       default: return undefined;
     }
   };
@@ -28,11 +29,14 @@ export function MainLayout({ children, currentTab, onTabChange, onOpenCustomerSe
     onTabChange('home');
   };
 
+  // 检查是否在通知页面（包括列表和详情）
+  const isNewsPage = currentTab === 'news';
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans">
       <Header 
         title={getPageTitle()} 
-        showBack={false} 
+        showBack={isNewsPage} 
         onBack={handleBack}
         currentTab={currentTab}
         onTabChange={onTabChange}

@@ -533,6 +533,7 @@
   "news": {
     "title": "系统通知",
     "subtitle": "查看所有系统通知和公告",
-    "noNews": "暂无通知"
+    "noNews": "暂无通知",
+    "notFound": "通知不存在"
   }
 }

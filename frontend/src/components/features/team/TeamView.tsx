@@ -178,7 +178,7 @@ export function TeamView() {
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-muted-foreground">{t("team.teamPerformance")}</span>
               <Badge className="bg-primary text-primary-foreground text-[10px] h-5 px-2">
-                A3
+                A{teamInfo?.level_user || "0"}
               </Badge>
             </div>
             <div>
