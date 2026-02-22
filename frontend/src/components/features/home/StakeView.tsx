@@ -545,40 +545,6 @@ export function StakeView() {
         </div>
       )}
 
-      {/* 系统通知版块 */}
-      {latestNews && (
-        <div className="relative overflow-hidden rounded-xl border border-border/70 backdrop-blur-md shadow-none">
-          <div className="relative p-4 flex items-start gap-3">
-            <div className="relative flex-shrink-0">
-              <div className={cn(
-                "h-10 w-10 rounded-lg flex items-center justify-center transition-all",
-                !latestNews.is_read ? "bg-primary/20 text-primary" : "bg-muted/50 text-muted-foreground"
-              )}>
-                <Bell className="h-5 w-5" />
-              </div>
-              {!latestNews.is_read && (
-                <div className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full border-2 border-card" />
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground leading-relaxed line-clamp-2 mb-1">
-                {latestNews.title}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {latestNews.addtime}
-              </p>
-            </div>
-            <button
-              onClick={() => window.location.hash = '#news'}
-              className="flex-shrink-0 flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors font-medium"
-            >
-              {t('common.all')}
-              <ChevronRight className="h-3 w-3" />
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* 1. 顶部 Hero 区域 - 已连接状态 */}
       {isConnected && (
         <div className="relative overflow-hidden rounded-2xl border border-border/70 bg-card/40 backdrop-blur-md shadow-none">
@@ -673,6 +639,39 @@ export function StakeView() {
           </div>
         ))}
       </div>
+
+      {/* 系统通知版块 */}
+      {latestNews && (
+        <div className="relative overflow-hidden rounded-xl border border-border/70 backdrop-blur-md shadow-none">
+          <div className="relative p-4 flex items-center gap-3">
+            <div className="relative flex-shrink-0">
+              <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-primary to-primary/80 p-[1.5px] shadow-sm transition-transform">
+                <div className="h-full w-full rounded-[7px] bg-card flex items-center justify-center">
+                  <Bell className="h-5 w-5 text-primary" />
+                </div>
+              </div>
+              {!latestNews.is_read && (
+                <div className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full border-2 border-card" />
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-foreground leading-relaxed line-clamp-1">
+                {latestNews.title}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {latestNews.addtime}
+              </p>
+            </div>
+            <button
+              onClick={() => window.location.hash = '#news'}
+              className="flex-shrink-0 flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors font-medium"
+            >
+              {t('common.all')}
+              <ChevronRight className="h-3 w-3" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 3. 核心质押面板 */}
       <Card className="border border-border/70 shadow-none bg-card/30 rounded-2xl overflow-hidden backdrop-blur-sm">
