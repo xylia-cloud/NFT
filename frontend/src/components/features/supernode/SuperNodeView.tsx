@@ -23,12 +23,11 @@ export function SuperNodeView() {
     return userInfo?.is_super_node === 1;
   }, [superNodeInfo]); // 依赖 superNodeInfo 以便在数据更新后重新计算
   
-  // 计算账户总金额（本金 + 收益）
+  // 计算账户总金额（仅本金）
   const totalAccountAmount = useMemo(() => {
     if (!walletInfo) return 0;
     const capital = parseFloat(walletInfo.capital || "0");
-    const profit = parseFloat(walletInfo.profit || "0");
-    return capital + profit;
+    return capital; // 只计算本金，不包含利息
   }, [walletInfo]);
   
   // 从 API 获取的累计节点分红
