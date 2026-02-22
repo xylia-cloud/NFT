@@ -983,8 +983,8 @@ export async function getNewsList(params?: NewsListParams): Promise<NewsListResp
     page: params?.page || '1',
   };
   
-  const response = await get<{ data: NewsItem[] }>('/Api/News/news_list', queryParams);
+  const data = await get<NewsItem[]>('/Api/News/news_list', queryParams);
   return {
-    list: response.data || [],
+    list: Array.isArray(data) ? data : [],
   };
 }

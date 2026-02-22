@@ -234,10 +234,14 @@ export function StakeView() {
   useEffect(() => {
     const fetchNews = async () => {
       try {
+        console.log('🔔 开始获取系统通知...');
         const data = await getNewsList({ page: '1' });
+        console.log('🔔 系统通知原始数据:', data);
         if (data.list && data.list.length > 0) {
           setLatestNews(data.list[0]); // 获取最新的一条通知
           console.log('✅ 系统通知获取成功:', data.list[0]);
+        } else {
+          console.log('⚠️ 系统通知列表为空');
         }
       } catch (err) {
         console.error('❌ 获取系统通知失败:', err);
@@ -543,8 +547,7 @@ export function StakeView() {
 
       {/* 系统通知版块 */}
       {latestNews && (
-        <div className="relative overflow-hidden rounded-xl border border-border/70 bg-card/40 backdrop-blur-md shadow-none">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-transparent to-transparent" />
+        <div className="relative overflow-hidden rounded-xl border border-border/70 backdrop-blur-md shadow-none">
           <div className="relative p-4 flex items-start gap-3">
             <div className="relative flex-shrink-0">
               <div className={cn(
@@ -554,27 +557,24 @@ export function StakeView() {
                 <Bell className="h-5 w-5" />
               </div>
               {!latestNews.is_read && (
-                <div className="absolute -top-1 -right-1 h-3 w-3 bg-primary rounded-full border-2 border-card animate-pulse" />
+                <div className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full border-2 border-card" />
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  {t('home.systemNotice')}
-                </span>
-                {!latestNews.is_read && (
-                  <Badge variant="default" className="h-5 px-2 text-[10px] bg-primary/20 text-primary border-primary/30">
-                    {t('home.unread')}
-                  </Badge>
-                )}
-                <span className="text-xs text-muted-foreground ml-auto flex-shrink-0">
-                  {latestNews.addtime}
-                </span>
-              </div>
-              <p className="text-sm font-medium text-foreground leading-relaxed line-clamp-2">
+              <p className="text-sm font-medium text-foreground leading-relaxed line-clamp-2 mb-1">
                 {latestNews.title}
               </p>
+              <p className="text-xs text-muted-foreground">
+                {latestNews.addtime}
+              </p>
             </div>
+            <button
+              onClick={() => window.location.hash = '#news'}
+              className="flex-shrink-0 flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors font-medium"
+            >
+              {t('common.all')}
+              <ChevronRight className="h-3 w-3" />
+            </button>
           </div>
         </div>
       )}
