@@ -87,7 +87,7 @@
     "platformIntro": "Plattform-Einführung",
     "platformIntroDesc": "Erfahren Sie mehr über die Kernfunktionen und Vorteile der PLASMA DeFi Staking-Plattform",
     "heroTitle": "Beginnen Sie Ihre Web3-Vermögensreise",
-    "heroSubtitle": "Sicheres und transparentes dezentrales Staking-Protokoll. Einzahlung über Plasma-Netzwerk. Nehmen Sie jetzt teil und genießen Sie bis zu {{rate}}% stabile monatliche Rendite. Klicken Sie oben rechts, um Ihre Wallet zu verbinden.",
+    "heroSubtitle": "Sicheres, transparentes, dezentrales und risikofreies Staking-Protokoll. Einzahlung über Plasma-Netzwerk. Nehmen Sie jetzt teil und genießen Sie bis zu {{rate}}% stabile monatliche Rendite. Klicken Sie oben rechts, um Ihre Wallet zu verbinden.",
     "liveStatus": "Plasma On-Chain-Staking läuft",
     "stakeMining": "Risikofreies Staking",
     "selectStakeAmount": "Wählen Sie den Staking-Betrag, um sofort passives Einkommen zu verdienen",
@@ -105,7 +105,7 @@
     "assetSecurityItem2": "Multi-Signatur-Abhebung, Prävention interner und externer Risiken",
     "assetSecurityItem3": "7×24 intelligente Risikokontrolle und Bedrohungswarnung",
     "complianceSystem": "Compliance-System",
-    "complianceItem1": "Britischer Finanzhintergrund, Inhaber von MSB und anderen internationalen Qualifikationen",
+    "complianceItem1": "Amerikanischer Finanzhintergrund, Inhaber von MSB und anderen internationalen Qualifikationen",
     "complianceItem2": "Strikte Einhaltung von Gesetzen und Vorschriften in mehreren Regionen, konformer Betrieb",
     "complianceItem3": "Vollständiges KYC- und AML-Identitäts- und Anti-Geldwäsche-System",
     "complianceItem4": "Regelmäßige Compliance-Überprüfung und Risikobewertung",
@@ -116,6 +116,22 @@
     "userProtectionItem4": "KI-intelligente Risikokontrolle, Echtzeit-Identifizierung und Abfangen abnormaler Operationen",
     "certikAuditLabel": "Certik-Audit",
     "viewPdf": "PDF Ansehen",
+    "oneCard": {
+      "title": "ONE Kartenanwendung",
+      "cashback": "4% Cashback-Rate",
+      "countries": "Deckt über 150 Länder ab",
+      "yield": "Rendite über 10%+",
+      "feature1Title": "Verdienen und ausgeben nahtlos",
+      "feature1Desc": "Zahlungen durch Stablecoin-Guthaben-Wertsteigerung durchführen, bequem, schnell und sofort verfügbar.",
+      "feature2Title": "Echte Belohnungen",
+      "feature2Desc": "Mit Partner-Unterstützung bis zu 4% Cashback erhalten.",
+      "feature3Title": "Globale Abdeckung",
+      "feature3Desc": "In über 150 Ländern/Regionen, nur ein Tippen für einfache Operationen oder Online-Käufe.",
+      "feature4Title": "USDE-Überweisung gebührenfrei",
+      "feature4Desc": "Dollar senden: jederzeit, überall, ohne Gebühren.",
+      "feature5Title": "In nur Minuten beitreten",
+      "feature5Desc": "Registrierung abschließen, virtuelle Karte erhalten und in Minuten mit dem Ausgeben beginnen, keine Tage warten."
+    },
     "insufficientBalance": "Unzureichendes Guthaben",
     "insufficientBalanceDesc": "Das aktuelle USDT0-Guthaben reicht nicht aus, um dieses Staking abzuschließen.",
     "currentBalance": "Aktuelles Guthaben",
@@ -282,7 +298,7 @@
   },
   "invite": {
     "title": "Freunde Einladen",
-    "subtitle": "Verdienen Sie bis zu 15% Staking-Provision",
+    "subtitle": "Verdienen Sie bis zu 30% Staking-Provision",
     "inviteLink": "Einladungslink",
     "qrCode": "QR-Code",
     "shareTwitter": "Auf Twitter Teilen",
@@ -298,7 +314,7 @@
     "rule2": "2. Freund Registriert sich und Stakt",
     "rule2Desc": "Wenn sich Freunde über Ihren Link registrieren und ihr erstes Staking abschließen, werden sie Mitglieder Ihres Teams.",
     "rule3": "3. Provision Verdienen",
-    "rule3Desc": "Sie erhalten 10% der Staking-Belohnungen Ihrer direkten Empfehlungen und 5% der Empfehlungen zweiter Ebene."
+    "rule3Desc": "Sie erhalten 20% der Staking-Belohnungen Ihrer direkten Empfehlungen und 10% der Empfehlungen zweiter Ebene."
   }
 ,
   "errors": {
@@ -421,25 +437,21 @@
       "q3": "Welche Limits gibt es für den Staking-Betrag?",
       "a3": "Der Einzelstaking-Betrag reicht von 500～30,000 USDT0, mit Unterstützung für mehrere zusätzliche Stakes. Minimum 500 USDT0 zum Starten, kann flexibel nach Bedarf angepasst werden.",
       "q4": "Wann kann ich Kapital und Belohnungen abheben?",
-      "a4": "Gestaktes Kapital kann während der Sperrfrist nicht abgehoben werden und kann nach Ablauf der Sperrfrist frei abgehoben werden. Aufgelaufene Zinsen können jederzeit ohne Sperrbeschränkungen abgehoben werden. Spezifische Regeln unterliegen den Produktbedingungen."
+      "a4": "Gestaktes Kapital kann während der Abhebungs-Cooldown-Periode nicht abgehoben werden und kann nach Ablauf der Cooldown-Periode frei abgehoben werden. Aufgelaufene Zinsen können jederzeit ohne Cooldown-Beschränkungen abgehoben werden. Spezifische Regeln unterliegen den Produktbedingungen."
     },
     "referral": {
       "title": "Einladung & Provision",
       "q1": "Wie lade ich Freunde ein?",
       "a1": "Gehen Sie zu 'Mein Profil' → 'Freunde Einladen', kopieren Sie Ihren exklusiven Einladungslink oder QR-Code und teilen Sie ihn mit Freunden. Nachdem sich Freunde über den Link registriert und Staking abgeschlossen haben, erhalten Sie eine Provision.",
       "q2": "Wie hoch ist die Provisionsrate?",
-      "a2": "Nach dem Einladen von Freunden zum Staking können Sie bis zu 15% Staking-Provision verdienen. Die Provision wird basierend auf einem bestimmten Prozentsatz des Staking-Betrags der Freunde berechnet, vorbehaltlich der aktuellen Aktivitätsregeln.",
+      "a2": "Nach dem Einladen von Freunden zum Staking können Sie 20% Provision von den Staking-Belohnungen direkter Empfehlungen und 10% Provision von den Staking-Belohnungen von Empfehlungen zweiter Ebene verdienen. Die Provision wird basierend auf den Staking-Belohnungen der Freunde berechnet, vorbehaltlich der aktuellen Aktivitätsregeln.",
       "q3": "Wann kommt die Provision an?",
       "a3": "Nachdem Freunde das Staking abgeschlossen haben, wird die Provision automatisch auf Ihr Konto abgerechnet und kann in 'Mein Team' eingesehen werden. Die Provision kann jederzeit abgehoben werden."
     },
     "security": {
       "title": "Sicherheit & Konto",
       "q1": "Ist PLASMA sicher?",
-      "a1": "PLASMA Smart Contracts wurden von CertiK auf Sicherheit geprüft und verwenden Multi-Signatur-Mechanismen zum Schutz der Fondssicherheit. Wir empfehlen, Ihre Wallet-Mnemonik sicher aufzubewahren und niemals anderen preiszugeben.",
-      "q2": "Wie ändere ich das Abhebungspasswort?",
-      "a2": "Gehen Sie zu 'Mein Profil' → 'Passwort Ändern', geben Sie das aktuelle Passwort, neues Passwort ein und bestätigen Sie zum Absenden. Das Abhebungspasswort dient zum Schutz der Fondssicherheit und sollte nicht mit dem Anmeldepasswort identisch sein.",
-      "q3": "Was tun, wenn ich das Abhebungspasswort vergesse?",
-      "a3": "Bitte kontaktieren Sie den Kundendienst für Identitätsüberprüfung und Zurücksetzung. Um die Kontosicherheit zu gewährleisten, kann der Zurücksetzungsprozess einige Zeit dauern, bereiten Sie relevante Identitätsdokumente im Voraus vor."
+      "a1": "PLASMA Smart Contracts wurden von CertiK auf Sicherheit geprüft und verwenden Multi-Signatur-Mechanismen zum Schutz der Fondssicherheit. Wir empfehlen, Ihre Wallet-Mnemonik sicher aufzubewahren und niemals anderen preiszugeben."
     },
     "other": {
       "title": "Andere Fragen",
@@ -449,6 +461,38 @@
       "a2": "PLASMA unterstützt nur das Plasma-Netzwerk. Einzahlungen, Staking, Belohnungen und Abhebungen müssen alle im Plasma-Netzwerk abgeschlossen werden. Der Blockchain-Explorer kann unter plasmascan.to aufgerufen werden, um Transaktionsaufzeichnungen abzufragen.",
       "q3": "Erfordern Transaktionen Gas-Gebühren?",
       "a3": "Ja. On-Chain-Operationen wie Wallet-Verbindung, Einzahlungen, Staking und Abhebungen erfordern die Zahlung von XPL als Gas-Gebühr. Stellen Sie sicher, dass Ihre Wallet genügend XPL hat, um Transaktionen abzuschließen. Wählen Sie bei der Einzahlung das Plasma-Netzwerk."
+    },
+    "plasmaOne": {
+      "title": "Plasma-Netzwerk",
+      "q1": "Was ist Plasma?",
+      "a1": "Plasma ist eine Layer-1-Blockchain, die speziell für globale Stablecoin-Zahlungen entwickelt wurde.",
+      "q2": "Was ist USDT0 Stablecoin?",
+      "a2": "USDT0 ist die Cross-Chain-Version von USDT, die Tether 2025 eingeführt hat, auch bekannt als 'Omnichain USDT'. Einfach ausgedrückt ist es eine aktualisierte Version von regulärem USDT, die hauptsächlich Probleme der Liquiditätsfragmentierung, hoher Gebühren, langsamer Geschwindigkeit und der Notwendigkeit von Bridging oder Wrapping beim Transfer von USDT zwischen verschiedenen Blockchains löst. Kernfunktionen: Einheitlicher Liquiditätspool, bei dem alle USDT0 über Chains hinweg Liquidität teilen, mit nahezu null Slippage und niedrigen Gebühren (in vielen Szenarien nahe 0 Gas). Unterschied zu regulärem USDT: USDT0 konzentriert sich mehr auf Zahlungen, DeFi und Cross-Chain-Szenarien. Es ersetzt USDT nicht, sondern ergänzt es, besonders geeignet für Multi-Chain-Benutzer und Institutionen.",
+      "q3": "Was ist ein Stablecoin?",
+      "a3": "Stablecoins sind grenzenlose digitale Dollars, die für das Internet entwickelt wurden und stabile und bequeme Möglichkeiten zum Senden, Halten und Verwenden bieten, wobei Preisvolatilität vermieden wird.",
+      "q4": "Was sind die Hauptvorteile der Wahl von Plasma?",
+      "a4": "Als Stablecoin-dediziertes Netzwerk bietet Plasma: gebührenfreie USDT-Überweisungen, benutzerdefinierte Gas-Token und vertrauliche Transaktionen. Diese Funktionen schaffen ein schnelleres, kostengünstigeres und reibungsloseres Zahlungserlebnis für Entwickler und Endbenutzer und machen es zur idealen Infrastruktur für Kapitalflussanwendungen.",
+      "q5": "Was ist der Konsensmechanismus von Plasma?",
+      "a5": "PlasmaBFT - ein leistungsstarkes Fast HotStuff-Konsensprotokoll, das in Rust implementiert ist und die Sicherheit der byzantinischen Fehlertoleranz (BFT) mit niedriger Latenz-Finalität kombiniert, um die hohen Durchsatz- und Determinismusanforderungen von Stablecoin-Anwendungen zu erfüllen.",
+      "q6": "Was ist die technische Grundlage der Ausführungsschicht von Plasma?",
+      "a6": "Die Ausführungsschicht von Plasma wird von Reth angetrieben, einem modularen Ethereum-Ausführungsclient, der in Rust entwickelt wurde und eine effiziente Zustandsausführung bei gleichzeitiger Beibehaltung der EVM-Kompatibilität ermöglicht.",
+      "q7": "Wie unterscheidet sich Plasma von anderen Blockchains in Bezug auf Stablecoin-Optimierung?",
+      "a7": "Netzwerkschicht-Innovationen umfassen: gebührenfreie USDT-Überweisungen, benutzerdefinierte Gas-Token und konforme vertrauliche Transaktionen. Diese Funktionen machen es zur optimalen Blockchain für globale Kapitalflüsse. Darüber hinaus unterstützt Plasma Tausende von Transaktionen pro Sekunde mit robuster Netzwerksicherheit auf Unternehmensniveau und erfüllt vollständig die aktuellen und zukünftigen Stablecoin-Anforderungen.",
+      "q8": "Hat das Plasma-Netzwerk andere zusätzliche Funktionen?",
+      "a8": "Ja, das Plasma-Netzwerk wird eine vertrauenslose Bitcoin-Cross-Chain-Brücke bereitstellen. Mit der Weiterentwicklung des Netzwerks werden weiterhin Funktionen hinzugefügt, um ein florierendes Anwendungsökosystem aufzubauen.",
+      "q9": "Warum sind USDT-Überweisungen auf Plasma gebührenfrei?",
+      "a9": "Durch protokollverwaltete Gas-Sponsoring-Mechanismen werden native Token-Anforderungen eliminiert, was reibungslose Zahlungen ermöglicht, die besonders für Mikro-Überweisungen und globale Geschäftsszenarien geeignet sind.",
+      "q10": "Wie erhält die Plasma-Blockchain den Netzwerkwert bei aktivierten Nullgebühren?",
+      "a10": "Nur grundlegende USDT-Transaktionen sind Gas-frei; andere Transaktionen erfordern XPL-Gebühren, um Validator-Anreize und wirtschaftliche Nachhaltigkeit des Netzwerks zu gewährleisten."
+    },
+    "xpl": {
+      "title": "XPL",
+      "q1": "Was ist XPL-Token und wie wird es verwendet?",
+      "a1": "XPL ist das native Token von Plasma, das zur Zahlung von Transaktionsgebühren und zur Aufrechterhaltung der Netzwerksicherheit verwendet wird, ähnlich wie ETH auf Ethereum oder BTC im Bitcoin-Netzwerk. XPL sichert das Netzwerk durch einen Proof-of-Stake (PoS) Konsensmechanismus und richtet langfristige Anreize an der globalen Stablecoin-Adoption aus.",
+      "q2": "Wie wird XPL verteilt?",
+      "a2": "Das Gesamtangebot beträgt 10 Milliarden Token, verteilt wie folgt: 10% öffentlicher Verkauf, 40% Ökosystementwicklung, 25% Team-Zuteilung, 25% Investor-Zuteilung. Beim öffentlichen Verkauf wurden 1 Milliarde XPL-Token an Benutzer verteilt, die an Einzahlungsaktivitäten teilgenommen haben.",
+      "q3": "Wann wird XPL entsperrt?",
+      "a3": "Nicht-US-Benutzer: Sofortige Freigabe beim Mainnet-Beta-Start. US-Benutzer: 12-monatige Sperrfrist (bis 28. Juli 2026). Team und Investoren: 3-jährige lineare Entsperrung mit dem ersten Jahr als Cliff-Periode."
     }
   },
   "transaction": {

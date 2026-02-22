@@ -39,6 +39,68 @@ export function HelpCenterView() {
   
   const faqSections = [
     {
+      title: t("help.plasmaOne.title"),
+      items: [
+        {
+          question: t("help.plasmaOne.q1"),
+          answer: t("help.plasmaOne.a1"),
+        },
+        {
+          question: t("help.plasmaOne.q2"),
+          answer: t("help.plasmaOne.a2"),
+        },
+        {
+          question: t("help.plasmaOne.q3"),
+          answer: t("help.plasmaOne.a3"),
+        },
+        {
+          question: t("help.plasmaOne.q4"),
+          answer: t("help.plasmaOne.a4"),
+        },
+        {
+          question: t("help.plasmaOne.q5"),
+          answer: t("help.plasmaOne.a5"),
+        },
+        {
+          question: t("help.plasmaOne.q6"),
+          answer: t("help.plasmaOne.a6"),
+        },
+        {
+          question: t("help.plasmaOne.q7"),
+          answer: t("help.plasmaOne.a7"),
+        },
+        {
+          question: t("help.plasmaOne.q8"),
+          answer: t("help.plasmaOne.a8"),
+        },
+        {
+          question: t("help.plasmaOne.q9"),
+          answer: t("help.plasmaOne.a9"),
+        },
+        {
+          question: t("help.plasmaOne.q10"),
+          answer: t("help.plasmaOne.a10"),
+        },
+      ],
+    },
+    {
+      title: t("help.xpl.title"),
+      items: [
+        {
+          question: t("help.xpl.q1"),
+          answer: t("help.xpl.a1"),
+        },
+        {
+          question: t("help.xpl.q2"),
+          answer: t("help.xpl.a2"),
+        },
+        {
+          question: t("help.xpl.q3"),
+          answer: t("help.xpl.a3"),
+        },
+      ],
+    },
+    {
       title: t("help.wallet.title"),
       items: [
         {
@@ -116,14 +178,6 @@ export function HelpCenterView() {
         {
           question: t("help.security.q1"),
           answer: t("help.security.a1"),
-        },
-        {
-          question: t("help.security.q2"),
-          answer: t("help.security.a2"),
-        },
-        {
-          question: t("help.security.q3"),
-          answer: t("help.security.a3"),
         },
       ],
     },

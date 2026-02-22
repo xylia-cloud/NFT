@@ -87,7 +87,7 @@
     "platformIntro": "Introducción a la Plataforma",
     "platformIntroDesc": "Conozca las funciones principales y ventajas de la plataforma de staking DeFi PLASMA",
     "heroTitle": "Comience su Viaje de Riqueza Web3",
-    "heroSubtitle": "Protocolo de staking descentralizado seguro y transparente. Deposite a través de la red Plasma. Participe ahora y disfrute de hasta {{rate}}% de rendimiento mensual estable. Haga clic en la esquina superior derecha para conectar su billetera.",
+    "heroSubtitle": "Protocolo de staking seguro, transparente, descentralizado y sin riesgo. Deposite a través de la red Plasma. Participe ahora y disfrute de hasta {{rate}}% de rendimiento mensual estable. Haga clic en la esquina superior derecha para conectar su billetera.",
     "liveStatus": "Staking en cadena Plasma en curso",
     "stakeMining": "Staking Sin Riesgo",
     "selectStakeAmount": "Seleccione la cantidad de staking para comenzar a ganar ingresos pasivos",
@@ -105,7 +105,7 @@
     "assetSecurityItem2": "Retiro con firma múltiple, prevención de riesgos internos y externos",
     "assetSecurityItem3": "Control de riesgos inteligente 7×24 y alerta de amenazas",
     "complianceSystem": "Sistema de Cumplimiento",
-    "complianceItem1": "Antecedentes financieros del Reino Unido, posee MSB y otras calificaciones internacionales",
+    "complianceItem1": "Antecedentes financieros de Estados Unidos, posee MSB y otras calificaciones internacionales",
     "complianceItem2": "Cumplimiento estricto de leyes y regulaciones en múltiples regiones, operación conforme",
     "complianceItem3": "Sistema completo de KYC y AML de identidad y antilavado de dinero",
     "complianceItem4": "Revisión de cumplimiento regular y evaluación de riesgos",
@@ -116,6 +116,22 @@
     "userProtectionItem4": "Control de riesgos inteligente AI, identificación e intercepción en tiempo real de operaciones anormales",
     "certikAuditLabel": "Auditoría Certik",
     "viewPdf": "Ver PDF",
+    "oneCard": {
+      "title": "Aplicación de Tarjeta ONE",
+      "cashback": "Tasa de reembolso del 4%",
+      "countries": "Cubre más de 150 países",
+      "yield": "Rendimiento superior al 10%+",
+      "feature1Title": "Gana y gasta sin problemas",
+      "feature1Desc": "Realiza pagos a través de la apreciación del saldo de stablecoin, conveniente, rápido e instantáneamente disponible.",
+      "feature2Title": "Recompensas reales",
+      "feature2Desc": "Con el apoyo de socios, obtén hasta un 4% de reembolso en efectivo.",
+      "feature3Title": "Cobertura global",
+      "feature3Desc": "En más de 150 países/regiones, solo un toque para operaciones fáciles o compras en línea.",
+      "feature4Title": "Transferencia USDE sin comisiones",
+      "feature4Desc": "Envía dólares: en cualquier momento, en cualquier lugar, sin comisiones.",
+      "feature5Title": "Únete en solo minutos",
+      "feature5Desc": "Completa el registro, obtén una tarjeta virtual y comienza a gastar en minutos, sin esperar días."
+    },
     "insufficientBalance": "Saldo Insuficiente",
     "insufficientBalanceDesc": "El saldo actual de USDT0 es insuficiente para completar este staking.",
     "currentBalance": "Saldo Actual",
@@ -283,7 +299,7 @@
   },
   "invite": {
     "title": "Invitar Amigos",
-    "subtitle": "Gane hasta 15% de comisión de staking",
+    "subtitle": "Gane hasta 30% de comisión de staking",
     "inviteLink": "Enlace de Invitación",
     "qrCode": "Código QR",
     "shareTwitter": "Compartir en Twitter",
@@ -299,7 +315,7 @@
     "rule2": "2. Amigo se Registra y Hace Staking",
     "rule2Desc": "Cuando los amigos se registren a través de su enlace y completen su primer staking, se convertirán en miembros de su equipo.",
     "rule3": "3. Ganar Comisión",
-    "rule3Desc": "Ganará el 10% de las recompensas de staking de sus referidos directos y el 5% de los referidos de segundo nivel."
+    "rule3Desc": "Ganará el 20% de las recompensas de staking de sus referidos directos y el 10% de los referidos de segundo nivel."
   }
 ,
   "errors": {
@@ -422,25 +438,21 @@
       "q3": "¿Cuáles son los límites de cantidad de staking?",
       "a3": "El rango de cantidad de staking único es de 500～30,000 USDT0, con soporte para múltiples stakes adicionales. Mínimo 500 USDT0 para comenzar, se puede ajustar flexiblemente según las necesidades.",
       "q4": "¿Cuándo puedo retirar el principal y las recompensas?",
-      "a4": "El principal en staking no se puede retirar durante el período de bloqueo y se puede retirar libremente después de que expire el período de bloqueo. El interés acumulado se puede retirar en cualquier momento sin restricciones de bloqueo. Las reglas específicas están sujetas a los términos del producto."
+      "a4": "El principal en staking no se puede retirar durante el período de enfriamiento de retiro y se puede retirar libremente después de que expire el período de enfriamiento. El interés acumulado se puede retirar en cualquier momento sin restricciones de enfriamiento. Las reglas específicas están sujetas a los términos del producto."
     },
     "referral": {
       "title": "Invitación y Comisión",
       "q1": "¿Cómo invitar amigos?",
       "a1": "Vaya a 'Mi Perfil' → 'Invitar Amigos', copie su enlace de invitación exclusivo o código QR y compártalo con amigos. Después de que los amigos se registren a través del enlace y completen el staking, recibirá comisión.",
       "q2": "¿Cuál es la tasa de comisión?",
-      "a2": "Después de invitar amigos a hacer staking, puede ganar hasta 15% de comisión de staking. La comisión se calcula en función de un cierto porcentaje de la cantidad de staking de los amigos, sujeto a las reglas de actividad actuales.",
+      "a2": "Después de invitar amigos a hacer staking, puede ganar el 20% de comisión de las recompensas de staking de referidos directos y el 10% de comisión de las recompensas de staking de referidos de segundo nivel. La comisión se calcula en función de las recompensas de staking de los amigos, sujeto a las reglas de actividad actuales.",
       "q3": "¿Cuándo llegará la comisión?",
       "a3": "Después de que los amigos completen el staking, la comisión se liquidará automáticamente en su cuenta y se puede ver en 'Mi Equipo'. La comisión se puede retirar en cualquier momento."
     },
     "security": {
       "title": "Seguridad y Cuenta",
       "q1": "¿Es seguro PLASMA?",
-      "a1": "Los contratos inteligentes de PLASMA han sido auditados por CertiK para seguridad y usan mecanismos de firma múltiple para proteger la seguridad de los fondos. Recomendamos que guarde su frase mnemotécnica de billetera de forma segura y nunca la revele a otros.",
-      "q2": "¿Cómo cambiar la contraseña de retiro?",
-      "a2": "Vaya a 'Mi Perfil' → 'Cambiar Contraseña', ingrese la contraseña actual, nueva contraseña y confirme para enviar. La contraseña de retiro se usa para proteger la seguridad de los fondos y no debe ser la misma que la contraseña de inicio de sesión.",
-      "q3": "¿Qué hacer si olvido la contraseña de retiro?",
-      "a3": "Contacte al servicio al cliente para verificación de identidad y restablecimiento. Para garantizar la seguridad de la cuenta, el proceso de restablecimiento puede llevar algún tiempo, prepare los documentos de identidad relevantes con anticipación."
+      "a1": "Los contratos inteligentes de PLASMA han sido auditados por CertiK para seguridad y usan mecanismos de firma múltiple para proteger la seguridad de los fondos. Recomendamos que guarde su frase mnemotécnica de billetera de forma segura y nunca la revele a otros."
     },
     "other": {
       "title": "Otras Preguntas",
@@ -450,6 +462,38 @@
       "a2": "PLASMA solo admite la red Plasma. Los depósitos, staking, recompensas y retiros deben completarse en la red Plasma. El explorador de blockchain se puede acceder en plasmascan.to para consultar registros de transacciones.",
       "q3": "¿Las transacciones requieren tarifas de Gas?",
       "a3": "Sí. Las operaciones en cadena como conectar billetera, depósitos, staking y retiros requieren pagar XPL como tarifa de Gas. Asegúrese de que su billetera tenga suficiente XPL para completar las transacciones. Seleccione la red Plasma al depositar."
+    },
+    "plasmaOne": {
+      "title": "Red Plasma",
+      "q1": "¿Qué es Plasma?",
+      "a1": "Plasma es una blockchain de Capa 1 diseñada específicamente para pagos globales con stablecoins.",
+      "q2": "¿Qué es la stablecoin USDT0?",
+      "a2": "USDT0 es la versión de cadena cruzada de USDT lanzada por Tether en 2025, también conocida como 'Omnichain USDT'. En pocas palabras, es una versión mejorada del USDT regular que resuelve principalmente problemas de fragmentación de liquidez, altas tarifas, velocidades lentas y la necesidad de puentes o envoltorios al transferir USDT entre diferentes blockchains. Características principales: Pool de liquidez unificado donde todos los USDT0 en todas las cadenas comparten liquidez, con deslizamiento casi cero y tarifas bajas (cerca de 0 gas en muchos escenarios). Diferencia con USDT regular: USDT0 se centra más en pagos, DeFi y escenarios de cadena cruzada. No reemplaza a USDT sino que lo complementa, especialmente adecuado para usuarios e instituciones de múltiples cadenas.",
+      "q3": "¿Qué es una stablecoin?",
+      "a3": "Las stablecoins son dólares digitales sin fronteras construidos para internet, que proporcionan formas estables y convenientes de enviar, mantener y usar, evitando la volatilidad de precios.",
+      "q4": "¿Cuáles son las ventajas principales de elegir Plasma?",
+      "a4": "Como red dedicada a stablecoins, Plasma ofrece: transferencias USDT sin tarifas, tokens Gas personalizados y transacciones confidenciales. Estas características crean una experiencia de pago más rápida, de menor costo y más fluida para desarrolladores y usuarios finales, convirtiéndola en la infraestructura ideal para aplicaciones de flujo de capital.",
+      "q5": "¿Cuál es el mecanismo de consenso de Plasma?",
+      "a5": "PlasmaBFT: un protocolo de consenso Fast HotStuff de alto rendimiento implementado en Rust, que combina la seguridad de tolerancia a fallas bizantinas (BFT) con finalidad de baja latencia para cumplir con los requisitos de alto rendimiento y determinismo de aplicaciones de grado stablecoin.",
+      "q6": "¿Cuál es la base técnica de la capa de ejecución de Plasma?",
+      "a6": "La capa de ejecución de Plasma está impulsada por Reth, un cliente de ejecución de Ethereum modular desarrollado en Rust que permite una ejecución de estado eficiente mientras mantiene la compatibilidad con EVM.",
+      "q7": "¿En qué se diferencia Plasma de otras blockchains en términos de optimización de stablecoins?",
+      "a7": "Las innovaciones de la capa de red incluyen: transferencias USDT sin tarifas, tokens Gas personalizados y transacciones confidenciales conformes. Estas características la convierten en la blockchain óptima para flujos de capital globales. Además, Plasma admite miles de transacciones por segundo con una sólida seguridad de red de nivel empresarial, satisfaciendo completamente las demandas actuales y futuras de stablecoins.",
+      "q8": "¿La red Plasma tiene otras características adicionales?",
+      "a8": "Sí, la red Plasma implementará un puente de cadena cruzada de Bitcoin sin confianza. A medida que la red evolucione, se seguirán agregando características para construir un ecosistema de aplicaciones próspero.",
+      "q9": "¿Por qué las transferencias USDT en Plasma son gratuitas?",
+      "a9": "A través de mecanismos de patrocinio Gas administrados por protocolo, se eliminan los requisitos de tokens nativos, lo que permite pagos sin fricción particularmente adecuados para micro-remesas y escenarios comerciales globales.",
+      "q10": "¿Cómo mantiene la blockchain Plasma el valor de la red con tarifas cero habilitadas?",
+      "a10": "Solo las transacciones USDT básicas son libres de Gas; otras transacciones requieren tarifas XPL, asegurando incentivos para validadores y sostenibilidad económica de la red."
+    },
+    "xpl": {
+      "title": "XPL",
+      "q1": "¿Qué es el token XPL y cómo se utiliza?",
+      "a1": "XPL es el token nativo de Plasma, utilizado para pagar tarifas de transacción y mantener la seguridad de la red, similar a ETH en Ethereum o BTC en la red Bitcoin. XPL asegura la red a través del mecanismo de consenso Proof of Stake (PoS) y alinea los incentivos a largo plazo con la adopción global de stablecoins.",
+      "q2": "¿Cómo se distribuye XPL?",
+      "a2": "El suministro total es de 10 mil millones de tokens, distribuidos de la siguiente manera: 10% venta pública, 40% desarrollo del ecosistema, 25% asignación del equipo, 25% asignación de inversores. En la venta pública, se distribuyeron 1 mil millones de tokens XPL a los usuarios que participaron en actividades de depósito.",
+      "q3": "¿Cuándo se desbloqueará XPL?",
+      "a3": "Usuarios no estadounidenses: Liberación instantánea en el lanzamiento del mainnet beta. Usuarios estadounidenses: Período de bloqueo de 12 meses (hasta el 28 de julio de 2026). Equipo e inversores: Desbloqueo lineal de 3 años con el primer año como período de cliff."
     }
   },
   "transaction": {

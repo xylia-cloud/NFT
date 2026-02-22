@@ -31,6 +31,12 @@ import video01 from "@/assets/images/01.mp4";
 import video02 from "@/assets/images/02.mp4";
 import video01Poster from "@/assets/images/01.webp";
 import video02Poster from "@/assets/images/02.webp";
+import oneCardVideo from "@/assets/images/one-card-video.mp4";
+import oneCardIcon1 from "@/assets/images/one-card-icon-1.svg";
+import oneCardIcon2 from "@/assets/images/one-card-icon-2.svg";
+import oneCardIcon3 from "@/assets/images/one-card-icon-3.svg";
+import oneCardIcon4 from "@/assets/images/one-card-icon-4.svg";
+import oneCardIcon5 from "@/assets/images/one-card-icon-5.svg";
 
 // 声明 spline-viewer 自定义元素类型
 /* eslint-disable @typescript-eslint/no-namespace */
@@ -882,7 +888,90 @@ export function StakeView() {
         </DialogContent>
       </Dialog>
 
-      {/* 4. 安全与合规 */}
+      {/* 4. ONE 卡应用 */}
+      <div className="mt-8 space-y-5">
+        <div className="text-center space-y-1">
+          <h3 className="text-xl font-semibold text-foreground">{t("home.oneCard.title")}</h3>
+        </div>
+
+        {/* 三个数据指标 */}
+        <div className="grid grid-cols-3 gap-3">
+          <div className="rounded-xl border border-border/70 bg-card/40 p-4 text-center">
+            <p className="text-sm text-muted-foreground mb-1">{t("home.oneCard.cashback")}</p>
+          </div>
+          <div className="rounded-xl border border-border/70 bg-card/40 p-4 text-center">
+            <p className="text-sm text-muted-foreground mb-1">{t("home.oneCard.countries")}</p>
+          </div>
+          <div className="rounded-xl border border-border/70 bg-card/40 p-4 text-center">
+            <p className="text-sm text-muted-foreground mb-1">{t("home.oneCard.yield")}</p>
+          </div>
+        </div>
+
+        {/* 视频展示 */}
+        <div className="rounded-xl overflow-hidden border border-border/40 bg-card/50 shadow-sm">
+          <video
+            className="w-full h-auto"
+            autoPlay
+            loop
+            muted
+            playsInline
+          >
+            <source src={oneCardVideo} type="video/mp4" />
+            {t('common.videoNotSupported')}
+          </video>
+        </div>
+
+        {/* 五个特性卡片 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="flex gap-3 p-4 rounded-xl border border-border/70 bg-card/40">
+            <img src={oneCardIcon1} alt="" className="h-9 w-9 shrink-0" />
+            <div>
+              <h4 className="font-semibold text-foreground text-sm mb-1">{t('home.oneCard.feature1Title')}</h4>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {t('home.oneCard.feature1Desc')}
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-3 p-4 rounded-xl border border-border/70 bg-card/40">
+            <img src={oneCardIcon2} alt="" className="h-9 w-9 shrink-0" />
+            <div>
+              <h4 className="font-semibold text-foreground text-sm mb-1">{t('home.oneCard.feature2Title')}</h4>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {t('home.oneCard.feature2Desc')}
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-3 p-4 rounded-xl border border-border/70 bg-card/40">
+            <img src={oneCardIcon3} alt="" className="h-9 w-9 shrink-0" />
+            <div>
+              <h4 className="font-semibold text-foreground text-sm mb-1">{t('home.oneCard.feature3Title')}</h4>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {t('home.oneCard.feature3Desc')}
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-3 p-4 rounded-xl border border-border/70 bg-card/40">
+            <img src={oneCardIcon4} alt="" className="h-9 w-9 shrink-0" />
+            <div>
+              <h4 className="font-semibold text-foreground text-sm mb-1">{t('home.oneCard.feature4Title')}</h4>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {t('home.oneCard.feature4Desc')}
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-3 p-4 rounded-xl border border-border/70 bg-card/40 md:col-span-2 lg:col-span-1">
+            <img src={oneCardIcon5} alt="" className="h-9 w-9 shrink-0" />
+            <div>
+              <h4 className="font-semibold text-foreground text-sm mb-1">{t('home.oneCard.feature5Title')}</h4>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {t('home.oneCard.feature5Desc')}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 5. 安全与合规 */}
       <div className="mt-6 space-y-5">
         <div className="space-y-1 text-center">
           <h3 className="text-xl font-semibold text-foreground">{t("home.securityCompliance")}</h3>
@@ -1013,7 +1102,7 @@ export function StakeView() {
         </div>
       </div>
 
-      {/* 5. 投资人 & 合作伙伴 Logo 滚动展示 */}
+      {/* 6. 投资人 & 合作伙伴 Logo 滚动展示 */}
       <div className="space-y-3 mt-4">
         <div className="text-center space-y-1">
           <p className="text-xl font-semibold text-foreground">
@@ -1049,7 +1138,7 @@ export function StakeView() {
         </div>
       </div>
 
-      {/* 5. 特性说明 (Minimalist) */}
+      {/* 7. 特性说明 (Minimalist) */}
       <div className="opacity-80 mt-2 space-y-3">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex gap-3 p-3">
@@ -1168,7 +1257,7 @@ export function StakeView() {
         </div>
       </div>
 
-      {/* 6. PLASMA 官方社交媒体 */}
+      {/* 8. PLASMA 官方社交媒体 */}
       <div className="mt-8 pt-6 border-t border-border/70 flex justify-center">
         <a
           href="https://x.com/Plasma"

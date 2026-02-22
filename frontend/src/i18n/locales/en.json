@@ -75,7 +75,7 @@
     "platformIntro": "Platform Introduction",
     "platformIntroDesc": "Learn about PLASMA DeFi staking platform's core features and advantages",
     "heroTitle": "Start Your Web3 Wealth Journey",
-    "heroSubtitle": "Secure and transparent decentralized staking protocol. Deposit via Plasma network. Join now and enjoy up to {{rate}}% stable monthly returns. Click the top right to connect your wallet.",
+    "heroSubtitle": "Secure, transparent, decentralized, risk-free staking protocol. Deposit via Plasma network. Join now and enjoy up to {{rate}}% stable monthly returns. Click the top right to connect your wallet.",
     "liveStatus": "Plasma on-chain staking is live",
     "stakeMining": "Risk-Free Staking",
     "selectStakeAmount": "Select stake amount to start earning passive income",
@@ -93,7 +93,7 @@
     "assetSecurityItem2": "Multi-signature withdrawal, preventing internal and external risks",
     "assetSecurityItem3": "7×24 intelligent risk control and threat warning",
     "complianceSystem": "Compliance System",
-    "complianceItem1": "UK financial background, holding MSB and other international qualifications",
+    "complianceItem1": "US financial background, holding MSB and other international qualifications",
     "complianceItem2": "Strictly comply with laws and regulations in multiple regions, compliant operation",
     "complianceItem3": "Complete KYC and AML identity and anti-money laundering system",
     "complianceItem4": "Regular compliance review and risk assessment",
@@ -104,6 +104,22 @@
     "userProtectionItem4": "AI intelligent risk control, real-time identification and interception of abnormal operations",
     "certikAuditLabel": "Certik Audit",
     "viewPdf": "View PDF",
+    "oneCard": {
+      "title": "ONE Card Application",
+      "cashback": "4% Cashback Rate",
+      "countries": "Covers 150+ Countries",
+      "yield": "Yield Over 10%+",
+      "feature1Title": "Earn and Spend Seamlessly",
+      "feature1Desc": "Make payments through stablecoin balance appreciation, convenient, fast, and instantly available.",
+      "feature2Title": "Real Rewards",
+      "feature2Desc": "With partner support, get up to 4% cash back.",
+      "feature3Title": "Global Coverage",
+      "feature3Desc": "In over 150 countries/regions, just a tap away for easy operations or online purchases.",
+      "feature4Title": "USDE Transfer Fee-Free",
+      "feature4Desc": "Send dollars: anytime, anywhere, with no fees.",
+      "feature5Title": "Join in Just Minutes",
+      "feature5Desc": "Complete registration, get a virtual card, and start spending in minutes, no waiting days."
+    },
     "insufficientBalance": "Insufficient Balance",
     "insufficientBalanceDesc": "Current USDT0 balance is insufficient to complete this stake.",
     "currentBalance": "Current Balance",
@@ -281,7 +297,7 @@
   },
   "invite": {
     "title": "Invite Friends",
-    "subtitle": "Earn up to 15% staking commission",
+    "subtitle": "Earn up to 30% staking commission",
     "inviteLink": "Invite Link",
     "qrCode": "QR Code",
     "shareTwitter": "Share on Twitter",
@@ -297,7 +313,7 @@
     "rule2": "2. Friend Registers and Stakes",
     "rule2Desc": "When friends register through your link and complete their first stake, they become your team members.",
     "rule3": "3. Earn Commission",
-    "rule3Desc": "You'll earn 10% of your direct referrals' staking rewards and 5% from second-level referrals."
+    "rule3Desc": "You'll earn 20% of your direct referrals' staking rewards and 10% from second-level referrals."
   },
   "errors": {
     "networkError": "Network error, please check connection",
@@ -419,25 +435,21 @@
       "q3": "What are the staking amount limits?",
       "a3": "Single staking amount ranges from 500～30,000 USDT0, with support for multiple additional stakes. Minimum 500 USDT0 to start, can be flexibly adjusted according to needs.",
       "q4": "When can I withdraw principal and rewards?",
-      "a4": "Staked principal cannot be withdrawn during the lock period and can be freely withdrawn after the lock period expires. Accumulated interest can be withdrawn at any time without lock restrictions. Specific rules are subject to product terms."
+      "a4": "Staked principal cannot be withdrawn during the withdrawal cooldown period and can be freely withdrawn after the cooldown period expires. Accumulated interest can be withdrawn at any time without cooldown restrictions. Specific rules are subject to product terms."
     },
     "referral": {
       "title": "Referral & Commission",
       "q1": "How to invite friends?",
       "a1": "Go to 'Profile' → 'Invite Friends', copy your exclusive invitation link or QR code and share with friends. After friends register via the link and complete staking, you will receive commission.",
       "q2": "What is the commission rate?",
-      "a2": "After inviting friends to stake, you can earn up to 15% staking commission. Commission is calculated based on a certain percentage of friends' staking amount, subject to current activity rules.",
+      "a2": "After inviting friends to stake, you can earn 20% commission from direct referrals' staking rewards and 10% commission from second-level referrals' staking rewards. Commission is calculated based on friends' staking rewards, subject to current activity rules.",
       "q3": "When will commission arrive?",
       "a3": "After friends complete staking, commission will be automatically settled to your account and can be viewed in 'My Team'. Commission can be withdrawn at any time."
     },
     "security": {
       "title": "Security & Account",
       "q1": "Is PLASMA secure?",
-      "a1": "PLASMA smart contracts have been audited by CertiK for security and use multi-signature mechanisms to protect fund security. We recommend you keep your wallet mnemonic phrase safe and never disclose it to others.",
-      "q2": "How to change withdrawal password?",
-      "a2": "Go to 'Profile' → 'Change Password', enter current password, new password and confirm to submit. Withdrawal password is used to protect fund security and should not be the same as login password.",
-      "q3": "What if I forget withdrawal password?",
-      "a3": "Please contact customer service for identity verification and reset. To ensure account security, the reset process may take some time, please prepare relevant identity documents in advance."
+      "a1": "PLASMA smart contracts have been audited by CertiK for security and use multi-signature mechanisms to protect fund security. We recommend you keep your wallet mnemonic phrase safe and never disclose it to others."
     },
     "other": {
       "title": "Other Questions",
@@ -447,6 +459,38 @@
       "a2": "PLASMA only supports the Plasma network. Deposits, staking, rewards and withdrawals all need to be completed on the Plasma network. Blockchain explorer can be accessed at plasmascan.to to query transaction records.",
       "q3": "Do transactions require Gas fees?",
       "a3": "Yes. On-chain operations such as connecting wallet, deposits, staking, and withdrawals require paying XPL as Gas fee. Please ensure your wallet has enough XPL to complete transactions. Please select Plasma network when depositing."
+    },
+    "plasmaOne": {
+      "title": "Plasma Network",
+      "q1": "What is Plasma?",
+      "a1": "Plasma is a Layer 1 blockchain designed specifically for global stablecoin payments.",
+      "q2": "What is USDT0 stablecoin?",
+      "a2": "USDT0 is the cross-chain version of USDT launched by Tether in 2025, also known as 'Omnichain USDT'. Simply put, it's an upgraded version of regular USDT that primarily solves issues of liquidity fragmentation, high fees, slow speeds, and the need for bridging or wrapping when transferring USDT between different blockchains. Core features: Unified liquidity pool where all USDT0 across chains share liquidity, with near-zero slippage and low fees (close to 0 gas in many scenarios). Difference from regular USDT: USDT0 focuses more on payments, DeFi, and cross-chain scenarios. It's not replacing USDT but complementing it, especially suitable for multi-chain users and institutions.",
+      "q3": "What is a stablecoin?",
+      "a3": "Stablecoins are borderless digital dollars built for the internet, providing stable and convenient ways to send, hold, and use, avoiding price volatility.",
+      "q4": "What are the core advantages of choosing Plasma?",
+      "a4": "As a stablecoin-dedicated network, Plasma offers: zero-fee USDT transfers, custom Gas tokens, and confidential transactions. These features create a faster, lower-cost, and smoother payment experience for developers and end users, making it the ideal infrastructure for capital flow applications.",
+      "q5": "What is Plasma's consensus mechanism?",
+      "a5": "PlasmaBFT - a high-performance Fast HotStuff consensus protocol implemented in Rust, combining Byzantine Fault Tolerance (BFT) security with low-latency finality to meet the high throughput and determinism requirements of stablecoin-grade applications.",
+      "q6": "What is the technical foundation of Plasma's execution layer?",
+      "a6": "Plasma's execution layer is powered by Reth, a modular Ethereum execution client developed in Rust that enables efficient state execution while maintaining EVM compatibility.",
+      "q7": "How does Plasma differ from other blockchains in terms of stablecoin optimization?",
+      "a7": "Network innovations include: zero-fee USDT transfers, custom Gas tokens, and compliant confidential transactions. These features make it the optimal blockchain for global capital flows. Additionally, Plasma supports thousands of transactions per second with robust enterprise-grade network security, fully meeting current and future stablecoin demands.",
+      "q8": "Does Plasma network have other additional features?",
+      "a8": "Yes, Plasma network will deploy a trustless Bitcoin cross-chain bridge. As the network evolves, features will continue to be added to build a thriving application ecosystem.",
+      "q9": "Why are USDT transfers on Plasma fee-free?",
+      "a9": "Through protocol-managed Gas sponsorship mechanisms, native token requirements are eliminated, enabling frictionless payments particularly suitable for micro-remittances and global business scenarios.",
+      "q10": "How does Plasma blockchain maintain network value with zero fees enabled?",
+      "a10": "Only basic USDT transactions are Gas-free; other transactions require XPL fees, ensuring validator incentives and network economic sustainability."
+    },
+    "xpl": {
+      "title": "XPL",
+      "q1": "What is XPL token and how is it used?",
+      "a1": "XPL is Plasma's native token, used to pay transaction fees and maintain network security, similar to ETH on Ethereum or BTC on Bitcoin network. XPL secures the network through Proof of Stake (PoS) consensus mechanism and aligns long-term incentives with global stablecoin adoption.",
+      "q2": "How is XPL distributed?",
+      "a2": "Total supply is 10 billion tokens, distributed as follows: 10% public sale, 40% ecosystem development, 25% team allocation, 25% investor allocation. In the public sale, 1 billion XPL tokens were distributed to users who participated in deposit activities.",
+      "q3": "When will XPL unlock?",
+      "a3": "Non-US users: Instant release at mainnet beta launch. US users: 12-month lock period (until July 28, 2026). Team and investors: 3-year linear unlock with first year as cliff period."
     }
   },
   "transaction": {
