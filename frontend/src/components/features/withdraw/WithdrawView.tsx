@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { Wallet, ArrowDownToLine, Shield, AlertCircle, Loader2, History } from "lucide-react";
 import { Usdt0 } from "@/components/ui/usdt0";
-import { getWalletInfo, getXplRate, profitWithdraw, getTransactionDetails, type TransactionDetail } from "@/lib/api";
+import { getWalletInfo, getXplRate, profitWithdraw, getTransactionDetails, ApiError, type TransactionDetail } from "@/lib/api";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { paymentChannelABI, paymentChannelAddress } from "@/wagmiConfig";
@@ -176,7 +176,11 @@ export function WithdrawView() {
       console.error('❌ 提现失败:', err);
       setIsWithdrawing(false);
       
-      toast.error(err.message || t('withdraw.createOrderFailed'));
+      if (err instanceof ApiError) {
+        toast.error(err.message);
+      } else {
+        toast.error(err.message || t('withdraw.createOrderFailed'));
+      }
     }
   };
   

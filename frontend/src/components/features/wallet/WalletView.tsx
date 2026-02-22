@@ -10,7 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Calendar, type FlowByDate } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Usdt0 } from "@/components/ui/usdt0";
-import { getTransactionCalendar, getTransactionDetails, getWalletInfo, profitReinvest, type TransactionDetail, type WalletInfoResponse } from "@/lib/api";
+import { getTransactionCalendar, getTransactionDetails, getWalletInfo, profitReinvest, ApiError, type TransactionDetail, type WalletInfoResponse } from "@/lib/api";
 import { useApiError } from "@/hooks/useApiError";
 import { toast } from "sonner";
 import { 
@@ -200,8 +200,12 @@ export function WalletView() {
       handleError(error);
       
       // 显示错误提示
-      const errorMessage = error instanceof Error ? error.message : t("errors.reinvest.failed");
-      toast.error(errorMessage);
+      if (error instanceof ApiError) {
+        toast.error(error.message);
+      } else {
+        const errorMessage = error instanceof Error ? error.message : t("errors.reinvest.failed");
+        toast.error(errorMessage);
+      }
     } finally {
       setIsReinvesting(false);
     }

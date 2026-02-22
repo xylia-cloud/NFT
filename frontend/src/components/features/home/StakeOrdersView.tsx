@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { PiggyBank, Loader2 } from "lucide-react";
 import type { StakeOrder } from "./StakeView";
 import { StakeOrderItem } from "./StakeView";
-import { getMyRecords, capitalWithdraw, type StakeRecord } from "@/lib/api";
+import { getMyRecords, capitalWithdraw, ApiError, type StakeRecord } from "@/lib/api";
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { paymentChannelABI, paymentChannelAddress } from "@/wagmiConfig";
 import { toast } from "sonner";
@@ -134,7 +134,13 @@ export function StakeOrdersView() {
     } catch (err: any) {
       console.error('❌ 本金提现失败:', err);
       setWithdrawingOrderId(null);
-      toast.error(err.message || "提现失败，请稍后重试");
+      
+      // 如果是 ApiError，使用映射后的错误信息
+      if (err instanceof ApiError) {
+        toast.error(err.message);
+      } else {
+        toast.error(err.message || "提现失败，请稍后重试");
+      }
     }
   };
   

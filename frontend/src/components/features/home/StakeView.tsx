@@ -11,7 +11,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { cn } from "@/lib/utils";
 import { Usdt0 } from "@/components/ui/usdt0";
 import { CONTRACT_ADDRESS, CONTRACT_ABI, USDT_ADDRESS, USDT_ABI } from "../../../wagmiConfig";
-import { getGlobalConfig, rechargePreorder, type GlobalConfigResponse } from "@/lib/api";
+import { getGlobalConfig, rechargePreorder, ApiError, type GlobalConfigResponse } from "@/lib/api";
 import bannerSpline from "@/assets/images/banner.splinecode?url";
 import partner1 from "@/assets/images/partners_1.svg";
 import partner2 from "@/assets/images/partners_2.svg";
@@ -442,12 +442,23 @@ export function StakeView() {
       });
     } catch (error) {
       console.error('❌ 预下单失败:', error);
+      
       // 显示错误提示
-      setTxErrorInfo({
-        title: t('home.preorderFailed'),
-        description: t('home.preorderFailedDesc'),
-        detail: error instanceof Error ? error.message : String(error),
-      });
+      if (error instanceof ApiError) {
+        // 使用 ApiError 的 message（已经是翻译后的错误信息）
+        setTxErrorInfo({
+          title: t('home.preorderFailed'),
+          description: error.message,
+          detail: `错误码: ${error.code}`,
+        });
+      } else {
+        // 其他类型的错误
+        setTxErrorInfo({
+          title: t('home.preorderFailed'),
+          description: t('home.preorderFailedDesc'),
+          detail: error instanceof Error ? error.message : String(error),
+        });
+      }
       setShowTxErrorDialog(true);
     }
   };
