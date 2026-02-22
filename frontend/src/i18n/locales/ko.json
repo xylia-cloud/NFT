@@ -153,7 +153,9 @@
     "txFailedDesc": "이번 {{action}}이 성공하지 못했습니다. 다시 시도하세요.",
     "txFailedGeneric": "트랜잭션 실패, 다시 시도하세요",
     "preorderFailed": "사전 주문 실패",
-    "preorderFailedDesc": "입금 주문을 생성할 수 없습니다. 나중에 다시 시도하세요"
+    "preorderFailedDesc": "입금 주문을 생성할 수 없습니다. 나중에 다시 시도하세요",
+    "systemNotice": "시스템 알림",
+    "unread": "읽지 않음"
   }
 ,
   "wallet": {

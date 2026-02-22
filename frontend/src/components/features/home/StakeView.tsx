@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from 'react-i18next';
-import { Plus, Minus, Loader2, Wallet, TrendingUp, Shield, Users, Activity, Zap, ChevronLeft, ChevronRight, Lock, PiggyBank, Calendar, Unlock, Clock, ArrowDownToLine, AlertTriangle, Twitter, ArrowUp, FileText, ExternalLink } from "lucide-react";
+import { Plus, Minus, Loader2, Wallet, TrendingUp, Shield, Users, Activity, Zap, ChevronLeft, ChevronRight, Lock, PiggyBank, Calendar, Unlock, Clock, ArrowDownToLine, AlertTriangle, Twitter, ArrowUp, FileText, ExternalLink, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,7 +11,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { cn } from "@/lib/utils";
 import { Usdt0 } from "@/components/ui/usdt0";
 import { CONTRACT_ADDRESS, CONTRACT_ABI, USDT_ADDRESS, USDT_ABI } from "../../../wagmiConfig";
-import { getGlobalConfig, rechargePreorder, ApiError, type GlobalConfigResponse } from "@/lib/api";
+import { getGlobalConfig, rechargePreorder, getNewsList, ApiError, type GlobalConfigResponse, type NewsItem } from "@/lib/api";
 import bannerSpline from "@/assets/images/banner.splinecode?url";
 import partner1 from "@/assets/images/partners_1.svg";
 import partner2 from "@/assets/images/partners_2.svg";
@@ -213,6 +213,9 @@ export function StakeView() {
   // 获取全局配置
   const [globalConfig, setGlobalConfig] = useState<GlobalConfigResponse | null>(null);
   
+  // 获取系统通知
+  const [latestNews, setLatestNews] = useState<NewsItem | null>(null);
+  
   useEffect(() => {
     const fetchGlobalConfig = async () => {
       try {
@@ -226,6 +229,23 @@ export function StakeView() {
     };
     
     fetchGlobalConfig();
+  }, []);
+  
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        const data = await getNewsList({ page: '1' });
+        if (data.list && data.list.length > 0) {
+          setLatestNews(data.list[0]); // 获取最新的一条通知
+          console.log('✅ 系统通知获取成功:', data.list[0]);
+        }
+      } catch (err) {
+        console.error('❌ 获取系统通知失败:', err);
+        // 静默处理错误
+      }
+    };
+    
+    fetchNews();
   }, []);
   
   // 查询 USDT 余额
@@ -515,6 +535,44 @@ export function StakeView() {
               </h2>
               <p className="text-xs text-gray-300 leading-relaxed">
                 {t('home.heroSubtitle', { rate: globalConfig?.monthly_return_rate || "20" })}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 系统通知版块 */}
+      {latestNews && (
+        <div className="relative overflow-hidden rounded-xl border border-border/70 bg-card/40 backdrop-blur-md shadow-none">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-transparent to-transparent" />
+          <div className="relative p-4 flex items-start gap-3">
+            <div className="relative flex-shrink-0">
+              <div className={cn(
+                "h-10 w-10 rounded-lg flex items-center justify-center transition-all",
+                !latestNews.is_read ? "bg-primary/20 text-primary" : "bg-muted/50 text-muted-foreground"
+              )}>
+                <Bell className="h-5 w-5" />
+              </div>
+              {!latestNews.is_read && (
+                <div className="absolute -top-1 -right-1 h-3 w-3 bg-primary rounded-full border-2 border-card animate-pulse" />
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  {t('home.systemNotice')}
+                </span>
+                {!latestNews.is_read && (
+                  <Badge variant="default" className="h-5 px-2 text-[10px] bg-primary/20 text-primary border-primary/30">
+                    {t('home.unread')}
+                  </Badge>
+                )}
+                <span className="text-xs text-muted-foreground ml-auto flex-shrink-0">
+                  {latestNews.addtime}
+                </span>
+              </div>
+              <p className="text-sm font-medium text-foreground leading-relaxed line-clamp-2">
+                {latestNews.title}
               </p>
             </div>
           </div>

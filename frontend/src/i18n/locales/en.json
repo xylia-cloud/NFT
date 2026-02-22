@@ -141,7 +141,9 @@
     "txFailedDesc": "This {{action}} was not successful, please try again.",
     "txFailedGeneric": "Transaction failed, please try again",
     "preorderFailed": "Pre-order Failed",
-    "preorderFailedDesc": "Unable to create deposit order, please try again later"
+    "preorderFailedDesc": "Unable to create deposit order, please try again later",
+    "systemNotice": "System Notice",
+    "unread": "Unread"
   },
   "wallet": {
     "title": "My Wallet",

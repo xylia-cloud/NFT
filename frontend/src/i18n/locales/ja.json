@@ -152,7 +152,9 @@
     "txFailedDesc": "今回の{{action}}は成功しませんでした。再試行してください。",
     "txFailedGeneric": "トランザクション失敗、再試行してください",
     "preorderFailed": "事前注文失敗",
-    "preorderFailedDesc": "入金注文を作成できません。後でもう一度お試しください"
+    "preorderFailedDesc": "入金注文を作成できません。後でもう一度お試しください",
+    "systemNotice": "システム通知",
+    "unread": "未読"
   },
   "wallet": {
     "title": "マイウォレット",

@@ -153,7 +153,9 @@
     "txFailedDesc": "Esta {{action}} no tuvo éxito, por favor intente de nuevo.",
     "txFailedGeneric": "Transacción fallida, intente de nuevo",
     "preorderFailed": "Pre-orden Fallida",
-    "preorderFailedDesc": "No se puede crear la orden de depósito, intente más tarde"
+    "preorderFailedDesc": "No se puede crear la orden de depósito, intente más tarde",
+    "systemNotice": "Notificación del Sistema",
+    "unread": "No leído"
   }
 ,
   "wallet": {

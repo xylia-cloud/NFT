@@ -153,7 +153,9 @@
     "txFailedDesc": "Cette {{action}} n'a pas réussi, veuillez réessayer.",
     "txFailedGeneric": "Transaction échouée, réessayez",
     "preorderFailed": "Pré-commande Échouée",
-    "preorderFailedDesc": "Impossible de créer l'ordre de dépôt, réessayez plus tard"
+    "preorderFailedDesc": "Impossible de créer l'ordre de dépôt, réessayez plus tard",
+    "systemNotice": "Notification Système",
+    "unread": "Non lu"
   },
   "wallet": {
     "title": "Mon Portefeuille",

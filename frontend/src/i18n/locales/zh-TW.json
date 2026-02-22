@@ -152,7 +152,9 @@
     "txFailedDesc": "本次{{action}}未成功，請重試。",
     "txFailedGeneric": "交易失敗，請重試",
     "preorderFailed": "預下單失敗",
-    "preorderFailedDesc": "無法創建充值訂單，請稍後重試"
+    "preorderFailedDesc": "無法創建充值訂單，請稍後重試",
+    "systemNotice": "系統通知",
+    "unread": "未讀"
   },
   "wallet": {
     "title": "我的錢包",

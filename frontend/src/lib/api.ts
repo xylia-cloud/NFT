@@ -956,3 +956,35 @@ export interface SuperNodeCalendarResponse {
 export async function getSuperNodeCalendar(params: SuperNodeCalendarParams): Promise<SuperNodeCalendarResponse> {
   return post<SuperNodeCalendarResponse>('/Api/SuperNode/calendar', params);
 }
+
+/**
+ * 获取系统通知列表
+ */
+export interface NewsListParams {
+  page?: string;  // 页码，默认 1
+}
+
+export interface NewsItem {
+  id: string;
+  title: string;
+  addtime: string;        // 添加时间，格式：YYYY-MM-DD
+  new_flag: boolean;      // 是否为新通知
+  is_read: boolean;       // 是否已读
+}
+
+export interface NewsListResponse {
+  list: NewsItem[];
+  count?: number;
+  page?: number;
+}
+
+export async function getNewsList(params?: NewsListParams): Promise<NewsListResponse> {
+  const queryParams: Record<string, any> = {
+    page: params?.page || '1',
+  };
+  
+  const response = await get<{ data: NewsItem[] }>('/Api/News/news_list', queryParams);
+  return {
+    list: response.data || [],
+  };
+}
