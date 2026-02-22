@@ -1,5 +1,4 @@
 import { http } from 'wagmi'
-import { hardhat } from 'wagmi/chains'
 import { getDefaultConfig } from '@rainbow-me/rainbowkit'
 import {
   okxWallet,
@@ -12,25 +11,28 @@ import {
 
 const projectId = '497f09c5a7528641d51b5996281682eb'
 
+// PLASMA 主网配置
+const plasmaMainnet = {
+  id: 9745,
+  name: 'PLASMA Mainnet',
+  nativeCurrency: { name: 'XPL', symbol: 'XPL', decimals: 18 },
+  rpcUrls: {
+    default: { http: ['https://rpc.plasma.to'] },
+    public: { http: ['https://rpc.plasma.to'] },
+  },
+  blockExplorers: {
+    default: { name: 'PlasmaExplorer', url: 'https://plasmascan.to' },
+  },
+  testnet: false,
+}
+
 export const config = getDefaultConfig({
   appName: 'PLASMA',
   projectId,
-  // 本地测试链（通过 ngrok 暴露到公网）
-  // NOTE: 为了让 MetaMask 的 Gas 币种显示为 XPL，这里覆盖 nativeCurrency
-  chains: [
-    {
-      ...hardhat,
-      name: 'Hardhat Local',
-      nativeCurrency: { name: 'XPL', symbol: 'XPL', decimals: 18 },
-      rpcUrls: {
-        ...hardhat.rpcUrls,
-        default: { http: ['https://hamza-quartermasterlike-kamron.ngrok-free.dev'] },
-        public: { http: ['https://hamza-quartermasterlike-kamron.ngrok-free.dev'] },
-      },
-    },
-  ],
+  // 使用 PLASMA 主网
+  chains: [plasmaMainnet],
   transports: {
-    [hardhat.id]: http('https://hamza-quartermasterlike-kamron.ngrok-free.dev'),
+    [plasmaMainnet.id]: http('https://rpc.plasma.to'),
   },
   wallets: [
     {
@@ -45,14 +47,14 @@ export const config = getDefaultConfig({
   syncConnectedChain: true,
 })
 
-// PaymentChannel 合约地址（充值和提现合约）
-export const CONTRACT_ADDRESS = '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0' as `0x${string}`
+// PaymentChannel 合约地址（PLASMA 主网）
+export const CONTRACT_ADDRESS = '0x2f5A81181CF28653B8254C67cb76B232B48A7397' as `0x${string}`
 export const paymentChannelAddress = CONTRACT_ADDRESS; // 别名，保持兼容
 
-// USDT 合约地址 (本地 Mock USDT)
-export const USDT_ADDRESS = '0x5FbDB2315678afecb367f032d93F642f64180aa3' as `0x${string}`
+// USDT 合约地址 (PLASMA 主网 Mock USDT)
+export const USDT_ADDRESS = '0x3F1Eb88219A75b82906F0844A339BA4C8a74d14E' as `0x${string}`
 
-// XPL Token 合约地址 (本地 Mock XPL)
+// XPL Token 合约地址 (待部署)
 export const XPL_ADDRESS = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512' as `0x${string}`
 
 export const CONTRACT_ABI = [

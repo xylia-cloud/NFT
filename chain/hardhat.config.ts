@@ -50,6 +50,13 @@ export default defineConfig({
       url: process.env.BSC_TESTNET_RPC_URL || "https://data-seed-prebsc-1-s1.binance.org:8545",
       accounts: process.env.BSC_TESTNET_PRIVATE_KEY ? [process.env.BSC_TESTNET_PRIVATE_KEY] : [],
     },
+    plasmaMainnet: {
+      type: "http",
+      chainType: "l1",
+      url: process.env.PLASMA_MAINNET_RPC_URL || "https://rpc.plasma.to",
+      accounts: process.env.PLASMA_MAINNET_PRIVATE_KEY ? [process.env.PLASMA_MAINNET_PRIVATE_KEY] : [],
+      chainId: 9745, // PLASMA 主网 Chain ID
+    },
     localhost: {
       type: "http",
       chainType: "l1",

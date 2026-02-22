@@ -1,0 +1,19 @@
+{
+  "network": "PLASMA Mainnet",
+  "chainId": 9745,
+  "rpcUrl": "https://rpc.plasma.to",
+  "explorer": "https://plasmascan.to",
+  "contracts": {
+    "PaymentChannel": {
+      "address": "0x2f5A81181CF28653B8254C67cb76B232B48A7397",
+      "deployedAt": "2025-02-22"
+    },
+    "MockUSDT": {
+      "address": "0x3F1Eb88219A75b82906F0844A339BA4C8a74d14E",
+      "deployedAt": "2025-02-22"
+    }
+  },
+  "admin": {
+    "address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+  }
+}
