@@ -135,9 +135,9 @@ export function StakeOrdersView() {
       console.error('❌ 本金提现失败:', err);
       setWithdrawingOrderId(null);
       
-      // 如果是 ApiError，使用映射后的错误信息
+      // 如果是 ApiError，使用本地化的错误信息
       if (err instanceof ApiError) {
-        toast.error(err.message);
+        toast.error(err.localizedMessage);
       } else {
         toast.error(err.message || "提现失败，请稍后重试");
       }

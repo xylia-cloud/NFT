@@ -177,7 +177,7 @@ export function WithdrawView() {
       setIsWithdrawing(false);
       
       if (err instanceof ApiError) {
-        toast.error(err.message);
+        toast.error(err.localizedMessage);
       } else {
         toast.error(err.message || t('withdraw.createOrderFailed'));
       }

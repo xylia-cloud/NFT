@@ -201,7 +201,7 @@ export function WalletView() {
       
       // 显示错误提示
       if (error instanceof ApiError) {
-        toast.error(error.message);
+        toast.error(error.localizedMessage);
       } else {
         const errorMessage = error instanceof Error ? error.message : t("errors.reinvest.failed");
         toast.error(errorMessage);

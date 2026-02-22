@@ -445,10 +445,10 @@ export function StakeView() {
       
       // 显示错误提示
       if (error instanceof ApiError) {
-        // 使用 ApiError 的 message（已经是翻译后的错误信息）
+        // 使用 ApiError 的 localizedMessage（当前语言的错误信息）
         setTxErrorInfo({
           title: t('home.preorderFailed'),
-          description: error.message,
+          description: error.localizedMessage,
           detail: `错误码: ${error.code}`,
         });
       } else {

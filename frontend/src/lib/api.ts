@@ -4,6 +4,7 @@
  */
 
 import { getErrorMessage, isAuthError } from './errorCodes';
+import { ERROR_CODE_KEYS } from './errorCodes';
 import { useLoadingStore } from '@/store/loadingStore';
 
 /**
@@ -23,13 +24,24 @@ export class ApiError extends Error {
   code: number;
   category: string;
   originalMessage?: string;
+  private translationKey?: string;
 
-  constructor(code: number, message: string, category: string, originalMessage?: string) {
+  constructor(code: number, message: string, category: string, originalMessage?: string, translationKey?: string) {
     super(message);
     this.name = 'ApiError';
     this.code = code;
     this.category = category;
     this.originalMessage = originalMessage;
+    this.translationKey = translationKey;
+  }
+
+  // 获取当前语言的错误信息
+  get localizedMessage(): string {
+    if (this.translationKey) {
+      const errorInfo = getErrorMessage(this.code);
+      return errorInfo.message;
+    }
+    return this.message;
   }
 }
 
@@ -167,7 +179,8 @@ async function request<T = any>(
         code,
         result.info || errorInfo.message,
         errorInfo.category,
-        result.info
+        result.info,
+        errorInfo.code ? ERROR_CODE_KEYS[code]?.key : undefined
       );
     }
 
