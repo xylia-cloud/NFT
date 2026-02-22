@@ -535,5 +535,10 @@
   },
   "plasmaOne": {
     "visitWebsite": "訪問 Plasma One"
+  },
+  "news": {
+    "title": "系統通知",
+    "subtitle": "查看所有系統通知和公告",
+    "noNews": "暫無通知"
   }
 }

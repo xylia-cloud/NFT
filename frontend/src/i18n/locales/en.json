@@ -529,5 +529,10 @@
   },
   "plasmaOne": {
     "visitWebsite": "Visit Plasma One"
+  },
+  "news": {
+    "title": "System Notifications",
+    "subtitle": "View all system notifications and announcements",
+    "noNews": "No notifications yet"
   }
 }

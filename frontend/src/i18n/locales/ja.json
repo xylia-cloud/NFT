@@ -534,5 +534,10 @@
   },
   "plasmaOne": {
     "visitWebsite": "Plasma One を訪問"
+  },
+  "news": {
+    "title": "システム通知",
+    "subtitle": "すべてのシステム通知とお知らせを表示",
+    "noNews": "通知はまだありません"
   }
 }

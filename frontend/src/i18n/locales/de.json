@@ -531,5 +531,10 @@
   },
   "plasmaOne": {
     "visitWebsite": "Plasma One besuchen"
+  },
+  "news": {
+    "title": "Systembenachrichtigungen",
+    "subtitle": "Alle Systembenachrichtigungen und Ankündigungen anzeigen",
+    "noNews": "Noch keine Benachrichtigungen"
   }
 }

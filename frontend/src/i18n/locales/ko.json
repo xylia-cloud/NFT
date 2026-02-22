@@ -532,5 +532,10 @@
   },
   "plasmaOne": {
     "visitWebsite": "Plasma One 방문"
+  },
+  "news": {
+    "title": "시스템 알림",
+    "subtitle": "모든 시스템 알림 및 공지사항 보기",
+    "noNews": "아직 알림이 없습니다"
   }
 }

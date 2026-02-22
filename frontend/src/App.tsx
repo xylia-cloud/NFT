@@ -14,6 +14,7 @@ import { InviteView } from '@/components/features/invite/InviteView';
 import { HelpCenterView } from '@/components/features/profile/HelpCenterView';
 import { AboutView } from '@/components/features/about/AboutView';
 import { PlasmaOneView } from '@/components/features/plasma-one/PlasmaOneView';
+import { NewsView } from '@/components/features/news/NewsView';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
 import { GlobalLoading } from '@/components/ui/GlobalLoading';
@@ -23,7 +24,7 @@ import { clearToken } from '@/lib/api';
 import { Wallet, X } from 'lucide-react';
 
 const VOCECHAT_URL = "http://67.215.229.143:3009";
-const VALID_TABS = ['home', 'wallet', 'withdraw', 'leader', 'supernode', 'team', 'invite', 'help-center', 'orders', 'about', 'plasma-one'] as const;
+const VALID_TABS = ['home', 'wallet', 'withdraw', 'leader', 'supernode', 'team', 'invite', 'help-center', 'orders', 'about', 'plasma-one', 'news'] as const;
 
 function ConnectWalletGate() {
   const { t } = useTranslation();
@@ -126,6 +127,8 @@ export default function App() {
         return <AboutView />;
       case "plasma-one":
         return <PlasmaOneView />;
+      case "news":
+        return <NewsView />;
       default:
         return <StakeView />;
     }
