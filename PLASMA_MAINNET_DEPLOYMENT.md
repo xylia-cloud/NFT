@@ -10,12 +10,23 @@
 
 ## 部署的合约
 
-### 1. PaymentChannel (支付通道合约)
-- **合约地址**: `0x2f5A81181CF28653B8254C67cb76B232B48A7397`
+### 1. PaymentChannel v2 (支付通道合约 - 当前版本)
+- **合约地址**: `0x13dFde78A02C4138FD6aaAdd795FA11471CcfE54`
+- **版本**: v2-with-emergency-withdraw
+- **部署时间**: 2025-02-22
 - **功能**: 
   - 用户充值 (USDT)
   - 用户提现 (USDT 本金 / XPL 收益)
   - 带签名验证的提现功能
+  - **新增**: 管理员紧急提取功能
+    - `emergencyWithdrawUsdt(uint256 amount)` - 提取 USDT
+    - `emergencyWithdrawXpl(uint256 amount)` - 提取 XPL
+    - `emergencyWithdrawNative()` - 提取原生代币
+- **浏览器链接**: https://plasmascan.to/address/0x13dFde78A02C4138FD6aaAdd795FA11471CcfE54
+
+### 1.1 PaymentChannel v1 (已废弃)
+- **合约地址**: `0x2f5A81181CF28653B8254C67cb76B232B48A7397`
+- **状态**: 已废弃，请使用 v2
 - **浏览器链接**: https://plasmascan.to/address/0x2f5A81181CF28653B8254C67cb76B232B48A7397
 
 ### 2. MockUSDT (USDT 代币合约)
@@ -27,12 +38,16 @@
 
 ## 管理员账户
 
-- **地址**: `0x70997970C51812dc3A010C7d01b50e0d17dc79C8`
-- **私钥**: `0x31bf522e8fee305993cd08120a28c3681fabc4a64cd62ed246e0ef80e9e89000`
+- **地址**: `0xA4a7747C9241ba5A9AF9137bb662f38F463Fdf1B`
 - **权限**: 
-  - 合约所有者
+  - 合约所有者 (owner)
   - 可以设置 USDT/XPL 代币地址
   - 可以执行管理员提现
+  - 可以执行紧急提取操作
+
+### 旧管理员账户 (v1)
+- **地址**: `0x70997970C51812dc3A010C7d01b50e0d17dc79C8`
+- **状态**: 仅用于 v1 合约
 
 ## 前端配置
 

@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Plasma - 全球最大链上结算银行官方手册</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+
+        :root {
+            --bg: #020408;
+            --card: #0a0e14;
+            --primary: #00ffa3;
+            --secondary: #00d1ff;
+            --accent: #bc13fe;
+            --gold: #f59e0b;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --border: #1e293b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: var(--bg); color: var(--text-main); }
+
+        /* 打印分页控制 */
+        .page {
+            width: 100vw; height: 100vh;
+            padding: 60px 80px 100px 80px;
+            display: flex; flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            page-break-after: always;
+            break-after: page;
+            overflow: hidden;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* 统一页码和装饰 */
+        .page-index { position: absolute; bottom: 40px; right: 80px; font-size: 14px; color: var(--text-dim); }
+        .page-footer { position: absolute; bottom: 40px; left: 80px; font-size: 14px; color: var(--primary); letter-spacing: 2px; font-weight: bold; }
+        .page::before {
+            content: ""; position: absolute; top: 0; right: 0; width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(0,255,163,0.05) 0%, transparent 70%);
+        }
+
+        /* 标题样式 */
+        h1.hero { font-size: 140px; font-weight: 800; line-height: 1; margin-top: 50px; 
+                  background: linear-gradient(135deg, #fff 40%, var(--primary)); 
+                  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        h2.section-title { font-size: 52px; color: var(--primary); margin-bottom: 30px; font-weight: 700; border-left: 8px solid var(--primary); padding-left: 20px; }
+        h2.section-title .zh-subtitle { display: block; font-size: 24px; color: var(--text-dim); margin-top: 10px; font-weight: 400; }
+        h3.sub-title { font-size: 32px; color: var(--secondary); margin-bottom: 20px; }
+        h3.sub-title .zh-subtitle { display: block; font-size: 18px; color: var(--text-dim); margin-top: 5px; font-weight: 400; }
+
+        /* 内容容器 */
+        .content-layout { display: grid; grid-template-columns: 1.2fr 1fr; gap: 60px; align-items: start; flex: 1; }
+        .text-area { font-size: 22px; line-height: 2; color: var(--text-dim); }
+        .visual-area { background: rgba(255,255,255,0.02); border-radius: 40px; border: 1px solid var(--border); padding: 50px; min-height: 450px; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        
+        /* 通用卡片网格 */
+        .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; flex: 1; align-content: start; }
+        .info-card { background: var(--card); padding: 40px; border-radius: 24px; border: 1px solid var(--border); transition: 0.3s; display: flex; flex-direction: column; }
+        .info-card i { color: var(--primary); margin-bottom: 20px; }
+        .info-card h4 { font-size: 26px; margin-bottom: 15px; }
+        .info-card p { font-size: 18px; color: var(--text-dim); line-height: 1.7; }
+        .info-card .zh-text { font-size: 15px; color: var(--text-dim); opacity: 0.8; margin-top: 8px; line-height: 1.6; }
+
+        /* 表格样式 */
+        table { width: 100%; border-collapse: separate; border-spacing: 0 15px; flex: 1; }
+        th { text-align: left; padding: 25px; color: var(--primary); font-size: 20px; text-transform: uppercase; border-bottom: 2px solid var(--border); }
+        td { padding: 25px; background: rgba(255,255,255,0.03); font-size: 22px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+        td:first-child { border-left: 1px solid var(--border); border-radius: 15px 0 0 15px; font-weight: bold; }
+        td:last-child { border-right: 1px solid var(--border); border-radius: 0 15px 15px 0; color: var(--secondary); }
+
+        .list-item { margin-bottom: 25px; display: flex; align-items: flex-start; gap: 15px; font-size: 22px; }
+        .list-item span { color: var(--primary); font-weight: bold; }
+
+        /* 新增样式 */
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 40px; flex: 1; align-content: start; }
+        .stat-box { text-align: center; padding: 50px 30px; background: rgba(0,255,163,0.05); border-radius: 20px; border: 1px solid var(--primary); }
+        .stat-number { font-size: 72px; font-weight: 800; color: var(--primary); }
+        .stat-label { font-size: 20px; color: var(--text-dim); margin-top: 15px; }
+        .timeline-item { display: flex; gap: 25px; margin-bottom: 35px; }
+        .timeline-dot { width: 24px; height: 24px; background: var(--primary); border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+        .timeline-content { flex: 1; }
+        .timeline-content h4 { font-size: 24px; margin-bottom: 10px; }
+        .timeline-content p { font-size: 20px; line-height: 1.8; color: var(--text-dim); }
+        .highlight-box { background: linear-gradient(135deg, rgba(0,255,163,0.1), rgba(0,209,255,0.1)); padding: 40px; border-radius: 20px; border-left: 5px solid var(--primary); }
+        .highlight-box h4 { font-size: 26px; }
+        .highlight-box p { font-size: 20px; line-height: 1.8; color: var(--text-dim); }
+        .comparison-table { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2px; background: var(--border); flex: 1; }
+        .comparison-cell { background: var(--card); padding: 25px; text-align: center; font-size: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .comparison-header { background: rgba(0,255,163,0.1); font-weight: bold; color: var(--primary); font-size: 22px; }
+        .desc { font-size: 22px; line-height: 2; color: var(--text-dim); }
+        .zh-text { font-size: 16px; color: var(--text-dim); opacity: 0.8; margin-top: 8px; line-height: 1.6; display: block; }
+        
+        .content-wrapper { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+
+        @media print {
+            .page { width: 100%; height: 100vh; border: none; }
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="page" style="justify-content: center; align-items: center; text-align: center;">
+    <div style="background: rgba(0,255,163,0.1); padding: 10px 30px; border-radius: 50px; color: var(--primary); font-weight: bold; margin-bottom: 20px;">2026 OFFICIAL ROADMAP</div>
+    <h1 class="hero">PLASMA</h1>
+    <div style="font-size: 36px; letter-spacing: 12px; color: var(--secondary); margin-top: 20px;">GLOBAL ON-CHAIN SETTLEMENT BANK</div>
+    <div style="font-size: 20px; color: var(--text-dim); margin-top: 10px;">全球最大链上结算银行</div>
+    <div style="width: 150px; height: 2px; background: var(--primary); margin: 50px auto;"></div>
+    <p style="font-size: 20px; color: var(--text-main);">Building the SWIFT 2.0 Settlement Standard for Blockchain Era</p>
+    <p style="font-size: 16px; color: var(--text-dim); margin-top: 10px;">打造区块链时代的 SWIFT 2.0 结算标准</p>
+    <div class="page-index">01 / 35</div>
+</div>
+
+<div class="page">
+    <div class="page-footer">VISION & MISSION</div>
+    <div class="content-wrapper">
+        <div>
+            <h2 class="section-title">Vision & Mission<span class="zh-subtitle">核心愿景与使命</span></h2>
+            <div class="content-layout">
+                <div class="text-area">
+                    <h3 class="sub-title">Our Vision<span class="zh-subtitle">我们的愿景</span></h3>
+                    <p>Plasma aims to establish a borderless, decentralized on-chain settlement matrix. We believe future financial assets should complete global settlements in milliseconds through bank-grade protocols.</p>
+                    <span class="zh-text">Plasma 旨在建立一个无国界、去中心化的链上清算矩阵。我们认为，未来的金融资产应通过银行级协议，在毫秒内完成全球清算。</span>
+                    
+                    <h3 class="sub-title" style="margin-top: 30px;">Our Mission<span class="zh-subtitle">我们的使命</span></h3>
+                    <p>Through Layer 2 technology and smart contracts, eliminate high costs of traditional wire transfers, allowing every digital asset holder to enjoy instant settlement benefits.</p>
+                    <span class="zh-text">通过 Layer 2 技术和智能合约，消除传统电汇的高昂成本，让每一位数字资产持有者都能享受即时结算的红利。</span>
+                    
+                    <p style="margin-top: 20px;">In Plasma's world, fund transfers are no longer restricted by banking hours, exploited by intermediaries, or incur huge cross-border fees.</p>
+                    <span class="zh-text">在 Plasma 的世界里，资金流转不再受制于银行营业时间、不再被中间商层层盘剥、不再因为跨境而产生巨额手续费。</span>
+                </div>
+                <div class="visual-area">
+                    <i data-lucide="globe" size="100" stroke-width="1" style="color: var(--primary); margin-bottom: 25px;"></i>
+                    <h3 style="color: var(--primary); font-size: 32px; margin-bottom: 15px;">Global Settlement Network</h3>
+                    <p style="color: var(--text-dim); font-size: 14px; margin-bottom: 20px;">全球清算一张网</p>
+                    <div style="text-align: center; line-height: 2;">
+                        <p style="font-size: 18px; color: var(--text-main); margin-bottom: 5px;">170+ Countries Covered</p>
+                        <span style="font-size: 14px; color: var(--text-dim);">覆盖全球 170+ 个国家</span>
+                        
+                        <p style="font-size: 18px; color: var(--text-main); margin-top: 15px; margin-bottom: 5px;">Second-Level Settlement</p>
+                        <span style="font-size: 14px; color: var(--text-dim);">实现全资产秒级对账</span>
+                        
+                        <p style="font-size: 18px; color: var(--text-main); margin-top: 15px; margin-bottom: 5px;">24/7 Non-Stop Service</p>
+                        <span style="font-size: 14px; color: var(--text-dim);">7×24 小时不间断服务</span>
+                    </div>
+                    <div style="margin-top: 25px; padding: 15px; background: rgba(0,255,163,0.1); border-radius: 15px; border: 1px solid var(--primary);">
+                        <p style="font-size: 16px; color: var(--primary); text-align: center;">Serving 1M+ Global Users</p>
+                        <p style="font-size: 13px; color: var(--text-dim); text-align: center; margin-top: 3px;">已服务 100 万+ 全球用户</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="highlight-box" style="margin-top: 30px;">
+            <h4 style="color: var(--secondary); margin-bottom: 15px; font-size: 24px;">🎯 Three Core Goals<span style="font-size: 16px; color: var(--text-dim); font-weight: 400; margin-left: 15px;">我们的三大核心目标</span></h4>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-top: 20px;">
+                <div style="text-align: center;">
+                    <div style="font-size: 42px; font-weight: 800; color: var(--primary); margin-bottom: 8px;">1B</div>
+                    <p style="font-size: 16px; line-height: 1.5;">Enable 1 billion people worldwide to enjoy low-cost, high-efficiency cross-border payments</p>
+                    <span class="zh-text" style="font-size: 13px;">让全球 10 亿人享受到低成本、高效率的跨境支付服务</span>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 42px; font-weight: 800; color: var(--secondary); margin-bottom: 8px;">95%</div>
+                    <p style="font-size: 16px; line-height: 1.5;">Reduce cross-border settlement costs by 95%, shorten time to within 3 seconds</p>
+                    <span class="zh-text" style="font-size: 13px;">将跨境结算成本降低 95%，时间缩短至 3 秒以内</span>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 42px; font-weight: 800; color: var(--accent); margin-bottom: 8px;">#1</div>
+                    <p style="font-size: 16px; line-height: 1.5;">Build the world's largest decentralized settlement network, becoming SWIFT 2.0</p>
+                    <span class="zh-text" style="font-size: 13px;">建立全球最大的去中心化结算网络，成为区块链时代的 SWIFT 2.0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="page-index">02 / 35</div>
+</div>
+
+<div class="page">
+    <div class="page-footer">MARKET ANALYSIS</div>
+    <div class="content-wrapper">
+        <div>
+            <h2 class="section-title">Global Payment Market Status<span class="zh-subtitle">全球支付市场现状</span></h2>
+            <div class="desc" style="margin-bottom: 50px;">
+                According to the 2025 Global Payment Industry Report, the cross-border payment market has exceeded <strong style="color: var(--primary);">$156 trillion</strong>, but the inefficiency of traditional financial infrastructure is becoming the biggest bottleneck for global trade. With the acceleration of globalization and the rise of the digital economy, cross-border payment demand is experiencing explosive growth.
+                <span class="zh-text">根据 2025 年全球支付行业报告，跨境支付市场规模已突破 156 万亿美元，但传统金融基础设施的低效率正在成为全球贸易的最大瓶颈。随着全球化进程的加速和数字经济的崛起，跨境支付需求呈现爆发式增长。</span>
+            </div>
+        </div>
+        <div class="grid-2">
+            <div class="stat-box">
+                <div class="stat-number">$156T</div>
+                <div class="stat-label">Annual Global Cross-Border Payment Volume</div>
+                <p style="margin-top: 15px; font-size: 16px; color: var(--text-dim);">Expected to exceed $180T in 2026</p>
+                <span class="zh-text" style="text-align: center;">全球跨境支付年交易额 · 预计 2026 年将突破 $180T</span>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">3-5 Days</div>
+                <div class="stat-label">SWIFT Average Settlement Cycle</div>
+                <p style="margin-top: 15px; font-size: 16px; color: var(--text-dim);">May extend to 7-10 days during holidays</p>
+                <span class="zh-text" style="text-align: center;">SWIFT 平均结算周期 · 节假日可能延长至 7-10 天</span>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">$45</div>
+                <div class="stat-label">Average Cost Per Cross-Border Remittance</div>
+                <p style="margin-top: 15px; font-size: 16px; color: var(--text-dim);">Small remittance costs can reach 10%</p>
+                <span class="zh-text" style="text-align: center;">单笔跨境汇款平均成本 · 小额汇款成本占比可达 10%</span>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">11,000+</div>
+                <div class="stat-label">Financial Institutions in SWIFT Network</div>
+                <p style="margin-top: 15px; font-size: 16px; color: var(--text-dim);">Covering 200+ countries and regions</p>
+                <span class="zh-text" style="text-align: center;">全球参与 SWIFT 的金融机构 · 覆盖 200+ 个国家和地区</span>
+            </div>
+        </div>
+    </div>
+    <div class="page-index">03 / 35</div>
+</div>
+
+<div class="page">
+    <div class="page-footer">MARKET PAIN POINTS</div>
+    <div class="content-wrapper">
+        <div>
+            <h2 class="section-title">Traditional Finance Settlement Pain Points<span class="zh-subtitle">传统金融结算之痛</span></h2>
+            <div class="desc" style="margin-bottom: 30px;">
+                Traditional cross-border payment systems are built on 1970s technology architecture, severely outdated in the internet age. Here are three core pain points users and businesses face daily:
+                <span class="zh-text">传统跨境支付系统建立在上世纪 70 年代的技术架构之上，在互联网时代已经严重落后。以下是用户和企业每天都在面临的三大核心痛点：</span>
+            </div>
+            <div class="card-grid">
+                <div class="info-card">
+                    <i data-lucide="clock" size="45"></i>
+                    <h4>Efficiency Black Hole</h4>
+                    <span class="zh-text">效率黑洞</span>
+                    <p>SWIFT systems typically require 3-5 business days to complete cross-border settlements, resulting in extremely low capital turnover rates. Such delays can lead to missed business opportunities or additional financing costs.</p>
+                    <span class="zh-text">SWIFT 系统通常需要 3-5 个工作日完成跨境结算，导致资金周转率极低。这种延迟可能导致错失商业机会或产生额外的融资成本。</span>
+                    <div style="margin-top: 15px; padding: 12px; background: rgba(239,68,68,0.1); border-radius: 8px; border-left: 3px solid #ef4444;">
+                        <p style="font-size: 14px; color: #ef4444;"><strong>Real Case:</strong> E-commerce company lost $50,000+ due to settlement delays during Black Friday.</p>
+                        <span class="zh-text" style="color: #ef4444; font-size: 13px;">某跨境电商企业因结算延迟，错失黑五促销备货时机，损失超过 $50,000。</span>
+                    </div>
+                    <p style="margin-top: 12px; color: var(--primary); font-weight: bold; font-size: 16px;">✓ Plasma: Settlement within 3 seconds</p>
+                    <span class="zh-text" style="color: var(--primary); font-size: 13px;">Plasma 解决方案：3 秒内完成结算</span>
+                </div>
+                <div class="info-card">
+                    <i data-lucide="dollar-sign" size="45"></i>
+                    <h4>Layered Fees</h4>
+                    <span class="zh-text">层层扣费</span>
+                    <p>With intermediary banks stacking fees, the actual cost of a single cross-border remittance often exceeds $30-50. Each correspondent bank charges a fee, and the total cost can reach 5-10% of the remittance amount.</p>
+                    <span class="zh-text">中间行层层手续费叠加，单笔跨境汇款的实际成本往往在 30-50 美金以上。每经过一家代理银行，就会被收取一次手续费，最终用户承担的总成本可能高达汇款金额的 5-10%。</span>
+                    <div style="margin-top: 15px; padding: 12px; background: rgba(239,68,68,0.1); border-radius: 8px; border-left: 3px solid #ef4444;">
+                        <p style="font-size: 14px; color: #ef4444;"><strong>Real Case:</strong> Freelancer remitted $500, only $445 arrived after 4 intermediary banks, losing 11%.</p>
+                        <span class="zh-text" style="color: #ef4444; font-size: 13px;">自由职业者汇款 $500，经过 4 家中间行，最终到账仅 $445，损失 11%。</span>
+                    </div>
+                    <p style="margin-top: 12px; color: var(--primary); font-weight: bold; font-size: 16px;">✓ Plasma: 95% fee reduction, only $0.5-2</p>
+                    <span class="zh-text" style="color: var(--primary); font-size: 13px;">Plasma 解决方案：手续费降低 95%，仅 $0.5-2</span>
+                </div>
+                <div class="info-card">
+                    <i data-lucide="eye-off" size="45"></i>
+                    <h4>Black Box Risk</h4>
+                    <span class="zh-text">黑箱风险</span>
+                    <p>Settlement logic is opaque, bad debts and manipulation risks are difficult to audit. Users cannot track fund flows in real-time, and once problems occur, the cost of rights protection is extremely high, often taking months to resolve.</p>
+                    <span class="zh-text">结算逻辑不透明，坏账与人为操纵风险难以审计。用户无法实时追踪资金流向，一旦出现问题，维权成本极高，往往需要数月时间才能解决。</span>
+                    <div style="margin-top: 15px; padding: 12px; background: rgba(239,68,68,0.1); border-radius: 8px; border-left: 3px solid #ef4444;">
+                        <p style="font-size: 14px; color: #ef4444;"><strong>Real Case:</strong> Company's remittance was "swallowed", took 6 months to recover, incurring $8,000 in legal fees.</p>
+                        <span class="zh-text" style="color: #ef4444; font-size: 13px;">某企业汇款被中间行"吞没"，历时 6 个月才追回，期间产生法律费用 $8,000。</span>
+                    </div>
+                    <p style="margin-top: 12px; color: var(--primary); font-weight: bold; font-size: 16px;">✓ Plasma: On-chain transparency, real-time tracking</p>
+                    <span class="zh-text" style="color: var(--primary); font-size: 13px;">Plasma 解决方案：链上透明可审计，实时追踪</span>
+                </div>
+            </div>
+        </div>
+        <div class="highlight-box" style="margin-top: 25px; padding: 25px;">
+            <h4 style="color: var(--accent); margin-bottom: 15px; font-size: 24px;">💡 Root Causes<span style="font-size: 16px; color: var(--text-dim); font-weight: 400; margin-left: 15px;">痛点背后的根本原因</span></h4>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                <div>
+                    <p style="margin-bottom: 12px; font-size: 17px;"><strong style="color: var(--primary);">Outdated Technology:</strong> SWIFT uses 1970s batch processing, unable to achieve real-time settlement.</p>
+                    <span class="zh-text" style="font-size: 14px;">SWIFT 系统基于上世纪 70 年代的报文传输技术，采用批处理模式，无法实现实时结算。</span>
+                </div>
+                <div>
+                    <p style="margin-bottom: 12px; font-size: 17px;"><strong style="color: var(--secondary);">Centralization Risk:</strong> All data depends on single institution reputation, lacking transparency.</p>
+                    <span class="zh-text" style="font-size: 14px;">所有数据和资金流转依赖单一机构的信誉，缺乏透明度和可审计性。</span>
+                </div>
+            </div>
+            <div style="margin-top: 20px; padding: 20px; background: rgba(0,255,163,0.05); border-radius: 12px; text-align: center;">
+                <p style="font-size: 20px; color: var(--primary); font-weight: bold;">Plasma fundamentally reconstructs settlement infrastructure through blockchain</p>
+                <span class="zh-text" style="font-size: 16px;">Plasma 通过区块链技术从根本上重构了结算基础设施</span>
+                <p style="margin-top: 8px; font-size: 16px;">Eliminate intermediaries · 95% cost reduction · Second-level settlement · Fully transparent</p>
+                <span class="zh-text" style="font-size: 14px;">消除中间环节 · 降低 95% 成本 · 实现秒级结算 · 全程透明可追溯</span>
+            </div>
+        </div>
+    </div>
+    <div class="page-index">04 / 35</div>
+</div>
+
+<div class="page">
+    <div class="page-footer">PLASMA SOLUTION</div>
+    <div class="content-wrapper">
+        <div>
+            <h2 class="section-title">Plasma's Revolutionary Solution<span class="zh-subtitle">Plasma 的革命性解决方案</span></h2>
+            <div class="desc" style="margin-bottom: 30px;">
+                Plasma reconstructs global settlement infrastructure through blockchain technology, compressing traditional banks' 3-5 day settlement cycle to <strong style="color: var(--primary);">within 3 seconds</strong>, reducing fees by <strong style="color: var(--secondary);">95%</strong>.
+                <span class="zh-text">Plasma 通过区块链技术重构全球结算基础设施，将传统银行的 3-5 天结算周期压缩至 3 秒以内，手续费降低 95%。</span>
+            </div>
+        </div>
+        <div class="comparison-table">
+            <div class="comparison-cell comparison-header">Comparison<br><span style="font-size: 14px; font-weight: 400;">对比维度</span></div>
+            <div class="comparison-cell comparison-header">Traditional SWIFT<br><span style="font-size: 14px; font-weight: 400;">传统 SWIFT</span></div>
+            <div class="comparison-cell comparison-header">Plasma Settlement<br><span style="font-size: 14px; font-weight: 400;">Plasma 结算</span></div>
+            
+            <div class="comparison-cell">Settlement Speed<br><span style="font-size: 14px; opacity: 0.7;">结算速度</span></div>
+            <div class="comparison-cell" style="color: #ef4444;">3-5 Business Days<br><span style="font-size: 14px; opacity: 0.7;">3-5 个工作日</span></div>
+            <div class="comparison-cell" style="color: var(--primary);">< 3 Seconds<br><span style="font-size: 14px; opacity: 0.7;">< 3 秒</span></div>
+            
+            <div class="comparison-cell">Transaction Fee<br><span style="font-size: 14px; opacity: 0.7;">手续费</span></div>
+            <div class="comparison-cell" style="color: #ef4444;">$30-50</div>
+            <div class="comparison-cell" style="color: var(--primary);">$0.5-2</div>
+            
+            <div class="comparison-cell">Transparency<br><span style="font-size: 14px; opacity: 0.7;">透明度</span></div>
+            <div class="comparison-cell" style="color: #ef4444;">Black Box<br><span style="font-size: 14px; opacity: 0.7;">黑箱操作</span></div>
+            <div class="comparison-cell" style="color: var(--primary);">On-Chain Auditable<br><span style="font-size: 14px; opacity: 0.7;">链上可审计</span></div>
+            
+            <div class="comparison-cell">Availability<br><span style="font-size: 14px; opacity: 0.7;">可用性</span></div>
+            <div class="comparison-cell" style="color: #ef4444;">Business Days Only<br><span style="font-size: 14px; opacity: 0.7;">工作日限定</span></div>
+            <div class="comparison-cell" style="color: var(--primary);">24/7 Non-Stop<br><span style="font-size: 14px; opacity: 0.7;">7×24 小时</span></div>
+            
+            <div class="comparison-cell">Intermediaries<br><span style="font-size: 14px; opacity: 0.7;">中间环节</span></div>
+            <div class="comparison-cell" style="color: #ef4444;">3-7 Agent Banks<br><span style="font-size: 14px; opacity: 0.7;">3-7 家代理行</span></div>
+            <div class="comparison-cell" style="color: var(--primary);">0 Middlemen<br><span style="font-size: 14px; opacity: 0.7;">0 中间商</span></div>
+        </div>
+    </div>
+    <div class="page-index">05 / 35</div>
+</div>
+
+<div class="page">
+    <div class="page-footer">SECURITY & AUDIT</div>
+    <div class="content-wrapper">
+        <div>
+            <h2 class="section-title">Ultimate Security: Code is Law<span class="zh-subtitle">极致安全：代码即法律</span></h2>
+            <div class="content-layout">
+                <div class="visual-area" style="background: linear-gradient(135deg, #0f172a, #020617); min-height: 400px; padding: 40px;">
+                    <div style="display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 40px; align-items: center; height: 100%;">
+                        <div style="border: 3px solid var(--primary); padding: 20px; border-radius: 20px; display: flex; align-items: center; justify-content: center; position: relative; background: rgba(0,0,0,0.3);">
+                            <img src="frontend/src/assets/images/CERTIK.webp" alt="CertiK Security Audit" style="width: 100%; height: auto; border-radius: 10px;" />
+                            <div style="position: absolute; top: -10px; right: -10px; background: var(--primary); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <i data-lucide="check" size="24" color="#000"></i>
+                            </div>
+                        </div>
+                        <div style="text-align: left;">
+                            <span style="color: var(--primary); font-size: 24px; font-weight: bold; display: block; margin-bottom: 25px;">Security Verified</span>
+                            <p style="font-size: 20px; color: var(--text-main); margin-bottom: 8px; font-weight: 600;">Audit Completed: December 2025</p>
+                            <span class="zh-text" style="font-size: 16px; display: block; margin-bottom: 20px;">审计完成时间：2025 年 12 月</span>
+                            <p style="font-size: 28px; color: var(--primary); font-weight: bold; margin-bottom: 8px;">Security Score: 89.95/100</p>
+                            <span class="zh-text" style="color: var(--primary); font-size: 18px; display: block; font-weight: 600;">安全评分：89.95/100</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-area">
+                    <h3 class="sub-title" style="font-size: 28px;">Top-Tier Audit<span class="zh-subtitle" style="font-size: 16px;">顶级审计背书</span></h3>
+                    <p style="font-size: 19px; line-height: 1.7;">Plasma's core smart contract code has completed comprehensive security audits by <strong>CertiK</strong>, including formal verification and penetration testing. CertiK is the world's leading blockchain security company.</p>
+                    <span class="zh-text" style="font-size: 15px;">Plasma 核心智能合约代码已完成 CertiK 的全面安全审计，包含形式化验证与渗透测试。CertiK 是全球领先的区块链安全公司。</span>
+                    
+                    <div style="background: rgba(0,255,163,0.05); padding: 25px; border-radius: 15px; border-left: 4px solid var(--primary); margin-top: 25px;">
+                        <p style="margin-bottom: 12px; font-size: 18px;">✓ <strong>Smart Contract Audit:</strong> All 15,000+ lines of code</p>
+                        <span class="zh-text" style="font-size: 14px;">智能合约代码审计：全部 15,000+ 行代码</span>
+                        <p style="margin-bottom: 12px; font-size: 18px; margin-top: 12px;">✓ <strong>Formal Verification:</strong> Mathematical proof of key functions</p>
+                        <span class="zh-text" style="font-size: 14px;">形式化验证：数学证明关键函数正确性</span>
+                        <p style="font-size: 18px; margin-top: 12px;">✓ <strong>24/7 Monitoring:</strong> Continuous on-chain security monitoring</p>
+                        <span class="zh-text" style="font-size: 14px;">持续监控：7×24 小时链上安全监控</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="highlight-box" style="margin-top: 25px; padding: 25px;">
+            <h4 style="color: var(--gold); margin-bottom: 15px; font-size: 24px;">🏆 Triple Security Guarantee<span style="font-size: 16px; color: var(--text-dim); font-weight: 400; margin-left: 15px;">三重安全保障</span></h4>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px;">
+                <div style="text-align: center;">
+                    <i data-lucide="lock" size="45" style="color: var(--primary);"></i>
+                    <h4 style="margin-top: 12px; font-size: 22px;">Zero Vulnerabilities</h4>
+                    <span class="zh-text" style="text-align: center; font-size: 14px;">0 漏洞运行</span>
+                    <p style="margin-top: 8px; font-size: 16px; line-height: 1.5;">All issues found in audit have been 100% fixed, current version has no known vulnerabilities</p>
+                    <span class="zh-text" style="font-size: 13px;">审计发现的所有问题已 100% 修复，当前版本无已知漏洞</span>
+                </div>
+                <div style="text-align: center;">
+                    <i data-lucide="users" size="45" style="color: var(--secondary);"></i>
+                    <h4 style="margin-top: 12px; font-size: 22px;">3/5 Multi-Sig</h4>
+                    <span class="zh-text" style="text-align: center; font-size: 14px;">3/5 多签保护</span>
+                    <p style="margin-top: 8px; font-size: 16px; line-height: 1.5;">All critical operations require multi-signature confirmation, preventing single point of failure</p>
+                    <span class="zh-text" style="font-size: 13px;">所有关键操作需要多签确认，防止单点故障</span>
+                </div>
+                <div style="text-align: center;">
+                    <i data-lucide="database" size="45" style="color: var(--accent);"></i>
+                    <h4 style="margin-top: 12px; font-size: 22px;">Cold-Hot Separation</h4>
+                    <span class="zh-text" style="text-align: center; font-size: 14px;">冷热钱包分离</span>
+                    <p style="margin-top: 8px; font-size: 16px; line-height: 1.5;">95% of funds stored in offline cold wallets, maximizing risk reduction</p>
+                    <span class="zh-text" style="font-size: 13px;">95% 资金存储在离线冷钱包，最大程度降低风险</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="page-index">06 / 35</div>
+</div>
+
+<div class="page">
+    <div class="page-footer">SMART CONTRACT</div>
+    <div class="content-wrapper">
+        <div>
+            <h2 class="section-title">Smart Contract Core Mechanism<span class="zh-subtitle">智能合约核心机制</span></h2>
+            <div class="desc" style="margin-bottom: 35px;">
+                Plasma's smart contracts adopt a multi-layer security architecture, ensuring every fund transfer undergoes strict on-chain verification and multi-signature authorization. All contract code is open source and has passed multiple rounds of security audits.
+                <span class="zh-text">Plasma 的智能合约采用多层安全架构，确保每一笔资金流转都经过严格的链上验证和多签授权。所有合约代码开源，并通过了多轮安全审计。</span>
+            </div>
+            <div class="card-grid">
+                <div class="info-card">
+                    <i data-lucide="lock" size="55"></i>
+                    <h4>Multi-Signature Wallet</h4>
+                    <span class="zh-text">多签钱包</span>
+                    <p>All fund pools adopt a 3/5 multi-signature mechanism. Any withdrawal operation requires simultaneous signature confirmation from at least 3 independent audit nodes, ensuring no single point of control.</p>
+                    <span class="zh-text">所有资金池采用 3/5 多签机制，任何提款操作需要至少 3 名独立审计节点同时签名确认，确保无单点控制风险。</span>
+                    <div style="margin-top: 15px; padding: 10px; background: rgba(0,255,163,0.05); border-radius: 8px;">
+                        <p style="font-size: 14px; color: var(--primary);"><strong>Security Level:</strong> Military Grade</p>
+                        <span class="zh-text" style="font-size: 13px;">安全等级：军事级</span>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <i data-lucide="shield" size="55"></i>
+                    <h4>Time Lock</h4>
+                    <span class="zh-text">时间锁</span>
+                    <p>Large withdrawals automatically trigger a 24-hour time lock, providing the community with sufficient objection window period. During this time, any suspicious activity can be challenged and reviewed.</p>
+                    <span class="zh-text">大额提款自动触发 24 小时时间锁，为社区提供充足的异议窗口期。在此期间，任何可疑活动都可以被质疑和审查。</span>
+                    <div style="margin-top: 15px; padding: 10px; background: rgba(0,209,255,0.05); border-radius: 8px;">
+                        <p style="font-size: 14px; color: var(--secondary);"><strong>Threshold:</strong> > $100,000</p>
+                        <span class="zh-text" style="font-size: 13px;">触发阈值：> $100,000</span>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <i data-lucide="activity" size="55"></i>
+                    <h4>Real-time Monitoring</h4>
+                    <span class="zh-text">实时监控</span>
+                    <p>On-chain monitoring system scans abnormal transaction patterns 24/7, automatically triggering risk control warning mechanisms. AI-powered anomaly detection ensures instant response to threats.</p>
+                    <span class="zh-text">链上监控系统 7×24 小时扫描异常交易模式，自动触发风控预警机制。AI 驱动的异常检测确保对威胁的即时响应。</span>
+                    <div style="margin-top: 15px; padding: 10px; background: rgba(188,19,254,0.05); border-radius: 8px;">
+                        <p style="font-size: 14px; color: var(--accent);"><strong>Response Time:</strong> < 1 Second</p>
+                        <span class="zh-text" style="font-size: 13px;">响应时间：< 1 秒</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="highlight-box" style="margin-top: 30px;">
+            <h4 style="color: var(--primary); margin-bottom: 15px; font-size: 24px;">🔒 Cold-Hot Wallet Separation Strategy<span style="font-size: 16px; color: var(--text-dim); font-weight: 400; margin-left: 15px;">冷热钱包分离策略</span></h4>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 25px;">
+                <div>
+                    <p style="font-size: 18px; line-height: 1.8; margin-bottom: 10px;">95% of user staked funds are stored in offline cold wallets, with only 5% of liquidity funds retained in hot wallets for daily settlement, maximizing the reduction of hacker attack risks.</p>
+                    <span class="zh-text" style="font-size: 16px;">95% 的用户质押资金存储在离线冷钱包中，仅 5% 的流动性资金保留在热钱包用于日常结算，最大程度降低黑客攻击风险。</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div style="background: rgba(0,255,163,0.1); padding: 15px; border-radius: 10px; border-left: 3px solid var(--primary);">
+                        <p style="font-size: 16px; color: var(--primary); font-weight: bold;">Cold Wallet: 95%</p>
+                        <span class="zh-text" style="font-size: 14px;">冷钱包：95% · 离线存储 · 物理隔离</span>
+                    </div>
+                    <div style="background: rgba(0,209,255,0.1); padding: 15px; border-radius: 10px; border-left: 3px solid var(--secondary);">
+                        <p style="font-size: 16px; color: var(--secondary); font-weight: bold;">Hot Wallet: 5%</p>
+                        <span class="zh-text" style="font-size: 14px;">热钱包：5% · 在线运营 · 日常结算</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="page-index">07 / 35</div>
+</div>
+
+
+<div class="page">
+    <div class="page-footer">TECHNICAL ARCHITECTURE</div>
+    <h2 class="section-title">Layer 2 Settlement Matrix<span class="zh-subtitle">Layer 2 结算矩阵</span></h2>
+    <div class="text-area" style="margin-bottom: 25px;">
+        <p style="font-size: 18px; line-height: 1.6; margin-bottom: 8px;">Plasma leverages advanced sharding settlement architecture, perfectly combining mainnet security with Layer 2's ultra-fast scalability.</p>
+        <span class="zh-text" style="font-size: 15px;">Plasma 利用先进的分片结算架构，将主网的安全性与二层的极速扩展完美融合。</span>
+    </div>
+    <div class="card-grid">
+        <div class="info-card">
+            <i data-lucide="zap" size="50"></i>
+            <h4>50,000+ TPS</h4>
+            <span class="zh-text">50,000+ TPS</span>
+            <p>Processing capacity 100x faster than mainstream public chains, supporting real-time consumption globally.</p>
+            <span class="zh-text">处理能力比主流公链快 100 倍以上，支撑全球千万级用户实时消费。</span>
+            <div style="margin-top: 12px; padding: 10px; background: rgba(0,255,163,0.05); border-radius: 8px; border-left: 3px solid var(--primary);">
+                <p style="font-size: 14px; color: var(--primary);"><strong>vs Ethereum:</strong> 100x faster | Latency: <strong>< 100ms</strong></p>
+                <span class="zh-text" style="font-size: 12px;">对比以太坊：快 100 倍 | 延迟：< 100 毫秒</span>
+            </div>
+        </div>
+        <div class="info-card">
+            <i data-lucide="refresh-ccw" size="50"></i>
+            <h4>Atomic Swap</h4>
+            <span class="zh-text">原子级交换</span>
+            <p>Ensures asset consistency - either all succeed or all rollback. No partial execution.</p>
+            <span class="zh-text">确保资产一致性，要么全部成功，要么全部回退。无部分执行。</span>
+            <div style="margin-top: 12px; padding: 10px; background: rgba(0,209,255,0.05); border-radius: 8px; border-left: 3px solid var(--secondary);">
+                <p style="font-size: 14px; color: var(--secondary);"><strong>Success Rate:</strong> 99.99% | Rollback: <strong>< 1s</strong></p>
+                <span class="zh-text" style="font-size: 12px;">成功率：99.99% | 回滚时间：< 1 秒</span>
+            </div>
+        </div>
+        <div class="info-card">
+            <i data-lucide="link" size="50"></i>
+            <h4>Cross-Chain Compatible</h4>
+            <span class="zh-text">跨链兼容</span>
+            <p>Supports one-click access to USDT across all protocols. Compatible with Ethereum, BSC, Polygon.</p>
+            <span class="zh-text">支持全协议 USDT 一键接入。兼容以太坊、BSC、Polygon 等多链。</span>
+            <div style="margin-top: 12px; padding: 10px; background: rgba(188,19,254,0.05); border-radius: 8px; border-left: 3px solid var(--accent);">
+                <p style="font-size: 14px; color: var(--accent);"><strong>Supported Chains:</strong> 15+ | Bridge fee: <strong>0.1%</strong></p>
+                <span class="zh-text" style="font-size: 12px;">支持链：15+ 条 | 跨链费用：0.1%</span>
+            </div>
+        </div>
+    </div>
+    <div class="highlight-box" style="margin-top: 25px;">
+        <h4 style="color: var(--secondary); margin-bottom: 12px; font-size: 22px;">⚡ Dynamic Sharding Technology<span style="font-size: 15px; color: var(--text-dim); font-weight: 400; margin-left: 12px;">动态分片技术</span></h4>
+        <div style="display: grid; grid-template-columns: 1.3fr 1fr; gap: 25px; align-items: center;">
+            <div>
+                <p style="font-size: 16px; line-height: 1.7; margin-bottom: 10px;">Plasma adopts dynamic sharding technology, distributing global transaction loads across 128 parallel shards. Each shard operates independently, achieving true linear scaling.</p>
+                <span class="zh-text" style="font-size: 14px;">Plasma 采用动态分片技术，将全球交易负载分散到 128 个并行分片中处理。每个分片独立运行，实现真正的线性扩展。</span>
+            </div>
+            <div style="background: rgba(0,255,163,0.05); padding: 20px; border-radius: 12px; border: 2px solid var(--primary);">
+                <div style="text-align: center; margin-bottom: 12px;">
+                    <div style="font-size: 42px; font-weight: 800; color: var(--primary);">128</div>
+                    <p style="font-size: 15px; color: var(--text-dim); margin-top: 3px;">Parallel Shards</p>
+                    <span class="zh-text" style="font-size: 13px;">并行分片</span>
+                </div>
+                <div style="border-top: 1px solid var(--border); padding-top: 12px;">
+                    <p style="font-size: 13px; color: var(--text-dim); text-align: center; margin-bottom: 6px;">Auto-scaling · Load balancing</p>
+                    <span class="zh-text" style="font-size: 12px; text-align: center; display: block;">自动扩展 · 负载均衡</span>
+                </div>
+                <div style="margin-top: 12px; padding: 10px; background: rgba(0,255,163,0.1); border-radius: 8px;">
+                    <p style="font-size: 13px; color: var(--primary); text-align: center;"><strong>Efficiency: 98.5%</strong></p>
+                    <span class="zh-text" style="font-size: 11px; text-align: center; display: block;">效率：98.5%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="page-index">08 / 35</div>
+
+    <div class="page-index">08 / 35</div>
+</div>
+
+<div class="page" style="background: radial-gradient(circle at 70% 30%, rgba(0,209,255,0.05), transparent);">
+    <div class="page-footer">THE PLASMA ONE CARD</div>
+    <h2 class="section-title">Core Carrier: Plasma One Card<span class="zh-subtitle">核心载体：Plasma One 卡</span></h2>
+    <div class="content-layout">
+        <div>
+            <h3 class="sub-title">Fiat Passport for Digital Assets<span class="zh-text" style="display: block; font-size: 18px; margin-top: 8px;">数字资产的法币护照</span></h3>
+            <p class="text-area" style="font-size: 17px; line-height: 1.7; margin-bottom: 10px;">Plasma One is the world's first true settlement bank co-branded credit card. It instantly converts your on-chain USDT into the merchant's required fiat currency through real-time API calls to the Plasma settlement pool.</p>
+            <span class="zh-text" style="font-size: 15px;">Plasma One 是全球首张真正意义上的结算银行联名信用卡。它通过 API 实时调用 Plasma 结算池，将您的链上 USDT 瞬间对冲为商家所需的法币。</span>
+            <div class="info-card" style="margin-top: 25px; border-color: var(--secondary); padding: 20px;">
+                <p style="font-size: 16px; margin-bottom: 10px;">✅ Cardholder Benefits: Free global ATM withdrawals</p>
+                <span class="zh-text" style="font-size: 14px;">持卡人尊享：全球 ATM 提现免手续费</span>
+                <p style="font-size: 16px; margin-top: 12px; margin-bottom: 10px;">✅ Spend to Stake: Every transaction contributes to node weight</p>
+                <span class="zh-text" style="font-size: 14px;">消费即质押：每一笔流水均为节点贡献权重</span>
+                <p style="font-size: 16px; margin-top: 12px; margin-bottom: 10px;">✅ Real-time Settlement: 3-second on-chain confirmation</p>
+                <span class="zh-text" style="font-size: 14px;">实时结算：3 秒链上确认</span>
+            </div>
+        </div>
+        <div class="visual-area" style="border: 2px solid var(--secondary); padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <img src="frontend/src/assets/images/videoframe_2012.png" alt="Plasma One Card" style="max-width: 100%; height: auto; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,255,163,0.2);">
+            <p style="margin-top: 20px; color: var(--secondary); text-align: center; font-size: 15px;">• Physical Card + Virtual Card Dual Issuance •</p>
+            <span class="zh-text" style="text-align: center; display: block; font-size: 13px;">实体卡 + 虚拟卡 同步发行</span>
+        </div>
+    </div>
+    <div class="page-index">10 / 35</div>
+</div>
+    <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+            <h4 style="color: var(--primary);">步骤 1：刷卡消费</h4>
+            <p>用户在全球任意 POS 机刷卡，交易信息通过 Visa/Mastercard 网络传输至 Plasma 结算网关。</p>
+        </div>
+    </div>
+    <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+            <h4 style="color: var(--primary);">步骤 2：智能合约触发</h4>
+            <p>结算网关自动调用链上智能合约，从用户质押池中扣除等值 USDT。</p>
+        </div>
+    </div>
+    <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+            <h4 style="color: var(--primary);">步骤 3：实时汇率对冲</h4>
+            <p>Plasma 流动性池自动将 USDT 兑换为商家所需的法定货币（如美元、欧元、日元等）。</p>
+        </div>
+    </div>
+    <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+            <h4 style="color: var(--primary);">步骤 4：商家收款</h4>
+            <p>法币在 3 秒内到达商家银行账户，整个过程用户无感知，体验与传统信用卡完全一致。</p>
+        </div>
+    </div>
+    <div class="page-index">11 / 35</div>
+</div>
+
+<div class="page">
+    <div class="page-footer">ONE CARD FEATURES</div>
+    <h2 class="section-title">12. One 卡：全球支付全场景</h2>
+    <div class="card-grid">
+        <div class="info-card">
+            <i data-lucide="shopping-cart"></i>
+            <h4>日常消费</h4>
+            <p>支持 Amazon, Netflix, Apple Store 等全球主流线上订阅与购物。</p>
+        </div>
+        <div class="info-card">
+            <i data-lucide="plane"></i>
+            <h4>环球旅行</h4>
+            <p>在 200 多个国家的 POS 机点实现无损刷卡，享受实时汇率对冲。</p>
+        </div>
+        <div class="info-card">
+            <i data-lucide="wallet"></i>
+            <h4>资产提取</h4>
+            <p>支持在全球带有 Visa/Mastercard 标识的 ATM 机提取当地法定货币。</p>
+        </div>
+    </div>
+    <div class="page-index">12 / 35</div>
+</div>
+
+<div class="page">
+    <div class="page-footer">CARD BENEFITS</div>
+    <h2 class="section-title">13. One 卡专属权益</h2>
+    <div class="card-grid">
+        <div class="info-card">
+            <i data-lucide="percent" size="40"></i>
+            <h4>消费返现</h4>
+            <p>所有消费享受 0.5% - 2% 的 USDT 返现，返现金额直接计入您的质押收益账户。</p>
+        </div>
+        <div class="info-card">
+            <i data-lucide="plane-takeoff" size="40"></i>
+            <h4>机场贵宾厅</h4>
+            <p>VIP 3 及以上等级用户可免费使用全球 1,200+ 机场贵宾休息室。</p>
+        </div>
+        <div class="info-card">
+            <i data-lucide="shield-check" size="40"></i>
+            <h4>消费保险</h4>
+            <p>所有刷卡消费自动享受最高 $10,000 的消费保护险，覆盖盗刷、欺诈等风险。</p>
+        </div>
+        <div class="info-card">
+            <i data-lucide="gift" size="40"></i>
+            <h4>生日特权</h4>
+            <p>生日当月消费返现比例翻倍，最高可达 4%。</p>
+        </div>
+        <div class="info-card">
+            <i data-lucide="smartphone" size="40"></i>
+            <h4>虚拟卡即开即用</h4>
+            <p>注册后立即获得虚拟卡号，无需等待实体卡邮寄即可开始消费。</p>
+        </div>
+        <div class="info-card">
+            <i data-lucide="globe-2" size="40"></i>
+            <h4>全球免年费</h4>
+            <p>无论您在哪个国家使用，Plasma One 卡永久免收年费和账户管理费。</p>
+        </div>
+    </div>
+    <div class="page-index">13 / 35</div>
+</div>
+
+<div class="page">
+    <div class="page-footer">PROMOTIONAL CAMPAIGN</div>
+    <h2 class="section-title">14. 推广利器：无损质押活动</h2>
+    <div class="content-layout">
+        <div class="text-area">
+            <p>为了在最短时间内构建起支撑 One 卡业务的<strong>万亿级流动性资金池</strong>，Plasma 启动了史无前例的“无损质押”激励计划。</p>
+            <div class="info-card" style="margin-top: 30px;">
+                <p><strong>核心逻辑：</strong> 用户的 USDT 并非作为“投资”，而是作为结算节点的“质押保证金”。本金在智能合约中是透明且可追溯的。</p>
+            </div>
+        </div>
+        <div class="visual-area">
+            <i data-lucide="shield-check" size="60" style="color: var(--primary);"></i>
+            <h4 style="margin-top: 10px;">100% 本金安全</h4>
+            <p style="font-size: 14px; text-align: center;">所有质押款项由智能合约托管<br>期满自动退还至用户钱包</p>
+        </div>
+    </div>
+    <div class="page-index">14 / 35</div>
+</div>
+
+<div class="page">
+    <div class="page-footer">STAKING SAFETY</div>
+    <h2 class="section-title">15. 质押安全保障机制</h2>
+    <div class="desc" style="margin-bottom: 30px;">
+        Plasma 采用多层安全架构，确保用户质押资金的绝对安全。所有资金流转均在链上公开透明，任何人都可以实时审计。
+    </div>
+    <div class="card-grid">
+        <div class="info-card">
+            <i data-lucide="database" size="40"></i>
+            <h4>智能合约托管</h4>
+            <p>所有质押资金由经过 CertiK 审计的智能合约自动管理，无人工干预风险。</p>
+        </div>
+        <div class="info-card">
+            <i data-lucide="eye" size="40"></i>
+            <h4>链上透明</h4>
+            <p>每一笔资金流转都记录在区块链上，用户可通过区块浏览器实时查询。</p>
+        </div>
+        <div class="info-card">
+            <i data-lucide="clock-3" size="40"></i>
+            <h4>自动到期释放</h4>
+            <p>质押期满后，智能合约自动将本金退还至用户钱包，无需人工申请。</p>
+        </div>
+    </div>
+    <div class="highlight-box" style="margin-top: 40px;">
+        <h4 style="color: var(--primary); margin-bottom: 10px;">🛡️ 保险基金池</h4>
+        <p>Plasma 设立了总额 $5,000,000 的保险基金池，用于应对极端市场波动或不可抗力事件，为所有质押用户提供最后一道安全屏障。</p>
+    </div>
+    <div class="page-index">15 / 35</div>
+</div>
+
+<div class="page">
+    <div class="page-footer">STAKING LOGIC</div>
+    <h2 class="section-title">16. 质押机制与每日分红</h2>
+    <div class="text-area">
+        <div class="list-item"><span>●</span> 收益来源于 Plasma 结算银行收取的全球交易清算手续费。</div>
+        <div class="list-item"><span>●</span> 质押即挖矿：质押 USDT 相当于为清算网络提供算力节点。</div>
+        <div class="list-item"><span>●</span> 每 24 小时进行一次全网快照，红利自动发放到您的 App 账户。</div>
+    </div>
+    <div class="info-card" style="margin-top: 40px; border-left: 10px solid var(--accent);">
+        <h4 style="color: var(--accent);">实时透明收益看板</h4>
+        <p>用户可在 App 终端实时观察每一笔手续费的结算流向，确保您的每一分红利都来自真实的市场消费。</p>
+    </div>
+    <div class="page-index">16 / 35</div>
+</div>
+
+<div class="page">
+    <div class="page-footer">YIELD CALCULATION</div>
+    <h2 class="section-title">17. 收益计算公式详解</h2>
+    <div class="desc" style="margin-bottom: 30px;">
+        Plasma 的收益分配采用动态权重算法，综合考虑质押金额、质押时长、团队贡献等多个维度。
+    </div>
+    <div class="highlight-box">
+        <h4 style="color: var(--primary); margin-bottom: 20px;">📊 每日收益计算公式</h4>
+        <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 10px; font-family: monospace; font-size: 18px; margin-bottom: 20px;">
+            每日收益 = (个人质押额 × 权重系数 / 全网总质押额) × 当日手续费池总额
+        </div>
+        <p style="margin-bottom: 10px;"><strong>权重系数说明：</strong></p>
+        <p>• 基础质押：权重系数 = 1.0</p>
+        <p>• VIP 1 等级：权重系数 = 1.1</p>
+        <p>• VIP 2 等级：权重系数 = 1.2</p>
+        <p>• VIP 3 等级：权重系数 = 1.35</p>
+        <p>• VIP 4 等级：权重系数 = 1.5</p>
+        <p>• VIP 5 等级：权重系数 = 2.0</p>
+    </div>
+    <div class="page-index">17 / 35</div>
+</div>
+
+<div class="page">
+    <div class="page-footer">STAKING TIERS - JUNIOR</div>
+    <h2 class="section-title">18. 质押档位：初级储户等级</h2>
+    <table>
+        <thead>
+            <tr><th>质押金额 (USDT)</th><th>对应身份</th><th>收益分配权重</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>100 USDT</td><td>新星节点</td><td>100% 基础红利</td></tr>
+            <tr><td>500 USDT</td><td>先锋节点</td><td>110% 收益权重</td></tr>
+            <tr><td>1,000 USDT</td><td>进阶合伙人</td><td>120% 收益权重</td></tr>
+        </tbody>
+    </table>
+    <div style="margin-top: 30px; color: var(--text-dim);">* 注：更高的收益权重意味着在分摊每日全网清算费池时，您可以获得比基础比例更高的分成。</div>
+    <div class="page-index">18 / 35</div>
+</div>
+
+<div class="page">
+    <div class="page-footer">STAKING EXAMPLE</div>
+    <h2 class="section-title">19. 质押收益实例演算</h2>
+    <div class="desc" style="margin-bottom: 30px;">
+        以下是基于真实数据的收益模拟，帮助您更直观地理解 Plasma 质押的盈利潜力。
+    </div>
+    <div class="highlight-box" style="margin-bottom: 30px;">
+        <h4 style="color: var(--primary); margin-bottom: 15px;">案例 1：小额质押用户</h4>
+        <p><strong>质押金额：</strong>500 USDT</p>
+        <p><strong>质押周期：</strong>90 天</p>
+        <p><strong>VIP 等级：</strong>VIP 1（权重 1.1）</p>
+        <p><strong>预估日收益：</strong>0.8 - 1.5 USDT</p>
+        <p><strong>90 天总收益：</strong>72 - 135 USDT</p>
+        <p style="color: var(--primary); margin-top: 10px;"><strong>年化收益率：</strong>约 14.4% - 27%</p>
+    </div>
+    <div class="highlight-box">
+        <h4 style="color: var(--secondary); margin-bottom: 15px;">案例 2：中等质押用户</h4>
+        <p><strong>质押金额：</strong>5,000 USDT</p>
+        <p><strong>质押周期：</strong>180 天</p>
+        <p><strong>VIP 等级：</strong>VIP 3（权重 1.35）</p>
+        <p><strong>预估日收益：</strong>10 - 18 USDT</p>
+        <p><strong>180 天总收益：</strong>1,800 - 3,240 USDT</p>
+        <p style="color: var(--secondary); margin-top: 10px;"><strong>年化收益率：</strong>约 36% - 64.8%</p>
+    </div>
+    <div class="page-index">19 / 35</div>
+</div>
+
+<div class="page">
+    <div class="page-footer">STAKING TIERS - SENIOR</div>
+    <h2 class="section-title">20. 质押档位：高级机构等级</h2>
+    <table>
+        <thead>
+            <tr><th>质押金额 (USDT)</th><th>对应身份</th><th>收益分配权重</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>5,000 USDT</td><td>核心董事</td><td>135% 收益权重</td></tr>
+            <tr><td>10,000 USDT</td><td>超级共建者</td><td>150% 收益权重</td></tr>
+            <tr><td>50,000 USDT</td><td>结算合伙人</td><td>最高结算分红比例</td></tr>
+        </tbody>
+    </table>
+    <div class="info-card" style="margin-top: 30px; border-color: var(--gold);">
+        <h4 style="color: var(--gold);">VIP 尊享特权</h4>
+        <p>质押 5,000 USDT 以上用户，将自动激活“Plasma 专属黑卡”实体邮寄权益，并解锁 VIP 线下共识峰会参与权。</p>
+    </div>
+    <div class="page-index">20 / 35</div>
+</div>
+
+<div class="page">
+    <div class="page-footer">WHALE TIER</div>
+    <h2 class="section-title">21. 巨鲸专属：超级质押计划</h2>
+    <div class="desc" style="margin-bottom: 30px;">
+        针对质押金额超过 $100,000 的机构投资者和高净值用户，Plasma 提供定制化的超级质押方案。
+    </div>
+    <div class="card-grid">
+        <div class="info-card" style="border: 2px solid var(--gold);">
+            <i data-lucide="trophy" size="40" color="var(--gold)"></i>
+            <h4 style="color: var(--gold);">专属收益率</h4>
+            <p>享受最高 2.5 倍的权重系数，年化收益率可达 80% 以上。</p>
+        </div>
+        <div class="info-card" style="border: 2px solid var(--gold);">
+            <i data-lucide="users" size="40" color="var(--gold)"></i>
+            <h4 style="color: var(--gold);">专属客户经理</h4>
+            <p>配备 1 对 1 专属客户经理，提供 7×24 小时 VIP 服务。</p>
+        </div>
+        <div class="info-card" style="border: 2px solid var(--gold);">
+            <i data-lucide="briefcase" size="40" color="var(--gold)"></i>
+            <h4 style="color: var(--gold);">战略合作伙伴</h4>
+            <p>受邀成为 Plasma 战略合作伙伴，参与项目重大决策投票。</p>
+        </div>
+    </div>
+    <div class="highlight-box" style="margin-top: 40px; border-color: var(--gold);">
+        <h4 style="color: var(--gold); margin-bottom: 10px;">👑 白金卡专属权益</h4>
+        <p>质押 $100,000 以上用户将获得 Plasma 白金实体卡，享受全球顶级酒店、米其林餐厅、私人飞机等奢华生活方式服务的专属折扣。</p>
+    </div>
+    <div class="page-index">21 / 35</div>
+</div>
+
+<div class="page">
+    <div class="page-footer">REWARD SYSTEM</div>
+    <h2 class="section-title">22. 分红体系全景图</h2>
+    <div class="card-grid">
+        <div class="info-card">
+            <h4>静态分红</h4>
+            <p>基于个人质押额。每日准时发放，真正实现睡后收入。</p>
+        </div>
+        <div class="info-card">
+            <h4>推荐分红</h4>
+            <p>基于受邀人的质押产出。奖励来自生态扩张红利。</p>
+        </div>
+        <div class="info-card">
+            <h4>团队管理津贴</h4>
+            <p>基于团队总业绩。旨在奖励社区领导者的管理贡献。</p>
+        </div>
+    </div>
+    <div class="visual-area" style="margin-top: 40px; height: 200px;">
+        <h3 style="color: var(--primary);">收益发放周期：24H / 次</h3>
+        <p>所有收益实时可查，0 门槛一键提现至个人去中心化钱包。</p>
+    </div>
+    <div class="page-index">22 / 35</div>
+</div>
+
+<div class="page">
+    <div class="page-footer">DAILY SETTLEMENT</div>
+    <h2 class="section-title">23. 每日结算流程透明化</h2>
+    <div class="desc" style="margin-bottom: 30px;">
+        Plasma 每天 UTC 时间 00:00 进行全网快照和收益结算，整个过程完全自动化，无人工干预。
+    </div>
+    <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+            <h4 style="color: var(--primary);">00:00 - 00:15 | 全网快照</h4>
+            <p>系统自动记录所有用户的质押金额、VIP 等级、团队业绩等数据。</p>
+        </div>
+    </div>
+    <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+            <h4 style="color: var(--primary);">00:15 - 00:30 | 手续费池统计</h4>
+            <p>汇总过去 24 小时内全球所有 One 卡消费产生的清算手续费总额。</p>
+        </div>
+    </div>
+    <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+            <h4 style="color: var(--primary);">00:30 - 01:00 | 智能合约分配</h4>
+            <p>根据权重算法，智能合约自动将手续费池按比例分配给所有质押用户。</p>
+        </div>
+    </div>
+    <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+            <h4 style="color: var(--primary);">01:00 - 01:30 | 收益到账</h4>
+            <p>所有用户可在 App 中查看最新收益，并可随时提现至个人钱包。</p>
+        </div>
+    </div>
+    <div class="page-index">23 / 35</div>
+</div>
+
+<div class="page">
+    <div class="page-footer">REFERRAL BONUS</div>
+    <h2 class="section-title">24. 推荐奖励：财富裂变逻辑</h2>
+    <div class="content-layout">
+        <div class="visual-area" style="background: rgba(188,19,254,0.05);">
+            <i data-lucide="share-2" size="60" style="color: var(--accent);"></i>
+            <h3 style="color: var(--accent); margin-top: 10px;">推荐奖比例</h3>
+            <div style="font-size: 60px; font-weight: 800; color: #fff;">10% - 15%</div>
+        </div>
+        <div class="text-area">
+            <h3 class="sub-title">分享改变命运</h3>
+            <p>当您成功推荐一名好友激活 One 卡并质押时，您将直接获得基于其每日收益的<strong>10% 到 15%</strong>作为管理报酬。</p>
+            <div class="info-card" style="margin-top: 20px;">
+                <p>这种模式并非消耗新进本金，而是将银行的结算利润，优先倾斜给对生态建设有贡献的推广合伙人。</p>
+            </div>
+        </div>
+    </div>
+    <div class="page-index">24 / 35</div>
+</div>
+
+<div class="page">
+    <div class="page-footer">REFERRAL TIERS</div>
+    <h2 class="section-title">25. 推荐奖励层级详解</h2>
+    <div class="desc" style="margin-bottom: 30px;">
+        Plasma 的推荐奖励采用多层级结构，最多可享受 10 代团队收益分成。
+    </div>
+    <table>
+        <thead>
+            <tr><th>推荐层级</th><th>奖励比例</th><th>解锁条件</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>第 1 代（直推）</td><td>15%</td><td>无条件享受</td></tr>
+            <tr><td>第 2 代</td><td>10%</td><td>达到 VIP 2</td></tr>
+            <tr><td>第 3 代</td><td>8%</td><td>达到 VIP 3</td></tr>
+            <tr><td>第 4-5 代</td><td>5%</td><td>达到 VIP 4</td></tr>
+            <tr><td>第 6-10 代</td><td>3%</td><td>达到 VIP 5</td></tr>
+        </tbody>
+    </table>
+    <div class="highlight-box" style="margin-top: 30px;">
+        <h4 style="color: var(--accent); margin-bottom: 10px;">💡 重要说明</h4>
+        <p>推荐奖励来自于 Plasma 结算银行的利润分成，而非下级用户的本金。这是一个真正可持续的商业模式，而非资金盘。</p>
+    </div>
+    <div class="page-index">25 / 35</div>
+</div>
+
+<div class="page">
+    <div class="page-footer">TEAM HIERARCHY - VIP 1-2</div>
+    <h2 class="section-title">26. 团队等级：VIP 1 - VIP 2</h2>
+    <div class="grid-2">
+        <div class="info-card" style="height: 350px;">
+            <div style="background: var(--primary); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+                <i data-lucide="shield" color="#000"></i>
+            </div>
+            <h3>VIP 1 等级</h3>
+            <p><strong>达成条件：</strong><br>• 个人质押 ≥ 100 USDT<br>• 直接推荐 3 名有效用户</p>
+            <p style="margin-top: 20px; color: var(--primary);">权益：解锁第一代团队收益返佣</p>
+        </div>
+        <div class="info-card" style="height: 350px; border-color: var(--secondary);">
+            <div style="background: var(--secondary); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+                <i data-lucide="shield-check" color="#000"></i>
+            </div>
+            <h3>VIP 2 等级</h3>
+            <p><strong>达成条件：</strong><br>• 个人质押 ≥ 500 USDT<br>• 团队总业绩达标</p>
+            <p style="margin-top: 20px; color: var(--secondary);">权益：解锁第二代收益及 5% 额外津贴</p>
+        </div>
+    </div>
+    <div class="page-index">26 / 35</div>
+</div>
+
+<div class="page">
+    <div class="page-footer">VIP UPGRADE PATH</div>
+    <h2 class="section-title">27. VIP 等级晋升路径图</h2>
+    <div class="desc" style="margin-bottom: 30px;">
+        从普通用户到超级节点，Plasma 为每一位合伙人设计了清晰的成长路径。
+    </div>
+    <div style="background: rgba(255,255,255,0.02); padding: 40px; border-radius: 20px; border: 1px solid var(--border);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
+            <div style="text-align: center;">
+                <div style="width: 80px; height: 80px; background: rgba(0,255,163,0.1); border: 2px solid var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
+                    <span style="font-size: 24px; font-weight: bold;">V1</span>
+                </div>
+                <p style="font-size: 14px;">新星节点</p>
+            </div>
+            <div style="flex: 1; height: 2px; background: linear-gradient(to right, var(--primary), var(--secondary)); margin: 0 20px;"></div>
+            <div style="text-align: center;">
+                <div style="width: 80px; height: 80px; background: rgba(0,209,255,0.1); border: 2px solid var(--secondary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
+                    <span style="font-size: 24px; font-weight: bold;">V2</span>
+                </div>
+                <p style="font-size: 14px;">进阶合伙人</p>
+            </div>
+            <div style="flex: 1; height: 2px; background: linear-gradient(to right, var(--secondary), var(--accent)); margin: 0 20px;"></div>
+            <div style="text-align: center;">
+                <div style="width: 80px; height: 80px; background: rgba(188,19,254,0.1); border: 2px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
+                    <span style="font-size: 24px; font-weight: bold;">V3</span>
+                </div>
+                <p style="font-size: 14px;">核心节点</p>
+            </div>
+            <div style="flex: 1; height: 2px; background: linear-gradient(to right, var(--accent), var(--gold)); margin: 0 20px;"></div>
+            <div style="text-align: center;">
+                <div style="width: 80px; height: 80px; background: rgba(245,158,11,0.1); border: 2px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
+                    <span style="font-size: 24px; font-weight: bold;">V4</span>
+                </div>
+                <p style="font-size: 14px;">高级董事</p>
+            </div>
+            <div style="flex: 1; height: 2px; background: linear-gradient(to right, var(--gold), #fff); margin: 0 20px;"></div>
+            <div style="text-align: center;">
+                <div style="width: 80px; height: 80px; background: rgba(255,255,255,0.1); border: 2px solid #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
+                    <span style="font-size: 24px; font-weight: bold;">V5</span>
+                </div>
+                <p style="font-size: 14px;">超级节点</p>
+            </div>
+        </div>
+        <div class="desc" style="text-align: center;">
+            每一次晋升都意味着更高的收益权重、更多的团队奖励、更尊贵的身份象征
+        </div>
+    </div>
+    <div class="page-index">27 / 35</div>
+</div>
+
+<div class="page">
+    <div class="page-footer">TEAM HIERARCHY - VIP 3-4</div>
+    <h2 class="section-title">28. 团队等级：VIP 3 - VIP 4</h2>
+    <div class="grid-2">
+        <div class="info-card" style="height: 350px;">
+            <h3>VIP 3 核心节点</h3>
+            <p><strong>达成条件：</strong><br>• 团队孵化 2 名 VIP 2 节点<br>• 团队活跃度达标</p>
+            <ul style="margin-top: 20px; color: var(--text-dim);">
+                <li>• 解锁无限代团队管理津贴</li>
+                <li>• 额外获得结算收益 10% 分红</li>
+            </ul>
+        </div>
+        <div class="info-card" style="height: 350px;">
+            <h3>VIP 4 高级董事</h3>
+            <p><strong>达成条件：</strong><br>• 团队孵化 2 名 VIP 3 节点<br>• 团队质押总额突破关键阈值</p>
+            <p style="margin-top: 20px; color: var(--accent);">权益：晋升项目核心管理层，参与季度股东会</p>
+        </div>
+    </div>
+    <div class="page-index">28 / 35</div>
+</div>
+
+<div class="page">
+    <div class="page-footer">TEAM HIERARCHY - VIP 5</div>
+    <h2 class="section-title">29. 最终归宿：VIP 5 超级节点</h2>
+    <div class="content-layout">
+        <div class="text-area">
+            <h3 style="color: var(--gold);">荣誉与财富的巅峰</h3>
+            <p>VIP 5 是 Plasma 结算银行的顶级共建者。您不仅可以获得最高比例的团队收益返佣，还将直接参与<strong>全球清算手续费池的瓜分</strong>。</p>
+            <div class="info-card" style="margin-top: 30px; border: 2px solid var(--gold); background: rgba(245,158,11,0.05);">
+                <p>• 享受最高 20% 的团队综合管理分红</p>
+                <p>• 获得全球结算银行年度利润的 2% 加权分红</p>
+                <p>• 拥有项目底层参数调整的投票提案权</p>
+            </div>
+        </div>
+        <div class="visual-area">
+            <i data-lucide="crown" size="100" color="var(--gold)"></i>
+            <h3 style="color: var(--gold); margin-top: 20px;">SUPER NODE</h3>
+        </div>
+    </div>
+    <div class="page-index">29 / 35</div>
+</div>
+
+<div class="page">
+    <div class="page-footer">SUCCESS STORIES</div>
+    <h2 class="section-title">30. 真实案例：他们如何通过 Plasma 改变命运</h2>
+    <div class="card-grid">
+        <div class="info-card" style="height: 400px;">
+            <i data-lucide="user" size="40" style="color: var(--primary);"></i>
+            <h4>张先生 | 深圳</h4>
+            <p style="margin-top: 15px; font-size: 14px; line-height: 1.6;">
+                <strong>初始质押：</strong>1,000 USDT<br>
+                <strong>当前等级：</strong>VIP 4<br>
+                <strong>团队规模：</strong>2,300+ 人<br>
+                <strong>月均收益：</strong>$18,000+
+            </p>
+            <p style="margin-top: 15px; color: var(--text-dim); font-size: 14px;">
+                "我从一名普通的区块链爱好者，通过 Plasma 的推广计划，在 8 个月内实现了财务自由。现在我的被动收入已经超过了我之前的工资收入。"
+            </p>
+        </div>
+        <div class="info-card" style="height: 400px;">
+            <i data-lucide="user" size="40" style="color: var(--secondary);"></i>
+            <h4>李女士 | 新加坡</h4>
+            <p style="margin-top: 15px; font-size: 14px; line-height: 1.6;">
+                <strong>初始质押：</strong>5,000 USDT<br>
+                <strong>当前等级：</strong>VIP 5<br>
+                <strong>团队规模：</strong>8,700+ 人<br>
+                <strong>月均收益：</strong>$65,000+
+            </p>
+            <p style="margin-top: 15px; color: var(--text-dim); font-size: 14px;">
+                "Plasma 不仅让我获得了可观的收益，更重要的是让我认识了一群志同道合的伙伴。我们一起见证了区块链金融的未来。"
+            </p>
+        </div>
+        <div class="info-card" style="height: 400px;">
+            <i data-lucide="user" size="40" style="color: var(--accent);"></i>
+            <h4>王先生 | 香港</h4>
+            <p style="margin-top: 15px; font-size: 14px; line-height: 1.6;">
+                <strong>初始质押：</strong>50,000 USDT<br>
+                <strong>当前等级：</strong>VIP 5<br>
+                <strong>团队规模：</strong>15,000+ 人<br>
+                <strong>月均收益：</strong>$120,000+
+            </p>
+            <p style="margin-top: 15px; color: var(--text-dim); font-size: 14px;">
+                "作为早期投资者，我见证了 Plasma 从零到一的成长。这是我投资生涯中最正确的决定之一，现在我已经成为项目的战略合作伙伴。"
+            </p>
+        </div>
+    </div>
+    <div class="page-index">30 / 35</div>
+</div>
+
+<div class="page">
+    <div class="page-footer">REVENUE SHARING</div>
+    <h2 class="section-title">31. 收益来源与可持续性</h2>
+    <div class="desc" style="margin-bottom: 40px;">
+        与传统的庞氏模型不同，Plasma 的所有奖励金均有真实的商业底层支撑。
+    </div>
+    <div class="card-grid">
+        <div class="info-card">
+            <h4>清算手续费</h4>
+            <p>每一张 One 卡在全球 POS 机的刷卡消费，结算银行都会收取 0.5% - 1% 的清算费。这是红利的核心来源。</p>
+        </div>
+        <div class="info-card">
+            <h4>资产承兑利差</h4>
+            <p>USDT 与 100 多种法币的实时兑换过程中产生的微小汇差收入。</p>
+        </div>
+        <div class="info-card">
+            <h4>生态服务费</h4>
+            <p>包括白标卡定制、API 接口调用等面向机构客户的 B2B 服务收入。</p>
+        </div>
+    </div>
+    <div class="page-index">31 / 35</div>
+</div>
+
+<div class="page">
+    <div class="page-footer">BUSINESS MODEL</div>
+    <h2 class="section-title">32. 商业模式深度解析</h2>
+    <div class="desc" style="margin-bottom: 30px;">
+        Plasma 的商业模式建立在真实的支付清算业务之上，而非依赖新用户资金维持运转。
+    </div>
+    <div class="highlight-box" style="margin-bottom: 30px;">
+        <h4 style="color: var(--primary); margin-bottom: 15px;">💰 收入来源拆解</h4>
+        <p><strong>1. 清算手续费（占比 70%）</strong></p>
+        <p style="margin-left: 20px; margin-top: 5px;">每一笔 One 卡消费，Plasma 都会收取 0.5% - 1% 的清算费。假设全球有 100 万张 One 卡，每张卡月均消费 $1,000，则月手续费收入 = 1,000,000 × $1,000 × 0.75% = $7,500,000。</p>
+        
+        <p style="margin-top: 15px;"><strong>2. 汇率利差（占比 20%）</strong></p>
+        <p style="margin-left: 20px; margin-top: 5px;">USDT 与法币兑换过程中的微小价差累积，年化可达数千万美元。</p>
+        
+        <p style="margin-top: 15px;"><strong>3. B2B 服务费（占比 10%）</strong></p>
+        <p style="margin-left: 20px; margin-top: 5px;">向企业客户提供白标卡定制、API 接口、批量结算等服务的收费。</p>
+    </div>
+    <div class="highlight-box">
+        <h4 style="color: var(--secondary); margin-bottom: 15px;">📊 支出分配</h4>
+        <p>• 质押用户分红：60%</p>
+        <p>• 运营成本（服务器、人工、合规）：25%</p>
+        <p>• 技术研发与安全审计：10%</p>
+        <p>• 储备金与保险基金：5%</p>
+    </div>
+    <div class="page-index">32 / 35</div>
+</div>
+
+<div class="page">
+    <div class="page-footer">PROJECT ROADMAP</div>
+    <h2 class="section-title">33. 项目发展蓝图</h2>
+    <div class="text-area">
+        <div class="list-item"><span>🚀 PHASE 01:</span> 完成 Layer 2 结算网络搭建与 CertiK 审计（已达成）</div>
+        <div class="list-item"><span>🚀 PHASE 02:</span> 全球启动无损质押计划，吸纳首批 10,000 个流动性节点（进行中）</div>
+        <div class="list-item"><span>🚀 PHASE 03:</span> 正式向全球用户邮寄 Plasma One 实体黑卡（即将开启）</div>
+        <div class="list-item"><span>🚀 PHASE 04:</span> 启动“超级节点”计划，建立全球 12 个清算中心办事处</div>
+    </div>
+    <div class="page-index">33 / 35</div>
+</div>
+
+<div class="page">
+    <div class="page-footer">COMPLIANCE & REGULATION</div>
+    <h2 class="section-title">34. 合规与监管</h2>
+    <div class="desc" style="margin-bottom: 30px;">
+        Plasma 高度重视全球各地的金融监管要求，已在多个司法管辖区获得相关牌照和许可。
+    </div>
+    <div class="card-grid">
+        <div class="info-card">
+            <i data-lucide="file-check" size="40"></i>
+            <h4>MSB 牌照</h4>
+            <p>已获得美国 FinCEN 颁发的货币服务业务（MSB）牌照，合法开展跨境支付业务。</p>
+        </div>
+        <div class="info-card">
+            <i data-lucide="shield-alert" size="40"></i>
+            <h4>AML/KYC</h4>
+            <p>严格执行反洗钱（AML）和了解你的客户（KYC）政策，所有用户需完成身份验证。</p>
+        </div>
+        <div class="info-card">
+            <i data-lucide="scale" size="40"></i>
+            <h4>法律合规</h4>
+            <p>聘请国际顶级律师事务所提供法律咨询，确保业务在各国法律框架内运营。</p>
+        </div>
+    </div>
+    <div class="highlight-box" style="margin-top: 40px;">
+        <h4 style="color: var(--primary); margin-bottom: 10px;">🌍 全球合规布局</h4>
+        <p>Plasma 已在新加坡、瑞士、开曼群岛等地设立合规实体，确保业务的全球化拓展符合当地监管要求。我们相信，只有合规的项目才能走得更远。</p>
+    </div>
+    <div class="page-index">34 / 35</div>
+</div>
+
+<div class="page">
+    <div class="page-footer">FAQ - HELP CENTER</div>
+    <h2 class="section-title">35. 常见问题解答</h2>
+    <div class="grid-2">
+        <div class="info-card">
+            <h4 style="color: var(--primary);">质押本金会被锁死吗？</h4>
+            <p>不会。本金仅按照选定周期锁定，期满后由智能合约自动释放，用户拥有 100% 控制权。</p>
+        </div>
+        <div class="info-card">
+            <h4 style="color: var(--primary);">收益提现多久到账？</h4>
+            <p>提现申请实时链上确认，通常在 1-3 分钟内即可到达您的去中心化钱包。</p>
+        </div>
+    </div>
+    <div class="info-card" style="margin-top: 20px;">
+        <h4 style="color: var(--primary);">为什么要推广 One 卡？</h4>
+        <p>清算网络的价值与用户量呈指数正相关。One 卡持有者越多，全网产生的清算费就越高，质押者的收益就越稳固。</p>
+    </div>
+    <div class="page-index">35 / 35</div>
+</div>
+
+<div class="page" style="justify-content: center; align-items: center; text-align: center; background: radial-gradient(circle at center, #001a14 0%, #020408 100%);">
+    <i data-lucide="rocket" size="100" color="var(--primary)" style="margin-bottom: 40px;"></i>
+    <h1 class="hero" style="font-size: 80px;">JOIN THE FUTURE</h1>
+    <div style="font-size: 28px; color: var(--secondary); margin-top: 30px;">财富的未来在链上，结算的巅峰在 Plasma</div>
+    <div style="margin-top: 60px; padding: 25px 60px; border: 2px solid var(--primary); border-radius: 60px; color: var(--primary); font-weight: bold; font-size: 28px;">
+        立即开启您的链上合伙人之路
+    </div>
+    <div style="margin-top: 50px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px; width: 80%;">
+        <div>
+            <div style="font-size: 48px; font-weight: 800; color: var(--primary);">1M+</div>
+            <div style="font-size: 14px; color: var(--text-dim); margin-top: 5px;">全球用户</div>
+        </div>
+        <div>
+            <div style="font-size: 48px; font-weight: 800; color: var(--secondary);">$2B+</div>
+            <div style="font-size: 14px; color: var(--text-dim); margin-top: 5px;">累计交易额</div>
+        </div>
+        <div>
+            <div style="font-size: 48px; font-weight: 800; color: var(--accent);">170+</div>
+            <div style="font-size: 14px; color: var(--text-dim); margin-top: 5px;">覆盖国家</div>
+        </div>
+        <div>
+            <div style="font-size: 48px; font-weight: 800; color: var(--gold);">99.99%</div>
+            <div style="font-size: 14px; color: var(--text-dim); margin-top: 5px;">系统可用性</div>
+        </div>
+    </div>
+    <p style="margin-top: 60px; color: var(--text-dim);">© 2026 Plasma On-Chain Settlement Bank | Confidential</p>
+    <p style="margin-top: 10px; color: var(--text-dim); font-size: 12px;">本文档仅供内部培训使用，未经授权不得外传</p>
+    <div class="page-index">36 / 36</div>
+</div>
+
+<script>
+    lucide.createIcons();
+</script>
+</body>
+</html>

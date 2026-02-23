@@ -1,4 +1,4 @@
-import { http } from 'wagmi'
+import { http, createStorage } from 'wagmi'
 import { getDefaultConfig } from '@rainbow-me/rainbowkit'
 import {
   okxWallet,
@@ -17,8 +17,14 @@ const plasmaMainnet = {
   name: 'PLASMA Mainnet',
   nativeCurrency: { name: 'XPL', symbol: 'XPL', decimals: 18 },
   rpcUrls: {
-    default: { http: ['https://rpc.plasma.to'] },
-    public: { http: ['https://rpc.plasma.to'] },
+    default: { 
+      http: ['https://lb.drpc.org/ogrpc?network=plasma&dkey=AuS7VtXAMEbYsrJ8OzeHL7gpVtT7ELUR8by2-uF7NYYO'],
+      webSocket: ['wss://lb.drpc.live/plasma/AuS7VtXAMEbYsrJ8OzeHL7gpVtT7ELUR8by2-uF7NYYO']
+    },
+    public: { 
+      http: ['https://lb.drpc.org/ogrpc?network=plasma&dkey=AuS7VtXAMEbYsrJ8OzeHL7gpVtT7ELUR8by2-uF7NYYO'],
+      webSocket: ['wss://lb.drpc.live/plasma/AuS7VtXAMEbYsrJ8OzeHL7gpVtT7ELUR8by2-uF7NYYO']
+    },
   },
   blockExplorers: {
     default: { name: 'PlasmaExplorer', url: 'https://plasmascan.to' },
@@ -26,13 +32,22 @@ const plasmaMainnet = {
   testnet: false,
 }
 
+// 使用 sessionStorage 替代 localStorage，关闭页面自动清除连接状态
+const sessionStorageAdapter = createStorage({
+  storage: {
+    getItem: (key) => sessionStorage.getItem(key),
+    setItem: (key, value) => sessionStorage.setItem(key, value),
+    removeItem: (key) => sessionStorage.removeItem(key),
+  },
+})
+
 export const config = getDefaultConfig({
   appName: 'PLASMA',
   projectId,
   // 使用 PLASMA 主网
   chains: [plasmaMainnet],
   transports: {
-    [plasmaMainnet.id]: http('https://rpc.plasma.to'),
+    [plasmaMainnet.id]: http('https://lb.drpc.org/ogrpc?network=plasma&dkey=AuS7VtXAMEbYsrJ8OzeHL7gpVtT7ELUR8by2-uF7NYYO'),
   },
   wallets: [
     {
@@ -45,17 +60,20 @@ export const config = getDefaultConfig({
     },
   ],
   syncConnectedChain: true,
+  storage: sessionStorageAdapter, // 使用 sessionStorage
 })
 
-// PaymentChannel 合约地址（PLASMA 主网）
-export const CONTRACT_ADDRESS = '0x2f5A81181CF28653B8254C67cb76B232B48A7397' as `0x${string}`
+// PaymentChannel 合约地址（PLASMA 主网 - v2 with emergency withdraw）
+export const CONTRACT_ADDRESS = '0x13dFde78A02C4138FD6aaAdd795FA11471CcfE54' as `0x${string}`
 export const paymentChannelAddress = CONTRACT_ADDRESS; // 别名，保持兼容
 
-// USDT 合约地址 (PLASMA 主网 Mock USDT)
-export const USDT_ADDRESS = '0x3F1Eb88219A75b82906F0844A339BA4C8a74d14E' as `0x${string}`
+// USDT 合约地址 (PLASMA 主网真实 USDT0)
+export const USDT_ADDRESS = '0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb' as `0x${string}`
 
-// XPL Token 合约地址 (待部署)
-export const XPL_ADDRESS = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512' as `0x${string}`
+// WXPL Token 合约地址 (Wrapped XPL - 用于收益提现)
+export const WXPL_ADDRESS = '0x6100e367285b01f48d07953803a2d8dca5d19873' as `0x${string}`
+// 保持向后兼容
+export const XPL_ADDRESS = WXPL_ADDRESS
 
 export const CONTRACT_ABI = [
   // Events
@@ -72,7 +90,7 @@ export const CONTRACT_ABI = [
   { inputs: [], name: 'xplToken', outputs: [{ name: '', type: 'address' }], stateMutability: 'view', type: 'function' },
   { inputs: [{ name: '_usdtToken', type: 'address' }], name: 'setUsdtToken', outputs: [], stateMutability: 'nonpayable', type: 'function' },
   { inputs: [{ name: '_xplToken', type: 'address' }], name: 'setXplToken', outputs: [], stateMutability: 'nonpayable', type: 'function' },
-  // 收益提现（XPL，带签名验证）
+  // 收益提现（WXPL，带签名验证）
   { inputs: [{ name: 'xplAmount', type: 'uint256' }, { name: 'usdtValue', type: 'uint256' }, { name: 'orderId', type: 'string' }, { name: 'nonce', type: 'uint256' }, { name: 'signature', type: 'bytes' }], name: 'withdrawXplWithSignature', outputs: [], stateMutability: 'nonpayable', type: 'function' },
   // 本金提现（USDT，带签名验证）
   { inputs: [{ name: 'amount', type: 'uint256' }, { name: 'orderId', type: 'string' }, { name: 'nonce', type: 'uint256' }, { name: 'signature', type: 'bytes' }], name: 'withdrawWithSignature', outputs: [], stateMutability: 'nonpayable', type: 'function' },

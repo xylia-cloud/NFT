@@ -63,9 +63,28 @@ export default function App() {
   const { isConnected } = useAccount();
   const { isLoading } = useLoadingStore();
 
-  // 自动登录：钱包连接后自动触发登录
+  // 从 URL 中提取邀请人地址（只在应用启动时提取一次）
+  const [inviteAddress] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    const invit = params.get('invit');
+    if (invit) {
+      console.log('🔗 检测到邀请链接，邀请人地址:', invit);
+      // 保存到 sessionStorage，关闭页面自动清除
+      sessionStorage.setItem('invite_address', invit);
+      return invit;
+    }
+    // 如果 URL 中没有，尝试从 sessionStorage 读取
+    const savedInvit = sessionStorage.getItem('invite_address');
+    if (savedInvit) {
+      console.log('📦 从缓存读取邀请人地址:', savedInvit);
+    }
+    return savedInvit || undefined;
+  });
+
+  // 自动登录：钱包连接后自动触发登录，传入邀请人地址
   useWalletAuth({
     autoLogin: true,
+    inviteAddress,
     onSuccess: (result) => {
       console.log('🎉 自动登录成功:', result);
     },
@@ -77,7 +96,7 @@ export default function App() {
   // 监听钱包断开，清除 token
   useEffect(() => {
     if (!isConnected) {
-      const token = localStorage.getItem('auth_token');
+      const token = sessionStorage.getItem('auth_token');
       if (token) {
         console.log('🔌 钱包已断开，清除 token');
         clearToken();

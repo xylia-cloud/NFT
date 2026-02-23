@@ -162,6 +162,51 @@ contract PaymentChannel {
         return balances[user];
     }
     
+    /**
+     * 紧急提取：管理员提取合约中的所有 USDT
+     * @param amount 提取金额（如果为 0，则提取全部）
+     */
+    function emergencyWithdrawUsdt(uint256 amount) external onlyOwner {
+        require(address(usdtToken) != address(0), "USDT token not set");
+        
+        uint256 contractBalance = usdtToken.balanceOf(address(this));
+        require(contractBalance > 0, "No USDT to withdraw");
+        
+        uint256 withdrawAmount = amount == 0 ? contractBalance : amount;
+        require(withdrawAmount <= contractBalance, "Insufficient contract balance");
+        
+        bool success = usdtToken.transfer(owner, withdrawAmount);
+        require(success, "USDT transfer failed");
+    }
+    
+    /**
+     * 紧急提取：管理员提取合约中的所有 XPL
+     * @param amount 提取金额（如果为 0，则提取全部）
+     */
+    function emergencyWithdrawXpl(uint256 amount) external onlyOwner {
+        require(address(xplToken) != address(0), "XPL token not set");
+        
+        uint256 contractBalance = xplToken.balanceOf(address(this));
+        require(contractBalance > 0, "No XPL to withdraw");
+        
+        uint256 withdrawAmount = amount == 0 ? contractBalance : amount;
+        require(withdrawAmount <= contractBalance, "Insufficient contract balance");
+        
+        bool success = xplToken.transfer(owner, withdrawAmount);
+        require(success, "XPL transfer failed");
+    }
+    
+    /**
+     * 紧急提取：管理员提取合约中的原生代币（ETH/BNB等）
+     */
+    function emergencyWithdrawNative() external onlyOwner {
+        uint256 balance = address(this).balance;
+        require(balance > 0, "No native token to withdraw");
+        
+        (bool success, ) = owner.call{value: balance}("");
+        require(success, "Native token transfer failed");
+    }
+    
     // ========== 内部方法 ==========
     
     function _toEthSignedMessageHash(bytes32 hash) internal pure returns (bytes32) {

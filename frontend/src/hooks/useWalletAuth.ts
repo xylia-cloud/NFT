@@ -136,7 +136,7 @@ export function useWalletAuth(options: UseWalletAuthOptions = {}): UseWalletAuth
   // 自动登录：当钱包连接且未登录时自动触发（只尝试一次）
   useEffect(() => {
     if (autoLogin && isConnected && address && !hasAttempted && !isAuthenticating) {
-      const token = localStorage.getItem('auth_token');
+      const token = sessionStorage.getItem('auth_token');
       if (!token) {
         console.log('🔄 检测到钱包连接，自动触发登录...');
         authenticate();
@@ -161,9 +161,10 @@ export function useWalletAuth(options: UseWalletAuthOptions = {}): UseWalletAuth
 
 /**
  * 检查用户是否已登录
+ * 使用 sessionStorage，关闭页面自动清除
  */
 export function useIsAuthenticated(): boolean {
-  const token = localStorage.getItem('auth_token');
+  const token = sessionStorage.getItem('auth_token');
   return !!token;
 }
 

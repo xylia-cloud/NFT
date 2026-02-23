@@ -53,7 +53,7 @@ export default defineConfig({
     plasmaMainnet: {
       type: "http",
       chainType: "l1",
-      url: process.env.PLASMA_MAINNET_RPC_URL || "https://rpc.plasma.to",
+      url: process.env.PLASMA_MAINNET_RPC_URL || "https://lb.drpc.org/ogrpc?network=plasma&dkey=AuS7VtXAMEbYsrJ8OzeHL7gpVtT7ELUR8by2-uF7NYYO",
       accounts: process.env.PLASMA_MAINNET_PRIVATE_KEY ? [process.env.PLASMA_MAINNET_PRIVATE_KEY] : [],
       chainId: 9745, // PLASMA 主网 Chain ID
     },

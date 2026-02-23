@@ -71,31 +71,35 @@ export interface UserInfo {
 
 /**
  * 获取存储的 token
+ * 使用 sessionStorage，关闭页面自动清除
  */
 function getToken(): string | null {
-  return localStorage.getItem('auth_token');
+  return sessionStorage.getItem('auth_token');
 }
 
 /**
  * 设置 token
+ * 使用 sessionStorage，关闭页面自动清除
  */
 export function setToken(token: string): void {
-  localStorage.setItem('auth_token', token);
+  sessionStorage.setItem('auth_token', token);
 }
 
 /**
- * 清除 token
+ * 清除 token 和所有存储信息
  */
 export function clearToken(): void {
-  localStorage.removeItem('auth_token');
-  localStorage.removeItem('user_info');
+  sessionStorage.removeItem('auth_token');
+  sessionStorage.removeItem('user_info');
+  sessionStorage.removeItem('invite_address');
 }
 
 /**
  * 获取用户信息
+ * 使用 sessionStorage，关闭页面自动清除
  */
 export function getUserInfo(): UserInfo | null {
-  const userInfoStr = localStorage.getItem('user_info');
+  const userInfoStr = sessionStorage.getItem('user_info');
   if (!userInfoStr) return null;
   
   try {
@@ -108,9 +112,10 @@ export function getUserInfo(): UserInfo | null {
 
 /**
  * 设置用户信息
+ * 使用 sessionStorage，关闭页面自动清除
  */
 export function setUserInfo(userInfo: UserInfo): void {
-  localStorage.setItem('user_info', JSON.stringify(userInfo));
+  sessionStorage.setItem('user_info', JSON.stringify(userInfo));
 }
 
 /**

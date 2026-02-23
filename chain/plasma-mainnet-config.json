@@ -1,19 +1,33 @@
 {
   "network": "PLASMA Mainnet",
   "chainId": 9745,
-  "rpcUrl": "https://rpc.plasma.to",
+  "rpcUrl": "https://lb.drpc.org/ogrpc?network=plasma&dkey=AuS7VtXAMEbYsrJ8OzeHL7gpVtT7ELUR8by2-uF7NYYO",
+  "wsUrl": "wss://lb.drpc.live/plasma/AuS7VtXAMEbYsrJ8OzeHL7gpVtT7ELUR8by2-uF7NYYO",
   "explorer": "https://plasmascan.to",
   "contracts": {
     "PaymentChannel": {
-      "address": "0x2f5A81181CF28653B8254C67cb76B232B48A7397",
-      "deployedAt": "2025-02-22"
+      "address": "0x13dFde78A02C4138FD6aaAdd795FA11471CcfE54",
+      "deployedAt": "2025-02-22",
+      "version": "v2-with-emergency-withdraw",
+      "previousAddress": "0x2f5A81181CF28653B8254C67cb76B232B48A7397"
+    },
+    "USDT0": {
+      "address": "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb",
+      "note": "PLASMA 链官方 USDT0",
+      "explorer": "https://plasmascan.to/token/0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb"
+    },
+    "WXPL": {
+      "address": "0x6100e367285b01f48d07953803a2d8dca5d19873",
+      "note": "Wrapped XPL - 用于收益提现",
+      "explorer": "https://plasmascan.to/token/0x6100e367285b01f48d07953803a2d8dca5d19873"
     },
     "MockUSDT": {
       "address": "0x3F1Eb88219A75b82906F0844A339BA4C8a74d14E",
-      "deployedAt": "2025-02-22"
+      "deployedAt": "2025-02-22",
+      "note": "已废弃 - 仅用于测试"
     }
   },
   "admin": {
-    "address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+    "address": "0xA4a7747C9241ba5A9AF9137bb662f38F463Fdf1B"
   }
 }

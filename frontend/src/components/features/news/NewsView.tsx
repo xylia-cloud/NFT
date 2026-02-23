@@ -80,7 +80,9 @@ export function NewsView() {
     return (
       <NewsDetailView 
         newsId={selectedNewsId} 
-        onBack={() => setSelectedNewsId(null)} 
+        onBack={() => {
+          window.location.hash = '#news';
+        }} 
       />
     );
   }
@@ -99,7 +101,9 @@ export function NewsView() {
             {newsList.map((news) => (
               <Card
                 key={news.id}
-                onClick={() => setSelectedNewsId(news.id)}
+                onClick={() => {
+                  window.location.hash = `#news?id=${news.id}`;
+                }}
                 className="border border-border/70 shadow-none bg-card/30 hover:bg-card/50 transition-all cursor-pointer"
               >
                 <CardContent className="p-4 flex items-center justify-between gap-3">

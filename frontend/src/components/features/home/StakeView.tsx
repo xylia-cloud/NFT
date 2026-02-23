@@ -250,6 +250,18 @@ export function StakeView() {
     };
     
     fetchNews();
+    
+    // 监听登录事件，登录成功后重新获取通知
+    const handleLogin = () => {
+      console.log('🔔 检测到登录事件，重新获取系统通知');
+      fetchNews();
+    };
+    
+    window.addEventListener('auth:login', handleLogin);
+    
+    return () => {
+      window.removeEventListener('auth:login', handleLogin);
+    };
   }, []);
   
   // 查询 USDT 余额

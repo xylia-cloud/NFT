@@ -26,7 +26,12 @@ export function MainLayout({ children, currentTab, onTabChange, onOpenCustomerSe
   };
 
   const handleBack = () => {
-    onTabChange('home');
+    // 如果在通知详情页（URL包含id参数），返回通知列表
+    if (currentTab === 'news' && window.location.hash.includes('?id=')) {
+      window.location.hash = '#news';
+    } else {
+      onTabChange('home');
+    }
   };
 
   // 检查是否在通知页面（包括列表和详情）
