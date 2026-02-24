@@ -315,44 +315,58 @@ export function TeamView() {
                 </div>
               ) : (
                 <div className="flex flex-col divide-y divide-border/40">
-                  {members.map((member, index) => (
-                    <div key={member.id || index} className="p-4 hover:bg-muted/30 transition-colors flex items-center justify-between group">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-9 w-9 border border-border/50">
-                          <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${member.wallet_address || index}`} />
-                          <AvatarFallback>M</AvatarFallback>
-                        </Avatar>
-                        <div className="space-y-0.5">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium text-sm text-foreground">{formatAddress(member.wallet_address)}</span>
-                            {member.level && (
-                              <Badge variant="outline" className="text-[10px] h-4 px-1 py-0 border-border/50 bg-secondary/30 text-muted-foreground">
-                                Lv.{member.level}
-                              </Badge>
-                            )}
+                  {members.map((member, index) => {
+                    // 推荐层级标签
+                    const referralLevelBadge = member.referral_level === 1 
+                      ? t('transaction.level1User')
+                      : member.referral_level === 2 
+                      ? t('transaction.level2User')
+                      : '';
+                    
+                    return (
+                      <div key={member.id || index} className="p-4 hover:bg-muted/30 transition-colors flex items-center justify-between group">
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-9 w-9 border border-border/50">
+                            <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${member.username || member.wallet_address || index}`} />
+                            <AvatarFallback>M</AvatarFallback>
+                          </Avatar>
+                          <div className="space-y-0.5">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-sm text-foreground">{member.username || formatAddress(member.wallet_address)}</span>
+                              {member.level && (
+                                <Badge variant="outline" className="text-[10px] h-4 px-1 py-0 border-border/50 bg-secondary/30 text-muted-foreground">
+                                  {member.level}
+                                </Badge>
+                              )}
+                              {referralLevelBadge && (
+                                <Badge variant="outline" className={`text-[10px] h-4 px-1 py-0 ${member.referral_level === 1 ? 'border-blue-500/50 bg-blue-500/10 text-blue-600' : 'border-indigo-500/50 bg-indigo-500/10 text-indigo-600'}`}>
+                                  {referralLevelBadge}
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="text-xs text-muted-foreground flex items-center gap-2">
+                              {member.addtime_format && <span>{t("team.joined")}: {member.addtime_format}</span>}
+                              {member.status === 'active' ? (
+                                <span className="flex items-center gap-1 text-primary text-[10px]">
+                                  <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+                                  {t("team.active")}
+                                </span>
+                              ) : (
+                                <span className="text-muted-foreground/50 text-[10px]">{t("team.offline")}</span>
+                              )}
+                            </div>
                           </div>
-                          <div className="text-xs text-muted-foreground flex items-center gap-2">
-                            {member.join_date && <span>{t("team.joined")}: {member.join_date}</span>}
-                            {member.status === 'active' ? (
-                              <span className="flex items-center gap-1 text-primary text-[10px]">
-                                <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-                                {t("team.active")}
-                              </span>
-                            ) : (
-                              <span className="text-muted-foreground/50 text-[10px]">{t("team.offline")}</span>
-                            )}
+                        </div>
+                        
+                        <div className="text-right">
+                          <div className="text-sm font-bold text-foreground inline-flex items-center gap-1">
+                            {member.total_deposit ? parseFloat(member.total_deposit).toFixed(2) : "0.00"} 
+                            <span className="text-[10px] font-normal text-muted-foreground"><Usdt0 iconSize="sm" /></span>
                           </div>
                         </div>
                       </div>
-                      
-                      <div className="text-right">
-                        <div className="text-sm font-bold text-foreground inline-flex items-center gap-1">
-                          {member.stake_amount ? parseFloat(member.stake_amount).toFixed(2) : "0.00"} 
-                          <span className="text-[10px] font-normal text-muted-foreground"><Usdt0 iconSize="sm" /></span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </ScrollArea>

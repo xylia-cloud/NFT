@@ -65,6 +65,7 @@ export interface UserInfo {
   status: number;
   is_leader: number;  // 0: 非领袖, 1: 领袖
   is_super_node: number;  // 0: 非超级节点, 1: 超级节点
+  inviter?: string;  // 上级用户钱包地址
   login_time: number;
   login: boolean;
 }
@@ -602,9 +603,14 @@ export async function activateLeader(params: ActivateLeaderParams): Promise<Acti
  * 获取领袖详情
  */
 export interface LeaderInfoResponse {
-  total_reward: string;      // 累计领袖奖励
-  leader_team_count: number; // 领袖团队人数
-  uid: string;               // 用户 ID
+  total_reward: string;           // 累计领袖奖励
+  leader_team_count: number;      // 领袖团队人数
+  uid: string;                    // 用户 ID
+  is_leader: number;              // 是否为领袖 (1: 是, 0: 否)
+  last_leader_activtime: number;  // 最后激活时间（时间戳）
+  leader_expire: number;          // 领袖到期时间（时间戳）
+  current_performance: string;    // 当前业绩
+  target_performance: string;     // 目标业绩
 }
 
 export async function getLeaderInfo(): Promise<LeaderInfoResponse> {
@@ -683,15 +689,19 @@ export interface TeamMembersParams {
 }
 
 export interface TeamMember {
-  // 根据实际返回的数据结构定义，目前返回的 list 为空，暂时定义基础字段
   id?: string;
+  username?: string;         // 用户名（钱包地址）
   wallet_address?: string;
-  level?: number;
+  level?: string;            // 用户等级（A0, A1等）
+  referral_level?: number;   // 推荐层级：1-一级，2-二级
+  addtime?: string;          // 添加时间戳
+  addtime_format?: string;   // 格式化时间
+  total_deposit?: string;    // 累计充值金额
   stake_amount?: string;
   commission?: string;
   status?: string;
   join_date?: string;
-  [key: string]: any; // 允许其他字段
+  [key: string]: any;        // 允许其他字段
 }
 
 export interface TeamMembersResponse {
@@ -752,6 +762,8 @@ export interface TransactionDetail {
   protype_name: string;   // 业务类型名称
   remark: string;         // 备注
   source_uid: string;     // 来源用户ID
+  referral_level?: number; // 推荐层级：1-一级，2-二级（仅 protype=8 时有效）
+  source_user?: string;    // 来源用户地址（仅 protype=8 时有效）
 }
 
 export interface TransactionDetailsResponse {
@@ -1034,7 +1046,7 @@ export async function getNewsDetail(params: NewsDetailParams): Promise<NewsDetai
  * 直接调用 VoceChat API 创建第三方登录 token
  */
 export async function createVoceChatToken(userid: string, username: string): Promise<string> {
-  const VOCECHAT_URL = 'http://76.13.179.168:5000';
+  const VOCECHAT_URL = 'https://service.plasma.email';
   const VOCECHAT_API_KEY = 'Rh06khxFUV05DEp127JBl5pi6kiTMaa9';
   
   try {

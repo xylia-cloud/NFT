@@ -21,7 +21,7 @@ function convertToStakeOrder(record: StakeRecord): StakeOrder {
   
   // 安全地解析数字，避免 NaN
   const amount = parseFloat(record.amount) || 0;
-  const totalProfit = parseFloat(record.total_profit_with_today) || 0;
+  const totalProfit = parseFloat(record.total_profit) || 0;
   const todayProfit = parseFloat(record.today_profit) || 0;
   
   // 计算日化收益率（避免除以 0）

@@ -15,7 +15,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { useAccount } from "wagmi";
-import { Wallet, Trophy, CalendarDays, Gift, Loader2, CheckCircle2, ArrowRight } from "lucide-react";
+import { Wallet, Trophy, CalendarDays, Loader2, CheckCircle2, ArrowRight, Clock } from "lucide-react";
 import iconManager from "@/assets/images/icon-manager.webp";
 import { Usdt0 } from "@/components/ui/usdt0";
 import { activateLeader, getLeaderInfo, getLeaderCalendar, getUserInfo, updateUserInfo, type LeaderInfoResponse } from "@/lib/api";
@@ -31,6 +31,7 @@ export function LeaderRewardView() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [leaderInfo, setLeaderInfo] = useState<LeaderInfoResponse | null>(null);
   const [calendarData, setCalendarData] = useState<Record<string, number>>({});
+  const [countdown, setCountdown] = useState<string>("");
 
   // 从本地存储的用户信息判断是否为领袖
   const isLeader = useMemo(() => {
@@ -111,6 +112,37 @@ export function LeaderRewardView() {
     return () => window.removeEventListener('auth:login', handleLogin);
   }, []);
 
+  // 倒计时逻辑
+  useEffect(() => {
+    if (!leaderInfo?.leader_expire) {
+      setCountdown("");
+      return;
+    }
+
+    const updateCountdown = () => {
+      const now = Math.floor(Date.now() / 1000);
+      const expireTime = leaderInfo.leader_expire;
+      const diff = expireTime - now;
+
+      if (diff <= 0) {
+        setCountdown(t('leader.expired'));
+        return;
+      }
+
+      const days = Math.floor(diff / 86400);
+      const hours = Math.floor((diff % 86400) / 3600);
+      const minutes = Math.floor((diff % 3600) / 60);
+      const seconds = diff % 60;
+
+      setCountdown(`${days}${t('leader.days')} ${hours}${t('leader.hours')} ${minutes}${t('leader.minutes')} ${seconds}${t('leader.seconds')}`);
+    };
+
+    updateCountdown();
+    const timer = setInterval(updateCountdown, 1000);
+
+    return () => clearInterval(timer);
+  }, [leaderInfo, t]);
+
   // 模拟每日领袖收益（当前月份）- 已替换为真实数据
   const LEADER_DAILY_REWARDS: Record<string, number> = calendarData;
 
@@ -180,62 +212,113 @@ export function LeaderRewardView() {
     <div className="space-y-6 pb-20 animate-in fade-in duration-500 max-w-4xl mx-auto pt-5">
       {/* {t("leader.status")}卡片 - 仅激活后显示 */}
       {isLeader && (
-        <Card className="bg-primary/5 border-primary/10 shadow-sm overflow-hidden relative">
-          <div className="absolute top-0 right-0 p-4 opacity-5">
-            <Trophy className="h-24 w-24 -mr-6 -mt-6 rotate-12" />
-          </div>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between gap-4">
-              <div className="space-y-1 min-w-0">
-                <span className="text-sm font-medium text-muted-foreground">{t("leader.status")}</span>
-                <div className="flex items-baseline gap-3">
-                  <span className="text-4xl font-bold tracking-tight text-primary tabular-nums">{t("leader.activated")}</span>
-                  <Badge className="bg-primary text-primary-foreground">{t("leader.bonusRate")}</Badge>
-                </div>
-              </div>
-              <img src={iconManager} alt={t("leader.title")} className="h-14 w-14 object-contain shrink-0" />
+        <div className="space-y-3">
+          <Card className="bg-primary/5 border-primary/10 shadow-sm overflow-hidden relative">
+            <div className="absolute top-0 right-0 p-4 opacity-5">
+              <Trophy className="h-24 w-24 -mr-6 -mt-6 rotate-12" />
             </div>
-          </CardContent>
-        </Card>
-      )}
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between gap-4">
+                <div className="space-y-1 min-w-0">
+                  <span className="text-sm font-medium text-muted-foreground">{t("leader.status")}</span>
+                  <div className="flex flex-col gap-2">
+                    <span className="text-4xl font-bold tracking-tight text-primary tabular-nums">{t("leader.activated")}</span>
+                    <Badge className="bg-primary text-primary-foreground w-fit">{t("leader.bonusRate")}</Badge>
+                  </div>
+                </div>
+                <img src={iconManager} alt={t("leader.title")} className="h-14 w-14 object-contain shrink-0" />
+              </div>
+            </CardContent>
+          </Card>
 
-      {/* 领袖收益概览 */}
-      {isLeader ? (
-        <>
-          {/* 收益统计 */}
-          <div className="grid grid-cols-2 gap-4">
-            <Card className="border-border/40 shadow-sm">
-              <CardContent className="p-6">
+          {/* 到期倒计时卡片 */}
+          {countdown && (
+            <Card className="bg-gradient-to-br from-orange-500/10 to-red-500/10 border-orange-500/20 shadow-sm">
+              <CardContent className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary p-1.5">
-                    <Usdt0 iconSize="lg" iconOnly />
+                  <div className="h-10 w-10 rounded-xl bg-orange-500/20 flex items-center justify-center text-orange-600">
+                    <Clock className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs text-muted-foreground mb-1">{t("leader.expiresIn")}</p>
+                    <p className="text-sm font-semibold text-orange-600 tabular-nums">{countdown}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* 当前业绩和累计领袖奖励 */}
+          <div className="grid grid-cols-2 gap-3">
+            <Card className="border-border/40 shadow-sm">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  {/* 圆环进度条 */}
+                  <div className="relative h-10 w-10 shrink-0">
+                    <svg className="h-10 w-10 -rotate-90" viewBox="0 0 36 36">
+                      {/* 背景圆环 */}
+                      <circle
+                        cx="18"
+                        cy="18"
+                        r="15.5"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        className="text-blue-500/20"
+                      />
+                      {/* 进度圆环 */}
+                      <circle
+                        cx="18"
+                        cy="18"
+                        r="15.5"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeDasharray={`${(parseFloat(leaderInfo?.current_performance || "0") / 20000) * 97.4} 97.4`}
+                        strokeLinecap="round"
+                        className="text-blue-500 transition-all duration-500"
+                      />
+                    </svg>
+                    {/* 中心百分比 */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-[10px] font-bold text-blue-500">
+                        {Math.min(Math.round((parseFloat(leaderInfo?.current_performance || "0") / 20000) * 100), 100)}%
+                      </span>
+                    </div>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground">{t("leader.totalReward")}</p>
-                    <p className="text-xl font-bold text-primary inline-flex items-center gap-1.5">
-                      +{parseFloat(leaderInfo?.total_reward || "0").toFixed(2)} <Usdt0 iconSize="default" />
+                    <p className="text-xs text-muted-foreground">{t("leader.currentPerformance")}</p>
+                    <p className="text-lg font-bold text-blue-500">
+                      {parseFloat(leaderInfo?.current_performance || "0").toFixed(2)}
                     </p>
                   </div>
                 </div>
               </CardContent>
             </Card>
             <Card className="border-border/40 shadow-sm">
-              <CardContent className="p-6">
+              <CardContent className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
-                    <Gift className="h-5 w-5" />
+                  <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary p-1.5">
+                    <Usdt0 iconSize="lg" iconOnly />
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground">{t("leader.teamCount")}</p>
-                    <p className="text-xl font-bold">{leaderInfo?.leader_team_count || 0} {t("leader.people")}</p>
+                    <p className="text-xs text-muted-foreground">{t("leader.totalReward")}</p>
+                    <p className="text-lg font-bold text-primary">
+                      +{parseFloat(leaderInfo?.total_reward || "0").toFixed(2)}
+                    </p>
                   </div>
                 </div>
               </CardContent>
             </Card>
-          {/* 收益日历 */}
-                    </div>
+          </div>
+        </div>
+      )}
 
-<div className="space-y-4">
+      {/* 领袖收益概览 */}
+      {isLeader ? (
+        <>
+          {/* 收益日历 */}
+          <div className="space-y-4">
             <h3 className="text-lg font-semibold tracking-tight px-1 flex items-center gap-2">
               <CalendarDays className="h-5 w-5 text-primary" />
               {t("leader.dailyReward")}

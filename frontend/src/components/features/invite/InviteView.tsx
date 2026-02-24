@@ -25,8 +25,8 @@ export function InviteView() {
     return `${origin}/?invit=${address}`;
   }, [address]);
   
-  // 上级用户钱包地址（从用户信息中获取，如果有的话）
-  const parentAddress = userInfo?.leve_user || t("invite.noParent");
+  // 上级用户钱包地址（从用户信息中获取 inviter 字段）
+  const parentAddress = userInfo?.inviter || "";
 
   const handleCopy = () => {
     if (!inviteLink) return;
@@ -119,7 +119,7 @@ export function InviteView() {
           </div>
 
           {/* 上级用户钱包地址 */}
-          {parentAddress && parentAddress !== t("invite.noParent") && (
+          {parentAddress && (
             <div className="mt-6 pt-6 border-t border-white/20">
               <div className="flex items-center gap-2 mb-2">
                 <User className="h-4 w-4 text-white/80" />

@@ -23,7 +23,7 @@ import { useLoadingStore } from '@/store/loadingStore';
 import { clearToken, getUserInfo, createVoceChatToken } from '@/lib/api';
 import { Wallet, X, Loader2 } from 'lucide-react';
 
-const CUSTOMER_SERVICE_BASE_URL = "http://76.13.179.168:5000";
+const CUSTOMER_SERVICE_BASE_URL = "https://service.plasma.email";
 const VALID_TABS = ['home', 'wallet', 'withdraw', 'leader', 'supernode', 'team', 'invite', 'help-center', 'orders', 'about', 'plasma-one', 'news'] as const;
 
 function ConnectWalletGate() {

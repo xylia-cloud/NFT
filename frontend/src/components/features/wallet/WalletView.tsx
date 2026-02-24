@@ -534,6 +534,15 @@ function TransactionList({ transactions }: { transactions: TransactionDetail[] }
             const Icon = style.icon;
             const isIncome = tx.type === '1';
             
+            // 推荐收益特殊处理
+            const isReferralReward = tx.protype === '8';
+            const referralLevelText = isReferralReward && tx.referral_level 
+              ? (tx.referral_level === 1 ? t('transaction.level1User') : t('transaction.level2User'))
+              : '';
+            const sourceUserShort = isReferralReward && tx.source_user
+              ? `${tx.source_user.slice(0, 6)}****${tx.source_user.slice(-6)}`
+              : '';
+            
             return (
               <div key={`${tx.time}-${index}`} className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors">
                 <div className="flex items-center gap-4">
@@ -542,7 +551,14 @@ function TransactionList({ transactions }: { transactions: TransactionDetail[] }
                   </div>
                   <div>
                     <div className="font-medium text-sm">{translatedName}</div>
-                    <div className="text-xs text-muted-foreground">{tx.time_format}</div>
+                    {isReferralReward && (
+                      <div className="text-xs text-muted-foreground mt-0.5">
+                        {referralLevelText} · {sourceUserShort}
+                      </div>
+                    )}
+                    {!isReferralReward && (
+                      <div className="text-xs text-muted-foreground">{tx.time_format}</div>
+                    )}
                   </div>
                 </div>
                 <div className="text-right">
@@ -550,7 +566,11 @@ function TransactionList({ transactions }: { transactions: TransactionDetail[] }
                     {isIncome ? '+' : '-'}{parseFloat(tx.fee).toFixed(2)} <span className="text-xs font-normal text-muted-foreground inline-flex items-center gap-0.5"><Usdt0 iconSize="sm" /></span>
                   </div>
                   <div className="text-[10px]">
-                    <span className="text-muted-foreground">{t('wallet.completed')}</span>
+                    {isReferralReward ? (
+                      <span className="text-muted-foreground">{tx.time_format}</span>
+                    ) : (
+                      <span className="text-muted-foreground">{t('wallet.completed')}</span>
+                    )}
                   </div>
                 </div>
               </div>
