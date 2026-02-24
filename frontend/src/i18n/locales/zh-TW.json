@@ -178,7 +178,7 @@
     "reinvestDesc": "選擇複投金額，將利息轉為本金",
     "confirmReinvest": "確認複投",
     "connectWalletFirst": "請先在首頁連接錢包",
-    "currentlyLocked": "當前鎖倉中",
+    "currentlyLocked": "當前質押中",
     "accumulatedInterest": "累計利息",
     "noRecords": "暫無記錄",
     "completed": "已完成",

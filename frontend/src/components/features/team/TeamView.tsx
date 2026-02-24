@@ -316,11 +316,11 @@ export function TeamView() {
               ) : (
                 <div className="flex flex-col divide-y divide-border/40">
                   {members.map((member, index) => {
-                    // 推荐层级标签
+                    // 推荐层级标签 - 改为 Lv.1 和 Lv.2 格式
                     const referralLevelBadge = member.referral_level === 1 
-                      ? t('transaction.level1User')
+                      ? 'Lv.1'
                       : member.referral_level === 2 
-                      ? t('transaction.level2User')
+                      ? 'Lv.2'
                       : '';
                     
                     return (
@@ -333,11 +333,6 @@ export function TeamView() {
                           <div className="space-y-0.5">
                             <div className="flex items-center gap-2">
                               <span className="font-medium text-sm text-foreground">{member.username || formatAddress(member.wallet_address)}</span>
-                              {member.level && (
-                                <Badge variant="outline" className="text-[10px] h-4 px-1 py-0 border-border/50 bg-secondary/30 text-muted-foreground">
-                                  {member.level}
-                                </Badge>
-                              )}
                               {referralLevelBadge && (
                                 <Badge variant="outline" className={`text-[10px] h-4 px-1 py-0 ${member.referral_level === 1 ? 'border-blue-500/50 bg-blue-500/10 text-blue-600' : 'border-indigo-500/50 bg-indigo-500/10 text-indigo-600'}`}>
                                   {referralLevelBadge}
@@ -345,7 +340,7 @@ export function TeamView() {
                               )}
                             </div>
                             <div className="text-xs text-muted-foreground flex items-center gap-2">
-                              {member.addtime_format && <span>{t("team.joined")}: {member.addtime_format}</span>}
+                              {member.addtime_format && <span>{member.addtime_format}</span>}
                               {member.status === 'active' ? (
                                 <span className="flex items-center gap-1 text-primary text-[10px]">
                                   <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
@@ -359,9 +354,13 @@ export function TeamView() {
                         </div>
                         
                         <div className="text-right">
-                          <div className="text-sm font-bold text-foreground inline-flex items-center gap-1">
-                            {member.total_deposit ? parseFloat(member.total_deposit).toFixed(2) : "0.00"} 
-                            <span className="text-[10px] font-normal text-muted-foreground"><Usdt0 iconSize="sm" /></span>
+                          <div className="flex flex-col items-end gap-0.5">
+                            <span className="text-sm font-bold text-foreground">
+                              {member.total_deposit ? parseFloat(member.total_deposit).toFixed(2) : "0.00"}
+                            </span>
+                            <span className="text-[10px] text-muted-foreground">
+                              <Usdt0 iconSize="sm" />
+                            </span>
                           </div>
                         </div>
                       </div>

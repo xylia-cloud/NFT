@@ -536,8 +536,8 @@ function TransactionList({ transactions }: { transactions: TransactionDetail[] }
             
             // 推荐收益特殊处理
             const isReferralReward = tx.protype === '8';
-            const referralLevelText = isReferralReward && tx.referral_level 
-              ? (tx.referral_level === 1 ? t('transaction.level1User') : t('transaction.level2User'))
+            const referralLevelBadge = isReferralReward && tx.referral_level 
+              ? (tx.referral_level === 1 ? 'Lv.1' : 'Lv.2')
               : '';
             const sourceUserShort = isReferralReward && tx.source_user
               ? `${tx.source_user.slice(0, 6)}****${tx.source_user.slice(-6)}`
@@ -550,28 +550,29 @@ function TransactionList({ transactions }: { transactions: TransactionDetail[] }
                     <Icon className="h-4 w-4" />
                   </div>
                   <div>
-                    <div className="font-medium text-sm">{translatedName}</div>
-                    {isReferralReward && (
-                      <div className="text-xs text-muted-foreground mt-0.5">
-                        {referralLevelText} · {sourceUserShort}
+                    <div className="font-medium text-sm flex items-center gap-2">
+                      <span>{translatedName}</span>
+                      {referralLevelBadge && (
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded ${tx.referral_level === 1 ? 'bg-blue-500/10 text-blue-600' : 'bg-indigo-500/10 text-indigo-600'}`}>
+                          {referralLevelBadge}
+                        </span>
+                      )}
+                    </div>
+                    {isReferralReward ? (
+                      <div className="text-xs text-muted-foreground mt-0.5 space-y-0.5">
+                        <div>{sourceUserShort}</div>
+                        <div>{tx.time_format}</div>
                       </div>
-                    )}
-                    {!isReferralReward && (
+                    ) : (
                       <div className="text-xs text-muted-foreground">{tx.time_format}</div>
                     )}
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className={`font-bold text-sm ${isIncome ? 'text-primary' : 'text-foreground'}`}>
-                    {isIncome ? '+' : '-'}{parseFloat(tx.fee).toFixed(2)} <span className="text-xs font-normal text-muted-foreground inline-flex items-center gap-0.5"><Usdt0 iconSize="sm" /></span>
-                  </div>
-                  <div className="text-[10px]">
-                    {isReferralReward ? (
-                      <span className="text-muted-foreground">{tx.time_format}</span>
-                    ) : (
-                      <span className="text-muted-foreground">{t('wallet.completed')}</span>
-                    )}
-                  </div>
+                <div className="text-right flex items-center justify-end gap-1">
+                  <span className={`font-bold text-sm ${isIncome ? 'text-primary' : 'text-foreground'}`}>
+                    {isIncome ? '+' : '-'}{parseFloat(tx.fee).toFixed(2)}
+                  </span>
+                  <span className="text-xs font-normal text-muted-foreground"><Usdt0 iconSize="sm" /></span>
                 </div>
               </div>
             );

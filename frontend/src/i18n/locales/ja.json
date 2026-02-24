@@ -178,7 +178,7 @@
     "reinvestDesc": "再投資金額を選択し、利息を元本に転換",
     "confirmReinvest": "再投資確認",
     "connectWalletFirst": "まずホームページでウォレットを接続してください",
-    "currentlyLocked": "現在ロック中",
+    "currentlyLocked": "現在ステーキング中",
     "accumulatedInterest": "累計利息",
     "noRecords": "記録なし",
     "completed": "完了",

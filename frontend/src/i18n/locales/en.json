@@ -167,7 +167,7 @@
     "reinvestDesc": "Select reinvestment amount to convert interest to principal",
     "confirmReinvest": "Confirm Reinvest",
     "connectWalletFirst": "Please connect your wallet on the home page first",
-    "currentlyLocked": "Currently Locked",
+    "currentlyLocked": "Currently Staked",
     "accumulatedInterest": "Accumulated Interest",
     "noRecords": "No Records",
     "completed": "Completed",

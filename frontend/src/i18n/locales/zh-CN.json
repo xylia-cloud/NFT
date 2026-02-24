@@ -178,7 +178,7 @@
     "reinvestDesc": "选择复投金额，将利息转为本金",
     "confirmReinvest": "确认复投",
     "connectWalletFirst": "请先在首页连接钱包",
-    "currentlyLocked": "当前锁仓中",
+    "currentlyLocked": "当前质押中",
     "accumulatedInterest": "累计利息",
     "noRecords": "暂无记录",
     "completed": "已完成",
