@@ -497,6 +497,11 @@
       "a2": "L'offre totale est de 10 milliards de tokens, distribués comme suit: 10% vente publique, 40% développement de l'écosystème, 25% allocation d'équipe, 25% allocation d'investisseurs. Lors de la vente publique, 1 milliard de tokens XPL ont été distribués aux utilisateurs ayant participé aux activités de dépôt.",
       "q3": "Quand XPL sera-t-il débloqué?",
       "a3": "Utilisateurs non américains: Libération instantanée au lancement du mainnet bêta. Utilisateurs américains: Période de verrouillage de 12 mois (jusqu'au 28 juillet 2026). Équipe et investisseurs: Déblocage linéaire sur 3 ans avec la première année comme période de cliff."
+    },
+    "wxpl": {
+      "title": "WXPL",
+      "q1": "Qu'est-ce que WXPL?",
+      "a1": "WXPL (Wrapped XPL) est la version enveloppée du token natif XPL de la blockchain Plasma, couramment utilisée sur BSC (Binance Smart Chain), Solana ou d'autres chaînes compatibles EVM pour la circulation inter-chaînes et l'utilisation DeFi. En termes simples: XPL est le Gas Token natif de la chaîne Plasma (pour les frais de transaction, le staking, la gouvernance), tandis que WXPL est la version \"enveloppée\" de XPL pour une utilisation sur d'autres chaînes (logique similaire à WETH, WBTC, WBNB)."
     }
   },
   "transaction": {
@@ -517,11 +522,12 @@
     "withdrawAmount": "Montant de Retrait",
     "enterAmount": "Entrez le montant de retrait",
     "withdrawAll": "Tout Retirer",
-    "minAmount": "Retrait Minimum: 100 USDT0",
+    "minAmount": "Retrait Minimum: 3 USDT0",
+    "minAmountError": "Le montant minimum de retrait est 3 USDT0",
     "currentRate": "Au taux actuel (1 WXPL = {{rate}} USDT0)",
     "estimatedXpl": "Environ {{amount}} WXPL",
     "fetchingRate": "Obtention du taux...",
-    "feeNotice": "Frais de retrait 1 USDT0, arrive dans les 24 heures",
+    "feeNotice": "Frais de retrait 1 USDT0",
     "rateNotice": "Ce retrait sera converti en WXPL au taux en temps réel, veuillez confirmer que l'adresse est correcte",
     "creatingOrder": "Création de commande...",
     "waitingWallet": "En attente de confirmation du portefeuille...",
@@ -538,6 +544,8 @@
     "title": "Notifications Système",
     "subtitle": "Voir toutes les notifications système et annonces",
     "noNews": "Pas encore de notifications",
-    "notFound": "Notification introuvable"
+    "notFound": "Notification introuvable",
+    "systemNotification": "Notification Système",
+    "viewAllNotifications": "Voir Toutes les Notifications"
   }
 }

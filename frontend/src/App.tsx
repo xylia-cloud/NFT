@@ -20,10 +20,10 @@ import { Toaster } from '@/components/ui/sonner';
 import { GlobalLoading } from '@/components/ui/GlobalLoading';
 import { useWalletAuth } from '@/hooks/useWalletAuth';
 import { useLoadingStore } from '@/store/loadingStore';
-import { clearToken } from '@/lib/api';
-import { Wallet, X } from 'lucide-react';
+import { clearToken, getUserInfo, createVoceChatToken } from '@/lib/api';
+import { Wallet, X, Loader2 } from 'lucide-react';
 
-const VOCECHAT_URL = "http://67.215.229.143:3009";
+const CUSTOMER_SERVICE_BASE_URL = "http://76.13.179.168:5000";
 const VALID_TABS = ['home', 'wallet', 'withdraw', 'leader', 'supernode', 'team', 'invite', 'help-center', 'orders', 'about', 'plasma-one', 'news'] as const;
 
 function ConnectWalletGate() {
@@ -59,9 +59,56 @@ function hashToTab(hash: string): string {
 export default function App() {
   const { t } = useTranslation();
   const [currentTab, setCurrentTab] = useState(() => hashToTab(window.location.hash));
-  const [showVoceChat, setShowVoceChat] = useState(false);
+  const [showCustomerService, setShowCustomerService] = useState(false);
+  const [voceChatUrl, setVoceChatUrl] = useState<string>('');
+  const [isLoadingVoceChat, setIsLoadingVoceChat] = useState(false);
   const { isConnected } = useAccount();
   const { isLoading } = useLoadingStore();
+
+  // 打开客服对话框
+  const handleOpenCustomerService = async () => {
+    setShowCustomerService(true);
+    setIsLoadingVoceChat(true);
+    
+    try {
+      // 获取当前登录用户信息
+      const userInfo = getUserInfo();
+      
+      if (!userInfo) {
+        console.warn('⚠️ 用户未登录，使用默认 VoceChat URL');
+        setVoceChatUrl(CUSTOMER_SERVICE_BASE_URL);
+        setIsLoadingVoceChat(false);
+        return;
+      }
+      
+      console.log('🔑 创建 VoceChat token...');
+      console.log('👤 用户信息:', { uid: userInfo.uid, username: userInfo.username });
+      
+      // 使用用户 ID 和用户名创建 VoceChat token
+      const userid = userInfo.uid;
+      let username = userInfo.username || userInfo.wallet_address;
+      
+      // 如果用户名是钱包地址（以0x开头且长度大于20），则缩短显示
+      if (username && username.startsWith('0x') && username.length > 20) {
+        username = `${username.slice(0, 6)}...${username.slice(-4)}`;
+        console.log('📝 钱包地址已缩短:', username);
+      }
+      
+      const token = await createVoceChatToken(userid, username);
+      console.log('✅ VoceChat token 创建成功');
+      
+      // 构建自动登录 URL
+      const autoLoginUrl = `${CUSTOMER_SERVICE_BASE_URL}/#/oauth/${token}`;
+      setVoceChatUrl(autoLoginUrl);
+      console.log('🔗 VoceChat 自动登录 URL:', autoLoginUrl);
+    } catch (error) {
+      console.error('❌ 创建 VoceChat token 失败:', error);
+      // 如果创建 token 失败，使用默认 URL
+      setVoceChatUrl(CUSTOMER_SERVICE_BASE_URL);
+    } finally {
+      setIsLoadingVoceChat(false);
+    }
+  };
 
   // 从 URL 中提取邀请人地址（只在应用启动时提取一次）
   const [inviteAddress] = useState(() => {
@@ -159,11 +206,11 @@ export default function App() {
       <MainLayout
         currentTab={currentTab}
         onTabChange={handleTabChange}
-        onOpenCustomerService={() => setShowVoceChat(true)}
+        onOpenCustomerService={handleOpenCustomerService}
       >
         {renderContent()}
       </MainLayout>
-      {showVoceChat && (
+      {showCustomerService && (
         <div className="fixed inset-0 z-[100] flex flex-col bg-background">
           <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30 shrink-0">
             <span className="text-sm font-semibold text-foreground">{t('nav.customerService')}</span>
@@ -171,16 +218,28 @@ export default function App() {
               variant="ghost"
               size="icon"
               className="h-10 w-10 shrink-0"
-              onClick={() => setShowVoceChat(false)}
+              onClick={() => {
+                setShowCustomerService(false);
+                setVoceChatUrl(''); // 清除 URL，下次重新获取
+              }}
             >
               <X className="h-5 w-5" />
             </Button>
           </div>
-          <iframe
-            title={t('nav.customerService')}
-            src={VOCECHAT_URL}
-            className="flex-1 w-full min-h-0 border-0"
-          />
+          {isLoadingVoceChat ? (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="flex flex-col items-center gap-3">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
+              </div>
+            </div>
+          ) : (
+            <iframe
+              title={t('nav.customerService')}
+              src={voceChatUrl}
+              className="flex-1 w-full min-h-0 border-0"
+            />
+          )}
         </div>
       )}
       <GlobalLoading isLoading={isLoading} />

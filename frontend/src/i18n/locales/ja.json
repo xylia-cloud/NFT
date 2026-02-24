@@ -498,6 +498,11 @@
       "a2": "総供給量は100億トークンで、具体的な配分は次のとおりです：10%公開販売、40%エコシステム開発、25%チーム保有、25%投資家保有。公開販売では、預金活動に参加したユーザーに10億XPLトークンが配分されました。",
       "q3": "XPLはいつアンロックされますか？",
       "a3": "非米国ユーザー：メインネットベータ版ローンチ時に即時リリース。米国ユーザー：12ヶ月のロック期間（2026年7月28日まで）。チームと投資家：3年間の線形アンロック、初年度はクリフ期間。"
+    },
+    "wxpl": {
+      "title": "WXPL",
+      "q1": "WXPLとは何ですか？",
+      "a1": "WXPL（Wrapped XPL）は、Plasmaブロックチェーンのネイティブトークン XPL のラップ版で、BSC（Binance Smart Chain）、Solana、または他のEVM互換チェーン上でクロスチェーン流通とDeFi利用のために使用されます。簡単に言えば：XPL は Plasma チェーンのネイティブ Gas Token（手数料支払い、ステーキング、ガバナンスに使用）、WXPL は XPL を「ラップ」して他のチェーンで使用できるようにしたバージョン（WETH、WBTC、WBNB と同様のロジック）です。"
     }
   },
   "transaction": {
@@ -518,11 +523,12 @@
     "withdrawAmount": "引き出し金額",
     "enterAmount": "引き出し金額を入力してください",
     "withdrawAll": "全額引き出し",
-    "minAmount": "最小引き出し: 100 USDT0",
+    "minAmount": "最小引き出し: 3 USDT0",
+    "minAmountError": "最低出金額は 3 USDT0 です",
     "currentRate": "現在のレート (1 WXPL = {{rate}} USDT0)",
     "estimatedXpl": "約 {{amount}} WXPL",
     "fetchingRate": "レート取得中...",
-    "feeNotice": "出金手数料 1 USDT0、24時間以内に到着",
+    "feeNotice": "出金手数料 1 USDT0",
     "rateNotice": "今回の出金はリアルタイムレートで WXPL に換算して送信されます。アドレスが正しいことを必ず確認してください",
     "creatingOrder": "注文作成中...",
     "waitingWallet": "ウォレット確認待ち...",
@@ -539,6 +545,8 @@
     "title": "システム通知",
     "subtitle": "すべてのシステム通知とお知らせを表示",
     "noNews": "通知はまだありません",
-    "notFound": "通知が見つかりません"
+    "notFound": "通知が見つかりません",
+    "systemNotification": "システム通知",
+    "viewAllNotifications": "すべての通知を表示"
   }
 }

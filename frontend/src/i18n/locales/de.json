@@ -495,6 +495,11 @@
       "a2": "Das Gesamtangebot beträgt 10 Milliarden Token, verteilt wie folgt: 10% öffentlicher Verkauf, 40% Ökosystementwicklung, 25% Team-Zuteilung, 25% Investor-Zuteilung. Beim öffentlichen Verkauf wurden 1 Milliarde XPL-Token an Benutzer verteilt, die an Einzahlungsaktivitäten teilgenommen haben.",
       "q3": "Wann wird XPL entsperrt?",
       "a3": "Nicht-US-Benutzer: Sofortige Freigabe beim Mainnet-Beta-Start. US-Benutzer: 12-monatige Sperrfrist (bis 28. Juli 2026). Team und Investoren: 3-jährige lineare Entsperrung mit dem ersten Jahr als Cliff-Periode."
+    },
+    "wxpl": {
+      "title": "WXPL",
+      "q1": "Was ist WXPL?",
+      "a1": "WXPL (Wrapped XPL) ist die verpackte Version des nativen Tokens XPL der Plasma-Blockchain, die häufig auf BSC (Binance Smart Chain), Solana oder anderen EVM-kompatiblen Chains für Cross-Chain-Zirkulation und DeFi-Nutzung verwendet wird. Einfach gesagt: XPL ist das native Gas Token der Plasma-Chain (für Transaktionsgebühren, Staking, Governance), während WXPL die \"verpackte\" Version von XPL für die Verwendung auf anderen Chains ist (ähnlich wie WETH, WBTC, WBNB)."
     }
   },
   "transaction": {
@@ -515,11 +520,12 @@
     "withdrawAmount": "Abhebungsbetrag",
     "enterAmount": "Bitte Abhebungsbetrag eingeben",
     "withdrawAll": "Alles Abheben",
-    "minAmount": "Mindestabhebung: 100 USDT0",
+    "minAmount": "Mindestabhebung: 3 USDT0",
+    "minAmountError": "Der Mindestabhebungsbetrag beträgt 3 USDT0",
     "currentRate": "Zum aktuellen Kurs (1 WXPL = {{rate}} USDT0)",
     "estimatedXpl": "Ca. {{amount}} WXPL",
     "fetchingRate": "Kurs wird abgerufen...",
-    "feeNotice": "Abhebungsgebühr 1 USDT0, Ankunft innerhalb von 24 Stunden",
+    "feeNotice": "Abhebungsgebühr 1 USDT0",
     "rateNotice": "Diese Abhebung wird zum Echtzeit-Kurs in WXPL umgerechnet, bitte bestätigen Sie, dass die Adresse korrekt ist",
     "creatingOrder": "Auftrag wird erstellt...",
     "waitingWallet": "Warte auf Wallet-Bestätigung...",
@@ -536,6 +542,8 @@
     "title": "Systembenachrichtigungen",
     "subtitle": "Alle Systembenachrichtigungen und Ankündigungen anzeigen",
     "noNews": "Noch keine Benachrichtigungen",
-    "notFound": "Benachrichtigung nicht gefunden"
+    "notFound": "Benachrichtigung nicht gefunden",
+    "systemNotification": "Systembenachrichtigung",
+    "viewAllNotifications": "Alle Benachrichtigungen anzeigen"
   }
 }

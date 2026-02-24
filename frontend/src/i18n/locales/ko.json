@@ -496,6 +496,11 @@
       "a2": "총 공급량은 100억 토큰이며, 구체적인 배분은 다음과 같습니다: 10% 공개 판매, 40% 생태계 개발, 25% 팀 보유, 25% 투자자 보유. 공개 판매에서 예금 활동에 참여한 사용자에게 10억 XPL 토큰이 배분되었습니다.",
       "q3": "XPL은 언제 잠금 해제되나요?",
       "a3": "비미국 사용자: 메인넷 베타 출시 시 즉시 릴리스. 미국 사용자: 12개월 잠금 기간(2026년 7월 28일까지). 팀 및 투자자: 3년 선형 잠금 해제, 첫 해는 클리프 기간."
+    },
+    "wxpl": {
+      "title": "WXPL",
+      "q1": "WXPL이란 무엇인가요?",
+      "a1": "WXPL(Wrapped XPL)은 Plasma 블록체인의 네이티브 토큰 XPL의 래핑 버전으로, BSC(Binance Smart Chain), Solana 또는 기타 EVM 호환 체인에서 크로스체인 유통 및 DeFi 사용을 위해 사용됩니다. 간단히 말해: XPL은 Plasma 체인의 네이티브 Gas Token(수수료 지불, 스테이킹, 거버넌스에 사용)이며, WXPL은 XPL을 \"래핑\"하여 다른 체인에서 사용할 수 있도록 한 버전입니다(WETH, WBTC, WBNB와 유사한 로직)."
     }
   },
   "transaction": {
@@ -516,11 +521,12 @@
     "withdrawAmount": "인출 금액",
     "enterAmount": "인출 금액을 입력하세요",
     "withdrawAll": "전액 인출",
-    "minAmount": "최소 인출: 100 USDT0",
+    "minAmount": "최소 인출: 3 USDT0",
+    "minAmountError": "최소 출금 금액은 3 USDT0입니다",
     "currentRate": "현재 환율 (1 WXPL = {{rate}} USDT0)",
     "estimatedXpl": "약 {{amount}} WXPL",
     "fetchingRate": "환율 가져오는 중...",
-    "feeNotice": "출금 수수료 1 USDT0, 24시간 이내 도착",
+    "feeNotice": "출금 수수료 1 USDT0",
     "rateNotice": "이번 출금은 실시간 환율로 WXPL로 환산되어 전송됩니다. 주소가 정확한지 반드시 확인하세요",
     "creatingOrder": "주문 생성 중...",
     "waitingWallet": "지갑 확인 대기 중...",

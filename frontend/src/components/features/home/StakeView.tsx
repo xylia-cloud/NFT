@@ -11,7 +11,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { cn } from "@/lib/utils";
 import { Usdt0 } from "@/components/ui/usdt0";
 import { CONTRACT_ADDRESS, CONTRACT_ABI, USDT_ADDRESS, USDT_ABI } from "../../../wagmiConfig";
-import { getGlobalConfig, rechargePreorder, getNewsList, ApiError, type GlobalConfigResponse, type NewsItem } from "@/lib/api";
+import { getGlobalConfig, rechargePreorder, getNewsList, getNewsDetail, ApiError, type GlobalConfigResponse, type NewsItem } from "@/lib/api";
 import bannerSpline from "@/assets/images/banner.splinecode?url";
 import partner1 from "@/assets/images/partners_1.svg";
 import partner2 from "@/assets/images/partners_2.svg";
@@ -216,6 +216,10 @@ export function StakeView() {
   // 获取系统通知
   const [latestNews, setLatestNews] = useState<NewsItem | null>(null);
   
+  // 未读通知弹窗状态
+  const [showUnreadDialog, setShowUnreadDialog] = useState(false);
+  const [unreadNewsDetail, setUnreadNewsDetail] = useState<any>(null);
+  
   useEffect(() => {
     const fetchGlobalConfig = async () => {
       try {
@@ -240,6 +244,21 @@ export function StakeView() {
         if (data.list && data.list.length > 0) {
           setLatestNews(data.list[0]); // 获取最新的一条通知
           console.log('✅ 系统通知获取成功:', data.list[0]);
+          
+          // 检查是否有未读通知
+          const unreadNews = data.list.find(news => !news.is_read);
+          if (unreadNews) {
+            console.log('📬 发现未读通知，准备弹窗显示:', unreadNews);
+            // 获取通知详情
+            try {
+              const detailData = await getNewsDetail({ id: unreadNews.id });
+              console.log('📄 通知详情获取成功:', detailData);
+              setUnreadNewsDetail(detailData.detail);
+              setShowUnreadDialog(true);
+            } catch (err) {
+              console.error('❌ 获取通知详情失败:', err);
+            }
+          }
         } else {
           console.log('⚠️ 系统通知列表为空');
         }
@@ -1369,6 +1388,54 @@ export function StakeView() {
           <ArrowUp className="h-5 w-5" />
         </button>
       )}
+
+      {/* 未读通知弹窗 */}
+      <Dialog open={showUnreadDialog} onOpenChange={setShowUnreadDialog}>
+        <DialogContent className="sm:max-w-2xl max-h-[85vh] flex flex-col">
+          <DialogHeader>
+            <div className="flex items-center gap-2 mb-2">
+              <Bell className="h-5 w-5 text-primary" />
+              <DialogTitle className="text-xl">
+                {t('news.systemNotification')}
+              </DialogTitle>
+            </div>
+            {unreadNewsDetail && (
+              <DialogDescription className="text-left">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Calendar className="h-4 w-4" />
+                  {unreadNewsDetail.addtime}
+                </div>
+              </DialogDescription>
+            )}
+          </DialogHeader>
+          
+          {unreadNewsDetail && (
+            <div className="space-y-4 px-6 pb-6 overflow-y-auto flex-1">
+              {/* 标题 */}
+              <h3 className="text-lg font-semibold text-foreground">
+                {unreadNewsDetail.title}
+              </h3>
+              
+              {/* 图片（如果有） */}
+              {unreadNewsDetail.img && (
+                <div className="rounded-lg overflow-hidden border border-border/50">
+                  <img 
+                    src={unreadNewsDetail.img} 
+                    alt={unreadNewsDetail.title}
+                    className="w-full h-auto object-cover"
+                  />
+                </div>
+              )}
+              
+              {/* 内容 */}
+              <div 
+                className="prose prose-sm max-w-none text-foreground/90 leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: unreadNewsDetail.content }}
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
     </div>
   );

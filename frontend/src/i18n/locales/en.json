@@ -493,6 +493,11 @@
       "a2": "Total supply is 10 billion tokens, distributed as follows: 10% public sale, 40% ecosystem development, 25% team allocation, 25% investor allocation. In the public sale, 1 billion XPL tokens were distributed to users who participated in deposit activities.",
       "q3": "When will XPL unlock?",
       "a3": "Non-US users: Instant release at mainnet beta launch. US users: 12-month lock period (until July 28, 2026). Team and investors: 3-year linear unlock with first year as cliff period."
+    },
+    "wxpl": {
+      "title": "WXPL",
+      "q1": "What is WXPL?",
+      "a1": "WXPL (Wrapped XPL) is the wrapped version of Plasma blockchain's native token XPL, commonly found on BSC (Binance Smart Chain), Solana, or other EVM-compatible chains for cross-chain circulation and DeFi usage. Simply put: XPL is Plasma chain's native Gas Token (used for transaction fees, staking, governance), while WXPL is the \"wrapped\" version of XPL for use on other chains (similar to WETH, WBTC, WBNB logic)."
     }
   },
   "transaction": {
@@ -513,11 +518,12 @@
     "withdrawAmount": "Withdraw Amount",
     "enterAmount": "Please enter withdraw amount",
     "withdrawAll": "Withdraw All",
-    "minAmount": "Min Withdraw: 100 USDT0",
+    "minAmount": "Min Withdraw: 3 USDT0",
+    "minAmountError": "Minimum withdrawal amount is 3 USDT0",
     "currentRate": "At current rate (1 WXPL = {{rate}} USDT0)",
     "estimatedXpl": "Approx {{amount}} WXPL",
     "fetchingRate": "Fetching rate...",
-    "feeNotice": "Withdrawal fee 1 USDT0, arrives within 24 hours",
+    "feeNotice": "Withdrawal fee 1 USDT0",
     "rateNotice": "This withdrawal will be converted to WXPL at real-time rate, please confirm address is correct",
     "creatingOrder": "Creating order...",
     "waitingWallet": "Waiting for wallet confirmation...",
@@ -534,6 +540,8 @@
     "title": "System Notifications",
     "subtitle": "View all system notifications and announcements",
     "noNews": "No notifications yet",
-    "notFound": "Notification not found"
+    "notFound": "Notification not found",
+    "systemNotification": "System Notification",
+    "viewAllNotifications": "View All Notifications"
   }
 }

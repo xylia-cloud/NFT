@@ -496,6 +496,11 @@
       "a2": "El suministro total es de 10 mil millones de tokens, distribuidos de la siguiente manera: 10% venta pública, 40% desarrollo del ecosistema, 25% asignación del equipo, 25% asignación de inversores. En la venta pública, se distribuyeron 1 mil millones de tokens XPL a los usuarios que participaron en actividades de depósito.",
       "q3": "¿Cuándo se desbloqueará XPL?",
       "a3": "Usuarios no estadounidenses: Liberación instantánea en el lanzamiento del mainnet beta. Usuarios estadounidenses: Período de bloqueo de 12 meses (hasta el 28 de julio de 2026). Equipo e inversores: Desbloqueo lineal de 3 años con el primer año como período de cliff."
+    },
+    "wxpl": {
+      "title": "WXPL",
+      "q1": "¿Qué es WXPL?",
+      "a1": "WXPL (Wrapped XPL) es la versión envuelta del token nativo XPL de la blockchain Plasma, comúnmente utilizado en BSC (Binance Smart Chain), Solana u otras cadenas compatibles con EVM para circulación entre cadenas y uso DeFi. En términos simples: XPL es el Gas Token nativo de la cadena Plasma (para tarifas de transacción, staking, gobernanza), mientras que WXPL es la versión \"envuelta\" de XPL para uso en otras cadenas (lógica similar a WETH, WBTC, WBNB)."
     }
   },
   "transaction": {
@@ -516,11 +521,12 @@
     "withdrawAmount": "Cantidad de Retiro",
     "enterAmount": "Ingrese la cantidad de retiro",
     "withdrawAll": "Retirar Todo",
-    "minAmount": "Retiro Mínimo: 100 USDT0",
+    "minAmount": "Retiro Mínimo: 3 USDT0",
+    "minAmountError": "La cantidad mínima de retiro es 3 USDT0",
     "currentRate": "A tasa actual (1 WXPL = {{rate}} USDT0)",
     "estimatedXpl": "Aprox {{amount}} WXPL",
     "fetchingRate": "Obteniendo tasa...",
-    "feeNotice": "Comisión de retiro 1 USDT0, llega en 24 horas",
+    "feeNotice": "Comisión de retiro 1 USDT0",
     "rateNotice": "Este retiro se convertirá a WXPL a tasa en tiempo real, confirme que la dirección sea correcta",
     "creatingOrder": "Creando orden...",
     "waitingWallet": "Esperando confirmación de billetera...",
@@ -537,6 +543,8 @@
     "title": "Notificaciones del Sistema",
     "subtitle": "Ver todas las notificaciones del sistema y anuncios",
     "noNews": "Aún no hay notificaciones",
-    "notFound": "Notificación no encontrada"
+    "notFound": "Notificación no encontrada",
+    "systemNotification": "Notificación del Sistema",
+    "viewAllNotifications": "Ver Todas las Notificaciones"
   }
 }

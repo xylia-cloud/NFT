@@ -47,7 +47,8 @@ export function WithdrawView() {
   });
 
   const inputAmount = parseFloat(amount);
-  const isValidAmount = !isNaN(inputAmount) && inputAmount > 0 && inputAmount <= withdrawableAmount;
+  const MIN_WITHDRAW_AMOUNT = 3; // 最低提现金额
+  const isValidAmount = !isNaN(inputAmount) && inputAmount >= MIN_WITHDRAW_AMOUNT && inputAmount <= withdrawableAmount;
   // 根据输入的 USDT0 和真实汇率计算 XPL 数量
   // xplRate 是 XPL 的 USDT 价格（1 XPL = xplRate USDT）
   // 所以 XPL 数量 = USDT 数量 / xplRate
@@ -242,7 +243,21 @@ export function WithdrawView() {
                 type="number"
                 placeholder={t('withdraw.enterAmount')}
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  // 只允许整数，过滤掉小数点和小数部分
+                  if (value === '' || /^\d+$/.test(value)) {
+                    setAmount(value);
+                  }
+                }}
+                onKeyDown={(e) => {
+                  // 阻止输入小数点、e、+、- 等字符
+                  if (e.key === '.' || e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-') {
+                    e.preventDefault();
+                  }
+                }}
+                min="3"
+                step="1"
                 className="h-12 text-lg pr-16"
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
@@ -261,6 +276,12 @@ export function WithdrawView() {
                 {t('withdraw.minAmount')}
               </span>
             </div>
+            {inputAmount > 0 && inputAmount < MIN_WITHDRAW_AMOUNT && (
+              <div className="flex items-center gap-2 text-sm text-destructive">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                <span>{t('withdraw.minAmountError')}</span>
+              </div>
+            )}
             {inputAmount > 0 && xplRate > 0 && (
               <div className="rounded-lg bg-primary/5 border border-primary/10 p-3">
                 <p className="text-sm text-muted-foreground">
@@ -276,27 +297,6 @@ export function WithdrawView() {
                 {t('withdraw.fetchingRate')}
               </p>
             )}
-          </div>
-
-          {/* 快捷金额 */}
-          <div className="grid grid-cols-4 gap-2">
-            {[1000, 2000, 5000, 10000].map((preset) => {
-              const isMax = preset > withdrawableAmount;
-              const displayAmount = isMax ? withdrawableAmount : preset;
-              
-              return (
-                <Button
-                  key={preset}
-                  type="button"
-                  variant={amount === displayAmount.toString() ? "default" : "outline"}
-                  size="sm"
-                  className="rounded-lg"
-                  onClick={() => setAmount(displayAmount.toString())}
-                >
-                  {isMax ? "MAX" : preset.toLocaleString()}
-                </Button>
-              );
-            })}
           </div>
 
           {/* 提现说明 */}

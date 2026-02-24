@@ -101,6 +101,15 @@ export function HelpCenterView() {
       ],
     },
     {
+      title: t("help.wxpl.title"),
+      items: [
+        {
+          question: t("help.wxpl.q1"),
+          answer: t("help.wxpl.a1"),
+        },
+      ],
+    },
+    {
       title: t("help.wallet.title"),
       items: [
         {

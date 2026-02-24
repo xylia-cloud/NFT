@@ -493,6 +493,11 @@
       "a2": "总供应量为100亿枚，具体分配如下：10%公开发售、40%生态发展、25%团队持有、25%投资者持有。公开发售中，10亿XPL代币已分配给参与存款活动的用户。",
       "q3": "XPL何时解锁？",
       "a3": "非美国用户：主网测试版上线时即时释放。美国用户：12个月锁定期（至2026年7月28日）。团队及投资者：3年线性解锁，首年为冻结期。"
+    },
+    "wxpl": {
+      "title": "WXPL",
+      "q1": "什么是WXPL？",
+      "a1": "WXPL（Wrapped XPL）是 Plasma 区块链原生代币 XPL 的包装版本，最常见出现在 BSC（Binance Smart Chain）、Solana 或其他 EVM 兼容链上，用来实现跨链流通和 DeFi 使用。简单来说：XPL 是 Plasma 链的原生 Gas Token（用来付手续费、质押、治理），WXPL 是把 XPL \"包起来\" 后在其他链上使用的版本（类似 WETH、WBTC、WBNB 的逻辑）。"
     }
   },
   "transaction": {
@@ -513,11 +518,12 @@
     "withdrawAmount": "提取金额",
     "enterAmount": "请输入提取金额",
     "withdrawAll": "全部提取",
-    "minAmount": "最小提取: 100 USDT0",
+    "minAmount": "最小提取: 3 USDT0",
+    "minAmountError": "最低提现金额为 3 USDT0",
     "currentRate": "按当前汇率 (1 WXPL = {{rate}} USDT0)",
     "estimatedXpl": "约 {{amount}} WXPL",
     "fetchingRate": "正在获取汇率...",
-    "feeNotice": "提现手续费 1 USDT0，24小时到账",
+    "feeNotice": "提现手续费 1 USDT0",
     "rateNotice": "本次提现将按实时汇率折算为 WXPL 发送，请务必确认地址正确",
     "creatingOrder": "创建订单中...",
     "waitingWallet": "等待钱包确认...",
@@ -534,6 +540,8 @@
     "title": "系统通知",
     "subtitle": "查看所有系统通知和公告",
     "noNews": "暂无通知",
-    "notFound": "通知不存在"
+    "notFound": "通知不存在",
+    "systemNotification": "系统通知",
+    "viewAllNotifications": "查看所有通知"
   }
 }

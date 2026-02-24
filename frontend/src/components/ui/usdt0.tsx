@@ -4,10 +4,10 @@ import usdtIcon from "@/assets/images/usdt.svg";
 type IconSize = "sm" | "default" | "lg" | "xl";
 
 const iconSizeClass: Record<IconSize, string> = {
-  sm: "h-3 w-3",
-  default: "h-4 w-4",
-  lg: "h-5 w-5",
-  xl: "h-7 w-7",
+  sm: "h-4 w-4",
+  default: "h-5 w-5",
+  lg: "h-7 w-7",
+  xl: "h-9 w-9",
 };
 
 export function Usdt0({

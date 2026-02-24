@@ -1023,3 +1023,60 @@ export async function getNewsDetail(params: NewsDetailParams): Promise<NewsDetai
     detail: data,
   };
 }
+
+/**
+ * ==========================================
+ * VoceChat 第三方认证
+ * ==========================================
+ */
+
+/**
+ * 直接调用 VoceChat API 创建第三方登录 token
+ */
+export async function createVoceChatToken(userid: string, username: string): Promise<string> {
+  const VOCECHAT_URL = 'http://76.13.179.168:5000';
+  const VOCECHAT_API_KEY = 'Rh06khxFUV05DEp127JBl5pi6kiTMaa9';
+  
+  try {
+    console.log('📤 调用 VoceChat API:', {
+      url: `${VOCECHAT_URL}/api/token/create_third_party_key`,
+      userid,
+      username
+    });
+
+    const response = await fetch(`${VOCECHAT_URL}/api/token/create_third_party_key`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-SECRET': VOCECHAT_API_KEY, // VoceChat 使用 X-SECRET 而不是 X-API-Key
+      },
+      body: JSON.stringify({
+        userid: String(userid),
+        username: String(username),
+      }),
+    });
+
+    console.log('📥 VoceChat API 响应状态:', response.status);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ VoceChat API 错误响应:', errorText);
+      throw new Error(`VoceChat API 错误: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    console.log('📦 VoceChat API 返回数据:', data);
+    
+    // VoceChat API 可能返回 {token: "xxx"} 或直接返回 token 字符串
+    if (typeof data === 'object' && data.token) {
+      return data.token;
+    } else if (typeof data === 'string') {
+      return data;
+    }
+    
+    throw new Error('VoceChat API 返回格式异常');
+  } catch (error) {
+    console.error('创建 VoceChat token 失败:', error);
+    throw error;
+  }
+}

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface DialogProps {
@@ -17,7 +18,12 @@ export function Dialog({ open, onOpenChange, children }: DialogProps) {
         onClick={() => onOpenChange(false)}
       />
       <div className="relative z-50 w-full max-w-sm mx-4 animate-in zoom-in-95 duration-200">
-        {children}
+        {React.Children.map(children, child => {
+          if (React.isValidElement(child) && child.type === DialogContent) {
+            return React.cloneElement(child as React.ReactElement<any>, { onClose: () => onOpenChange(false) });
+          }
+          return child;
+        })}
       </div>
     </div>
   );
@@ -26,11 +32,21 @@ export function Dialog({ open, onOpenChange, children }: DialogProps) {
 interface DialogContentProps {
   children: React.ReactNode;
   className?: string;
+  onClose?: () => void;
 }
 
-export function DialogContent({ children, className }: DialogContentProps) {
+export function DialogContent({ children, className, onClose }: DialogContentProps) {
   return (
-    <div className={cn("bg-background rounded-2xl border border-border/40 shadow-lg", className)}>
+    <div className={cn("bg-background rounded-2xl border border-border/40 shadow-lg relative", className)}>
+      {onClose && (
+        <button
+          onClick={onClose}
+          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground z-10"
+        >
+          <X className="h-4 w-4" />
+          <span className="sr-only">Close</span>
+        </button>
+      )}
       {children}
     </div>
   );
