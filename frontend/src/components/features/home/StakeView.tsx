@@ -939,7 +939,7 @@ export function StakeView() {
             </div>
             <DialogTitle className="text-xl">{t("home.stakeSuccess")}</DialogTitle>
             <DialogDescription className="text-base">
-              已成功充值 <span className="font-bold text-foreground">{depositSuccessInfo?.amountUsdt ?? amount.toLocaleString()} USDT0</span> 到合约
+              {t("home.stakeSuccessDesc", { amount: depositSuccessInfo?.amountUsdt ?? amount.toLocaleString() })}
             </DialogDescription>
           </DialogHeader>
           <div className="px-6 pb-2">

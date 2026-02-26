@@ -127,7 +127,7 @@
       "feature2Desc": "Avec le soutien des partenaires, obtenez jusqu'à 4% de remboursement en espèces.",
       "feature3Title": "Couverture mondiale",
       "feature3Desc": "Dans plus de 150 pays/régions, juste un tap pour des opérations faciles ou des achats en ligne.",
-      "feature4Title": "Transfert USDE sans frais",
+      "feature4Title": "Transfert USDT0 sans frais",
       "feature4Desc": "Envoyez des dollars : à tout moment, n'importe où, sans frais.",
       "feature5Title": "Rejoignez en quelques minutes",
       "feature5Desc": "Complétez l'inscription, obtenez une carte virtuelle et commencez à dépenser en quelques minutes, sans attendre des jours."
@@ -289,6 +289,7 @@
     "level2Count": "Niveau 2",
     "level1": "Niveau 1",
     "level2": "Niveau 2",
+    "teamLevel": "Niveau d'Équipe",
     "teamPerformance": "Performance Totale de l'Équipe",
     "teamEarnings": "Gains Accumulés de l'Équipe",
     "totalCommission": "Commission Totale",

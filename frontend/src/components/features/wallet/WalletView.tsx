@@ -495,9 +495,9 @@ function TransactionList({ transactions }: { transactions: TransactionDetail[] }
     } else if (protypeName.includes('复投') || protypeName.includes('Reinvest')) {
       return {
         icon: RefreshCw,
-        bgColor: 'bg-primary/10',
-        borderColor: 'border-primary/20',
-        textColor: 'text-primary',
+        bgColor: 'bg-red-500/10',
+        borderColor: 'border-red-500/20',
+        textColor: 'text-red-500',
       };
     } else if (protypeName.includes('提现') || protypeName.includes('出金') || protypeName.includes('Withdraw')) {
       return {
@@ -543,6 +543,10 @@ function TransactionList({ transactions }: { transactions: TransactionDetail[] }
               ? `${tx.source_user.slice(0, 6)}****${tx.source_user.slice(-6)}`
               : '';
             
+            // 复投不显示+号
+            const isReinvest = tx.protype === '2003';
+            const showSign = !isReinvest;
+            
             return (
               <div key={`${tx.time}-${index}`} className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors">
                 <div className="flex items-center gap-4">
@@ -569,8 +573,8 @@ function TransactionList({ transactions }: { transactions: TransactionDetail[] }
                   </div>
                 </div>
                 <div className="text-right flex items-center justify-end gap-1">
-                  <span className={`font-bold text-sm ${isIncome ? 'text-primary' : 'text-foreground'}`}>
-                    {isIncome ? '+' : '-'}{parseFloat(tx.fee).toFixed(2)}
+                  <span className={`font-bold text-sm ${isReinvest ? 'text-red-500' : isIncome ? 'text-primary' : 'text-foreground'}`}>
+                    {showSign && (isIncome ? '+' : '-')}{parseFloat(tx.fee).toFixed(2)}
                   </span>
                   <span className="text-xs font-normal text-muted-foreground"><Usdt0 iconSize="sm" /></span>
                 </div>

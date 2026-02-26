@@ -115,7 +115,7 @@
       "feature2Desc": "With partner support, get up to 4% cash back.",
       "feature3Title": "Global Coverage",
       "feature3Desc": "In over 150 countries/regions, just a tap away for easy operations or online purchases.",
-      "feature4Title": "USDE Transfer Fee-Free",
+      "feature4Title": "USDT0 Transfer Fee-Free",
       "feature4Desc": "Send dollars: anytime, anywhere, with no fees.",
       "feature5Title": "Join in Just Minutes",
       "feature5Desc": "Complete registration, get a virtual card, and start spending in minutes, no waiting days."
@@ -287,6 +287,7 @@
     "level2Count": "Level 2",
     "level1": "Level 1",
     "level2": "Level 2",
+    "teamLevel": "Team Level",
     "teamPerformance": "Team Performance",
     "teamEarnings": "Team Earnings",
     "totalCommission": "Total Commission",

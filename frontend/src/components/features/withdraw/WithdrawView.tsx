@@ -301,8 +301,8 @@ export function WithdrawView() {
 
           {/* 提现说明 */}
           <div className="rounded-xl bg-muted/30 p-4 space-y-2">
-            <div className="flex items-start gap-2 text-sm text-muted-foreground">
-              <Shield className="h-4 w-4 shrink-0 mt-0.5 text-primary" />
+            <div className="flex items-start gap-2 text-sm text-red-500">
+              <Shield className="h-4 w-4 shrink-0 mt-0.5" />
               <span>{t('withdraw.feeNotice')}</span>
             </div>
             <div className="flex items-start gap-2 text-sm text-muted-foreground">
@@ -334,7 +334,7 @@ export function WithdrawView() {
             ) : (
               <>
                 <ArrowDownToLine className="h-4 w-4 mr-2" />
-                {t('withdraw.confirmWithdraw')} {isValidAmount && estimatedXpl > 0 ? `${estimatedXpl.toLocaleString(undefined, { maximumFractionDigits: 4 })} XPL` : ""}
+                {t('withdraw.confirmWithdraw')} {isValidAmount && estimatedXpl > 0 ? `${estimatedXpl.toLocaleString(undefined, { maximumFractionDigits: 4 })} WXPL` : ""}
               </>
             )}
           </Button>

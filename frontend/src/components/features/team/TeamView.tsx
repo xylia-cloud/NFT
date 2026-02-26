@@ -12,6 +12,7 @@ import {
   TrendingUp,
   CalendarDays,
   Wallet,
+  Gem,
 } from "lucide-react";
 import { Usdt0 } from "@/components/ui/usdt0";
 import { getTeamInfo, getTeamCalendar, getTeamMembers, type TeamInfoResponse, type TeamMember } from "@/lib/api";
@@ -170,6 +171,22 @@ export function TeamView() {
 
   return (
     <div className="space-y-4 pb-20 animate-in fade-in duration-500 max-w-4xl mx-auto pt-4">
+      {/* 团队等级展示 - 仅当等级大于0时显示 */}
+      {teamInfo?.level_user !== undefined && parseInt(teamInfo.level_user) > 0 && (
+        <Card className="shadow-sm border-border/60">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">{t("team.teamLevel")}</span>
+              <div className="flex items-center gap-0.5">
+                {Array.from({ length: parseInt(teamInfo.level_user) }).map((_, index) => (
+                  <Gem key={index} className="h-5 w-5 text-primary fill-primary" />
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* 1. {t("team.teamPerformance")}、本人账户金额 */}
       <div className="grid grid-cols-2 gap-4">
         {/* {t("team.teamPerformance")} */}
@@ -177,9 +194,6 @@ export function TeamView() {
           <CardContent className="p-4 flex flex-col gap-2">
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-muted-foreground">{t("team.teamPerformance")}</span>
-              <Badge className="bg-primary text-primary-foreground text-[10px] h-5 px-2">
-                A{teamInfo?.level_user || "0"}
-              </Badge>
             </div>
             <div>
               <div className="text-xl font-bold tracking-tight inline-flex items-center gap-1.5"><Usdt0 iconSize="sm" iconOnly />{teamStats.totalPerformance}</div>

@@ -126,7 +126,7 @@
       "feature2Desc": "パートナーの追加サポートにより、最大4%のキャッシュバックを獲得。",
       "feature3Title": "グローバルカバレッジ",
       "feature3Desc": "150以上の国/地域で、タップするだけで簡単に操作またはオンライン購入。",
-      "feature4Title": "USDE送金手数料無料",
+      "feature4Title": "USDT0送金手数料無料",
       "feature4Desc": "ドルを送信：いつでもどこでも、手数料なし。",
       "feature5Title": "数分で参加可能",
       "feature5Desc": "数分で登録を完了し、バーチャルカードを取得して消費を開始、数日待つ必要なし。"
@@ -289,6 +289,7 @@
     "level2Count": "レベル2メンバー",
     "level1": "レベル1",
     "level2": "レベル2",
+    "teamLevel": "チームレベル",
     "teamPerformance": "チーム総業績",
     "teamEarnings": "チーム累計収益",
     "totalCommission": "累計コミッション",

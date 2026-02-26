@@ -127,7 +127,7 @@
       "feature2Desc": "Mit Partner-Unterstützung bis zu 4% Cashback erhalten.",
       "feature3Title": "Globale Abdeckung",
       "feature3Desc": "In über 150 Ländern/Regionen, nur ein Tippen für einfache Operationen oder Online-Käufe.",
-      "feature4Title": "USDE-Überweisung gebührenfrei",
+      "feature4Title": "USDT0-Überweisung gebührenfrei",
       "feature4Desc": "Dollar senden: jederzeit, überall, ohne Gebühren.",
       "feature5Title": "In nur Minuten beitreten",
       "feature5Desc": "Registrierung abschließen, virtuelle Karte erhalten und in Minuten mit dem Ausgeben beginnen, keine Tage warten."
@@ -288,6 +288,7 @@
     "level2Count": "Level 2",
     "level1": "Level 1",
     "level2": "Level 2",
+    "teamLevel": "Team-Level",
     "teamPerformance": "Gesamt-Team-Leistung",
     "teamEarnings": "Kumulierte Team-Gewinne",
     "totalCommission": "Gesamt-Provision",
