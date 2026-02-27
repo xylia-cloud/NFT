@@ -279,7 +279,7 @@
     "right3": "Tägliche Dividenden werden automatisch abgerechnet und können im Kalender eingesehen werden",
     "right4": "Knoten-Dividenden können jederzeit zur Wallet abgehoben werden",
     "right5": "Supernode-Status geht automatisch verloren, wenn der Kontostand unter 30,000 USDT0 fällt",
-    "note1": "Supernodes genießen Plattform-Knoten-Dividenden, Dividendenverhältnis wird dynamisch nach Plattformeinnahmen angepasst"
+    "note1": "Supernodes genießen Plattform-Knoten-Dividenden, Dividendenverhältnis wird dynamisch nach On-Chain-Dateneinnahmen angepasst"
   },
   "team": {
     "title": "Mein Team",

@@ -280,7 +280,7 @@
     "right3": "Los dividendos diarios se liquidan automáticamente y se pueden ver en el calendario",
     "right4": "Los dividendos de nodo se pueden retirar a la billetera en cualquier momento",
     "right5": "El estado de Supernodo se pierde automáticamente cuando el saldo de la cuenta cae por debajo de 30,000 USDT0",
-    "note1": "Los Supernodos disfrutan de dividendos de nodo de plataforma, la proporción de dividendos se ajusta dinámicamente según los ingresos de la plataforma"
+    "note1": "Los Supernodos disfrutan de dividendos de nodo de plataforma, la proporción de dividendos se ajusta dinámicamente según los ingresos de datos on-chain"
   },
   "team": {
     "title": "Mi Equipo",

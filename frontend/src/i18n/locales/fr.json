@@ -280,7 +280,7 @@
     "right3": "Les dividendes quotidiens sont réglés automatiquement et peuvent être consultés dans le calendrier",
     "right4": "Les dividendes de nœud peuvent être retirés vers le portefeuille à tout moment",
     "right5": "Le statut Supernode est automatiquement perdu lorsque le solde du compte tombe en dessous de 30,000 USDT0",
-    "note1": "Les Supernodes bénéficient de dividendes de nœud de plateforme, le ratio de dividendes est ajusté dynamiquement selon les revenus de la plateforme"
+    "note1": "Les Supernodes bénéficient de dividendes de nœud de plateforme, le ratio de dividendes est ajusté dynamiquement selon les revenus de données on-chain"
   },
   "team": {
     "title": "Mon Équipe",

@@ -278,7 +278,7 @@
     "right3": "Daily dividends are automatically settled and can be viewed in the calendar",
     "right4": "Node dividends can be withdrawn to wallet at any time",
     "right5": "Super Node status is automatically lost when account balance falls below 30,000 USDT0",
-    "note1": "Super Nodes enjoy platform node dividends, dividend ratio adjusted dynamically based on platform revenue"
+    "note1": "Super Nodes enjoy platform node dividends, dividend ratio adjusted dynamically based on on-chain data revenue"
   },
   "team": {
     "title": "My Team",
