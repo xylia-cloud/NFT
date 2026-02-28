@@ -34,6 +34,13 @@
     "transaction": "Transacción",
     "videoNotSupported": "Su navegador no soporta reproducción de video"
   },
+  "network": {
+    "wrongNetwork": "Red incorrecta",
+    "switchManually": "Por favor cambie manualmente a la red PLASMA en su billetera",
+    "switching": "Cambiando a la red PLASMA...",
+    "switchSuccess": "Red cambiada exitosamente",
+    "switchFailed": "Error al cambiar de red"
+  },
   "calendar": {
     "sun": "Dom",
     "mon": "Lun",
@@ -97,7 +104,7 @@
     "connectWalletFirst": "Conecte su billetera en la parte superior primero para hacer staking",
     "stableReturn": "Aprox.",
     "continuousGrowth": "Crecimiento Continuo",
-    "globalUsers": "Usuarios Globales",
+    "globalUsers": "Usuarios de Red",
     "securityCompliance": "Seguridad y Cumplimiento",
     "securityDesc": "PLASMA implementa sistemas de seguridad y cumplimiento líderes a nivel mundial para proteger sus activos y datos desde múltiples dimensiones.",
     "assetSecurity": "Seguridad de Activos",

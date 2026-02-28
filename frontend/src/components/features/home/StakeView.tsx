@@ -31,7 +31,7 @@ import video01 from "@/assets/images/01.mp4";
 import video02 from "@/assets/images/02.mp4";
 import video01Poster from "@/assets/images/01.webp";
 import video02Poster from "@/assets/images/02.webp";
-import oneCardVideo from "@/assets/images/one-card-video.mp4";
+import oneCardImage from "@/assets/images/videoframe_1413.png";
 import oneCardIcon1 from "@/assets/images/one-card-icon-1.svg";
 import oneCardIcon2 from "@/assets/images/one-card-icon-2.svg";
 import oneCardIcon3 from "@/assets/images/one-card-icon-3.svg";
@@ -1009,18 +1009,13 @@ export function StakeView() {
           </div>
         </div>
 
-        {/* 视频展示 */}
+        {/* 图片展示 */}
         <div className="rounded-xl overflow-hidden border border-border/40 bg-card/50 shadow-sm">
-          <video
+          <img
+            src={oneCardImage}
+            alt="PLASMA One Card"
             className="w-full h-auto"
-            autoPlay
-            loop
-            muted
-            playsInline
-          >
-            <source src={oneCardVideo} type="video/mp4" />
-            {t('common.videoNotSupported')}
-          </video>
+          />
         </div>
 
         {/* 五个特性卡片 */}

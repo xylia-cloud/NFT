@@ -34,6 +34,13 @@
     "transaction": "交易",
     "videoNotSupported": "您的瀏覽器不支援影片播放"
   },
+  "network": {
+    "wrongNetwork": "網絡錯誤",
+    "switchManually": "請在錢包中手動切換到 PLASMA 網絡",
+    "switching": "正在切換到 PLASMA 網絡...",
+    "switchSuccess": "網絡切換成功",
+    "switchFailed": "網絡切換失敗"
+  },
   "calendar": {
     "sun": "日",
     "mon": "一",
@@ -96,7 +103,7 @@
     "connectWalletFirst": "請先在頂部連接錢包後即可質押",
     "stableReturn": "大约",
     "continuousGrowth": "持續增長",
-    "globalUsers": "全球用戶",
+    "globalUsers": "全網用戶",
     "securityCompliance": "安全與合規保障",
     "securityDesc": "PLASMA 實行全球領先的安全與合規體系，多維度守護您的資產與數據安全。",
     "assetSecurity": "資產安全",

@@ -34,6 +34,13 @@
     "transaction": "Transaction",
     "videoNotSupported": "Your browser does not support video playback"
   },
+  "network": {
+    "wrongNetwork": "Wrong Network",
+    "switchManually": "Please manually switch to PLASMA network in your wallet",
+    "switching": "Switching to PLASMA network...",
+    "switchSuccess": "Network switched successfully",
+    "switchFailed": "Failed to switch network"
+  },
   "nav": {
     "home": "Home",
     "wallet": "My Wallet",
@@ -85,7 +92,7 @@
     "connectWalletFirst": "Please connect your wallet at the top to stake",
     "stableReturn": "Approx.",
     "continuousGrowth": "Continuous Growth",
-    "globalUsers": "Global Users",
+    "globalUsers": "Network Users",
     "securityCompliance": "Security & Compliance",
     "securityDesc": "PLASMA implements world-leading security and compliance systems to protect your assets and data from multiple dimensions.",
     "assetSecurity": "Asset Security",

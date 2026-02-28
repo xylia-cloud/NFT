@@ -12,11 +12,11 @@ import {
   TrendingUp,
   CalendarDays,
   Wallet,
-  Gem,
 } from "lucide-react";
 import { Usdt0 } from "@/components/ui/usdt0";
 import { getTeamInfo, getTeamCalendar, getTeamMembers, type TeamInfoResponse, type TeamMember } from "@/lib/api";
 import { useAccount } from "wagmi";
+import DiamondIcon from "@/assets/images/Diamond.webp";
 
 export function TeamView() {
   const { isConnected } = useAccount();
@@ -177,10 +177,20 @@ export function TeamView() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">{t("team.teamLevel")}</span>
-              <div className="flex items-center gap-0.5">
-                {Array.from({ length: parseInt(teamInfo.level_user) }).map((_, index) => (
-                  <Gem key={index} className="h-5 w-5 text-primary fill-primary" />
-                ))}
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="border-blue-500 text-blue-600 bg-blue-50 hover:bg-blue-100 text-sm h-6 px-2.5">
+                  A{teamInfo.level_user}
+                </Badge>
+                <div className="flex items-center gap-0.5">
+                  {Array.from({ length: parseInt(teamInfo.level_user) }).map((_, index) => (
+                    <img 
+                      key={index} 
+                      src={DiamondIcon} 
+                      alt="Diamond" 
+                      className="h-4 w-4"
+                    />
+                  ))}
+                </div>
               </div>
             </div>
           </CardContent>
@@ -296,9 +306,6 @@ export function TeamView() {
                   <span className="text-sm text-muted-foreground">{t("team.commission")}</span>
                   <span className="text-xl font-bold text-primary">
                     +{selectedDateCommission.toFixed(2)} USDT
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    ({t("leader.title")} +{(selectedDateCommission * 0.1).toFixed(2)} USDT0)
                   </span>
                 </div>
               </div>

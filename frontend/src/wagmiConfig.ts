@@ -61,6 +61,8 @@ export const config = getDefaultConfig({
   ],
   syncConnectedChain: true,
   storage: sessionStorageAdapter, // 使用 sessionStorage
+  // @ts-ignore - initialChainId 是有效的配置项
+  initialChainId: 9745, // 强制使用 PLASMA 网络作为初始网络
 })
 
 // PaymentChannel 合约地址（PLASMA 主网 - v2 with emergency withdraw）

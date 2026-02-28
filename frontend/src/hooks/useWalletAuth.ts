@@ -4,9 +4,11 @@
  */
 
 import { useState, useCallback, useEffect } from 'react';
-import { useAccount, useSignMessage } from 'wagmi';
+import { useAccount, useSignMessage, useSwitchChain, useChainId } from 'wagmi';
 import { getNonce, walletLogin, setToken, setUserInfo, type WalletLoginResponse } from '@/lib/api';
 import { useApiError } from './useApiError';
+
+const PLASMA_CHAIN_ID = 9745;
 
 export interface UseWalletAuthOptions {
   inviteAddress?: string; // 邀请人钱包地址
@@ -52,6 +54,8 @@ export interface UseWalletAuthReturn {
 export function useWalletAuth(options: UseWalletAuthOptions = {}): UseWalletAuthReturn {
   const { inviteAddress, onSuccess, onError, autoLogin = false } = options;
   const { address, isConnected } = useAccount();
+  const chainId = useChainId();
+  const { switchChain } = useSwitchChain();
   const { signMessageAsync } = useSignMessage();
   const { error, handleError, clearError } = useApiError();
   const [isAuthenticating, setIsAuthenticating] = useState(false);
@@ -70,6 +74,38 @@ export function useWalletAuth(options: UseWalletAuthOptions = {}): UseWalletAuth
     clearError();
 
     try {
+      // 0. 检查并切换到 PLASMA 网络
+      if (chainId !== PLASMA_CHAIN_ID) {
+        console.log('⚠️ 当前网络不是 PLASMA，正在切换...', { current: chainId, target: PLASMA_CHAIN_ID });
+        
+        if (!switchChain) {
+          throw new Error('钱包不支持切换网络，请手动切换到 PLASMA 网络');
+        }
+
+        try {
+          await new Promise<void>((resolve, reject) => {
+            switchChain(
+              { chainId: PLASMA_CHAIN_ID },
+              {
+                onSuccess: () => {
+                  console.log('✅ 网络切换成功');
+                  resolve();
+                },
+                onError: (error) => {
+                  console.error('❌ 网络切换失败:', error);
+                  reject(new Error('请在钱包中切换到 PLASMA 网络后重试'));
+                },
+              }
+            );
+          });
+
+          // 等待网络切换完成
+          await new Promise(resolve => setTimeout(resolve, 500));
+        } catch (switchError) {
+          throw switchError;
+        }
+      }
+
       // 1. 获取 nonce（使用小写地址）
       const walletAddress = address.toLowerCase();
       console.log('🔐 步骤 1: 获取 nonce...');
@@ -131,7 +167,7 @@ export function useWalletAuth(options: UseWalletAuthOptions = {}): UseWalletAuth
     } finally {
       setIsAuthenticating(false);
     }
-  }, [isConnected, address, signMessageAsync, inviteAddress, onSuccess, onError, handleError, clearError]);
+  }, [isConnected, address, chainId, switchChain, signMessageAsync, inviteAddress, onSuccess, onError, handleError, clearError]);
 
   // 自动登录：当钱包连接且未登录时自动触发（只尝试一次）
   useEffect(() => {

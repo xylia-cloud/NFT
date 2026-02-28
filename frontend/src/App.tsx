@@ -18,6 +18,7 @@ import { NewsView } from '@/components/features/news/NewsView';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
 import { GlobalLoading } from '@/components/ui/GlobalLoading';
+import { NetworkGuard } from '@/components/NetworkGuard';
 import { useWalletAuth } from '@/hooks/useWalletAuth';
 import { useLoadingStore } from '@/store/loadingStore';
 import { clearToken, getUserInfo, createVoceChatToken } from '@/lib/api';
@@ -203,6 +204,7 @@ export default function App() {
 
   return (
     <>
+      <NetworkGuard />
       <MainLayout
         currentTab={currentTab}
         onTabChange={handleTabChange}

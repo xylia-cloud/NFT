@@ -34,6 +34,13 @@
     "transaction": "取引",
     "videoNotSupported": "お使いのブラウザは動画再生に対応していません"
   },
+  "network": {
+    "wrongNetwork": "ネットワークエラー",
+    "switchManually": "ウォレットで手動で PLASMA ネットワークに切り替えてください",
+    "switching": "PLASMA ネットワークに切り替え中...",
+    "switchSuccess": "ネットワークの切り替えに成功しました",
+    "switchFailed": "ネットワークの切り替えに失敗しました"
+  },
   "calendar": {
     "sun": "日",
     "mon": "月",
@@ -96,7 +103,7 @@
     "connectWalletFirst": "上部でウォレットを接続してからステーキングしてください",
     "stableReturn": "概算",
     "continuousGrowth": "継続的な成長",
-    "globalUsers": "グローバルユーザー",
+    "globalUsers": "ネットワークユーザー",
     "securityCompliance": "セキュリティとコンプライアンス保証",
     "securityDesc": "PLASMA は世界をリードするセキュリティとコンプライアンスシステムを実装し、多次元であなたの資産とデータの安全を守ります。",
     "assetSecurity": "資産セキュリティ",
