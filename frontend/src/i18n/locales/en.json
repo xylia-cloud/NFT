@@ -215,6 +215,8 @@
     "lockPeriod": "Lock",
     "cooldownCountdown": "Cooldown Countdown",
     "principalWithdrawable": "Principal {{amount}} USDT0 can be withdrawn to wallet",
+    "principalWithdrawn": "Principal Withdrawn",
+    "principalWithdrawnDesc": "Principal has been successfully withdrawn to wallet",
     "statusLockin": "Lock Period",
     "statusNormal": "Normal",
     "statusWithdrawn": "Withdrawn",
@@ -523,6 +525,8 @@
     "teamBonus": "Team Bonus",
     "inviteBonus": "Invite Bonus",
     "withdraw": "Withdraw",
+    "capitalWithdraw": "Principal Withdrawal",
+    "profitWithdraw": "Profit Withdrawal",
     "leaderReward": "Leader Reward",
     "reinvest": "Reinvest",
     "supernodeReward": "Supernode Reward",
@@ -548,7 +552,15 @@
     "confirmWithdraw": "Confirm Withdraw",
     "history": "Withdrawal History",
     "noHistory": "No withdrawal history",
-    "createOrderFailed": "Failed to create order, please try again later"
+    "createOrderFailed": "Failed to create order, please try again later",
+    "userCancelled": "You have cancelled the withdrawal",
+    "contractCallFailed": "Contract call failed",
+    "signatureFailed": "Signature failed",
+    "twoSignaturesRequired": "Withdrawal requires two signature confirmations",
+    "twoSignaturesDesc": "First to confirm intent, second to confirm on-chain transaction",
+    "secondSignatureRequired": "Please confirm the second signature to complete the on-chain transaction",
+    "userCancelledContract": "You have cancelled the on-chain transaction signature",
+    "orderCreatedButNotCompleted": "Order created but transaction not completed, please contact support"
   },
   "plasmaOne": {
     "visitWebsite": "Visit Plasma One"

@@ -243,6 +243,10 @@ export function SuperNodeView() {
                   onSelectDate={(date) => setSelectedDate(date ?? null)}
                   flowByDate={NODE_DAILY_REWARDS}
                   showAmount
+                  onMonthChange={(year, month) => {
+                    const monthStr = `${year}-${String(month).padStart(2, "0")}`;
+                    fetchSuperNodeCalendar(monthStr);
+                  }}
                 />
                 {selectedDate && selectedDateReward && (
                   <div className="mt-4 pt-4 border-t border-border/40">

@@ -145,15 +145,22 @@ export function WalletView() {
     return parseFloat(todayData?.total_increase || "0");
   }, [rawCalendarData]);
 
+  // 截取小数位（不四舍五入）
+  const truncateDecimals = (num: number, decimals: number = 2): string => {
+    const factor = Math.pow(10, decimals);
+    const truncated = Math.floor(num * factor) / factor;
+    return truncated.toLocaleString("en-US", { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+  };
+
   // 资产数据（使用真实数据）
   const principal = parseFloat(walletInfo?.capital || "0");
   const interest = parseFloat(walletInfo?.profit || "0");
   
   const assets = {
-    principal: principal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-    interest: interest.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-    total: (principal + interest).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-    todayInterest: `+${todayIncome.toFixed(2)}`
+    principal: truncateDecimals(principal, 2),
+    interest: truncateDecimals(interest, 2),
+    total: truncateDecimals(principal + interest, 2),
+    todayInterest: `+${Math.floor(todayIncome * 100) / 100}`
   };
 
   // {t("wallet.reinvest")}进度
@@ -391,6 +398,10 @@ export function WalletView() {
               selectedDate={selectedDate}
               onSelectDate={setSelectedDate}
               flowByDate={flowByDate}
+              onMonthChange={(year, month) => {
+                const monthStr = `${year}-${String(month).padStart(2, "0")}`;
+                fetchTransactionCalendar(monthStr);
+              }}
             />
             {selectedDate && selectedDateFlow && (
               <div className="mt-4 pt-4 border-t border-border/40 space-y-3">
@@ -401,13 +412,13 @@ export function WalletView() {
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">{t('wallet.income')}</span>
                     <span className="text-base font-bold text-primary">
-                      +{selectedDateFlow.income.toFixed(2)} USDT0
+                      +{Math.floor(selectedDateFlow.income * 100) / 100} USDT0
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">{t('wallet.expense')}</span>
                     <span className="text-base font-bold text-orange-500">
-                      -{selectedDateFlow.expense.toFixed(2)} USDT0
+                      -{Math.floor(selectedDateFlow.expense * 100) / 100} USDT0
                     </span>
                   </div>
                 </div>
@@ -447,7 +458,16 @@ function TransactionList({ transactions }: { transactions: TransactionDetail[] }
   const { t } = useTranslation();
   
   // 交易类型翻译映射
-  const getTransactionTypeName = (protype: string) => {
+  const getTransactionTypeName = (protype: string, coin?: string) => {
+    // 如果是提现（protype='20'），根据 coin 字段区分类型
+    if (protype === '20') {
+      if (coin && coin.toLowerCase() === 'usdt') {
+        return t('transaction.capitalWithdraw'); // USDT = 本金提现
+      } else {
+        return t('transaction.profitWithdraw');  // 其他币种 = 利润提现
+      }
+    }
+    
     const typeMap: Record<string, string> = {
       '1': t('transaction.deposit'),        // 入金
       '6': t('transaction.dailyReward'),    // 日收益
@@ -455,7 +475,8 @@ function TransactionList({ transactions }: { transactions: TransactionDetail[] }
       '9': t('transaction.teamReward'),     // 团队收益
       '10': t('transaction.teamBonus'),     // 团队奖励
       '16': t('transaction.inviteBonus'),   // 推荐奖励
-      '20': t('transaction.withdraw'),      // 提现
+      '21': t('transaction.capitalWithdraw'), // 本金提现（备用）
+      '22': t('transaction.profitWithdraw'),  // 利润提现（备用）
       '2001': t('transaction.leaderReward'),// 领袖奖励
       '2003': t('transaction.reinvest'),    // 复投
       '2004': t('transaction.supernodeReward'), // 超级节点奖励
@@ -529,7 +550,7 @@ function TransactionList({ transactions }: { transactions: TransactionDetail[] }
       <ScrollArea className="h-[400px]">
         <div className="divide-y divide-border/40">
           {transactions.map((tx, index) => {
-            const translatedName = getTransactionTypeName(tx.protype);
+            const translatedName = getTransactionTypeName(tx.protype, tx.coin);
             const style = getTransactionStyle(translatedName, tx.type);
             const Icon = style.icon;
             const isIncome = tx.type === '1';
@@ -574,7 +595,7 @@ function TransactionList({ transactions }: { transactions: TransactionDetail[] }
                 </div>
                 <div className="text-right flex items-center justify-end gap-1">
                   <span className={`font-bold text-sm ${isReinvest ? 'text-red-500' : isIncome ? 'text-primary' : 'text-foreground'}`}>
-                    {showSign && (isIncome ? '+' : '-')}{parseFloat(tx.fee).toFixed(2)}
+                    {showSign && (isIncome ? '+' : '-')}{Math.floor(parseFloat(tx.fee) * 100) / 100}
                   </span>
                   <span className="text-xs font-normal text-muted-foreground"><Usdt0 iconSize="sm" /></span>
                 </div>

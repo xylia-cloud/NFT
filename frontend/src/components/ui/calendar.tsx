@@ -14,6 +14,7 @@ interface CalendarProps {
   flowByDate?: FlowByDate;
   showAmount?: boolean;
   className?: string;
+  onMonthChange?: (year: number, month: number) => void; // 新增：月份变化回调
 }
 
 export function Calendar({
@@ -22,6 +23,7 @@ export function Calendar({
   flowByDate = {},
   showAmount = false,
   className,
+  onMonthChange,
 }: CalendarProps) {
   const { t } = useTranslation();
   const [viewDate, setViewDate] = useState(new Date());
@@ -45,11 +47,15 @@ export function Calendar({
   const daysInMonth = lastDay.getDate();
 
   const prevMonth = () => {
-    setViewDate(new Date(year, month - 1));
+    const newDate = new Date(year, month - 1);
+    setViewDate(newDate);
+    onMonthChange?.(newDate.getFullYear(), newDate.getMonth() + 1);
   };
 
   const nextMonth = () => {
-    setViewDate(new Date(year, month + 1));
+    const newDate = new Date(year, month + 1);
+    setViewDate(newDate);
+    onMonthChange?.(newDate.getFullYear(), newDate.getMonth() + 1);
   };
 
   const days: (number | null)[] = [];

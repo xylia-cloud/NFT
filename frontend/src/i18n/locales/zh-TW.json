@@ -216,6 +216,8 @@
     "lockPeriod": "鎖倉",
     "cooldownCountdown": "冷卻倒數計時",
     "principalWithdrawable": "本金 {{amount}} USDT0 可提至錢包",
+    "principalWithdrawn": "已提取本金",
+    "principalWithdrawnDesc": "本金已成功提取至錢包",
     "statusLockin": "鎖定期",
     "statusNormal": "正常",
     "statusWithdrawn": "已提現",
@@ -529,6 +531,8 @@
     "teamBonus": "團隊獎勵",
     "inviteBonus": "推薦獎勵",
     "withdraw": "提現",
+    "capitalWithdraw": "本金提現",
+    "profitWithdraw": "利潤提現",
     "leaderReward": "領袖獎勵",
     "reinvest": "複投",
     "supernodeReward": "超級節點獎勵"
@@ -552,7 +556,15 @@
     "confirmWithdraw": "確認提現",
     "history": "提現記錄",
     "noHistory": "暫無提現記錄",
-    "createOrderFailed": "創建訂單失敗，請稍後重試"
+    "createOrderFailed": "創建訂單失敗，請稍後重試",
+    "userCancelled": "您已取消提現操作",
+    "contractCallFailed": "合約調用失敗",
+    "signatureFailed": "簽名失敗",
+    "twoSignaturesRequired": "提現需要兩次簽名確認",
+    "twoSignaturesDesc": "第一次確認提現意圖，第二次確認鏈上交易",
+    "secondSignatureRequired": "請確認第二次簽名以完成鏈上交易",
+    "userCancelledContract": "您已取消鏈上交易簽名",
+    "orderCreatedButNotCompleted": "訂單已創建但交易未完成，請聯繫客服處理"
   },
   "plasmaOne": {
     "visitWebsite": "訪問 Plasma One"

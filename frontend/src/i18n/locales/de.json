@@ -216,6 +216,8 @@
     "lockPeriod": "Sperrung",
     "cooldownCountdown": "Abkühl-Countdown",
     "principalWithdrawable": "Kapital {{amount}} USDT0 kann zur Wallet abgehoben werden",
+    "principalWithdrawn": "Kapital Abgehoben",
+    "principalWithdrawnDesc": "Kapital wurde erfolgreich zur Wallet abgehoben",
     "statusLockin": "Sperrfrist",
     "statusNormal": "Normal",
     "statusWithdrawn": "Abgehoben",
@@ -525,6 +527,8 @@
     "teamBonus": "Team-Bonus",
     "inviteBonus": "Einladungsbonus",
     "withdraw": "Abhebung",
+    "capitalWithdraw": "Kapitalabhebung",
+    "profitWithdraw": "Gewinnabhebung",
     "leaderReward": "Leader-Belohnung",
     "reinvest": "Reinvestition",
     "supernodeReward": "Supernode-Belohnung"
@@ -548,7 +552,15 @@
     "confirmWithdraw": "Abhebung Bestätigen",
     "history": "Abhebungsverlauf",
     "noHistory": "Kein Abhebungsverlauf",
-    "createOrderFailed": "Auftragserstellung fehlgeschlagen, bitte später erneut versuchen"
+    "createOrderFailed": "Auftragserstellung fehlgeschlagen, bitte später erneut versuchen",
+    "userCancelled": "Sie haben die Abhebung abgebrochen",
+    "contractCallFailed": "Vertragsaufruf fehlgeschlagen",
+    "signatureFailed": "Signatur fehlgeschlagen",
+    "twoSignaturesRequired": "Abhebung erfordert zwei Signaturbestätigungen",
+    "twoSignaturesDesc": "Erste zur Bestätigung der Absicht, zweite zur Bestätigung der On-Chain-Transaktion",
+    "secondSignatureRequired": "Bitte bestätigen Sie die zweite Signatur, um die On-Chain-Transaktion abzuschließen",
+    "userCancelledContract": "Sie haben die On-Chain-Transaktionssignatur abgebrochen",
+    "orderCreatedButNotCompleted": "Auftrag erstellt, aber Transaktion nicht abgeschlossen, bitte kontaktieren Sie den Support"
   },
   "plasmaOne": {
     "visitWebsite": "Plasma One besuchen"

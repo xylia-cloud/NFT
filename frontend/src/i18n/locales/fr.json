@@ -216,6 +216,8 @@
     "lockPeriod": "Verrouillage",
     "cooldownCountdown": "Compte à Rebours de Refroidissement",
     "principalWithdrawable": "Principal {{amount}} USDT0 peut être retiré vers le portefeuille",
+    "principalWithdrawn": "Principal Retiré",
+    "principalWithdrawnDesc": "Le principal a été retiré avec succès vers le portefeuille",
     "statusLockin": "Période de Verrouillage",
     "statusNormal": "Normal",
     "statusWithdrawn": "Retiré",
@@ -527,6 +529,8 @@
     "teamBonus": "Bonus d'Équipe",
     "inviteBonus": "Bonus d'Invitation",
     "withdraw": "Retrait",
+    "capitalWithdraw": "Retrait du Principal",
+    "profitWithdraw": "Retrait des Bénéfices",
     "leaderReward": "Récompense Leader",
     "reinvest": "Réinvestissement",
     "supernodeReward": "Récompense Supernode"
@@ -550,7 +554,15 @@
     "confirmWithdraw": "Confirmer Retrait",
     "history": "Historique des Retraits",
     "noHistory": "Aucun historique de retrait",
-    "createOrderFailed": "Échec de création de commande, réessayez plus tard"
+    "createOrderFailed": "Échec de création de commande, réessayez plus tard",
+    "userCancelled": "Vous avez annulé l'opération de retrait",
+    "contractCallFailed": "Échec de l'appel du contrat",
+    "signatureFailed": "Échec de la signature",
+    "twoSignaturesRequired": "Le retrait nécessite deux confirmations de signature",
+    "twoSignaturesDesc": "La première pour confirmer l'intention, la seconde pour confirmer la transaction on-chain",
+    "secondSignatureRequired": "Veuillez confirmer la deuxième signature pour finaliser la transaction on-chain",
+    "userCancelledContract": "Vous avez annulé la signature de la transaction on-chain",
+    "orderCreatedButNotCompleted": "Commande créée mais transaction non terminée, veuillez contacter le support"
   },
   "plasmaOne": {
     "visitWebsite": "Visiter Plasma One"

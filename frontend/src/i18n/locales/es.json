@@ -217,6 +217,8 @@
     "lockPeriod": "Bloqueo",
     "cooldownCountdown": "Cuenta Regresiva de Enfriamiento",
     "principalWithdrawable": "Principal {{amount}} USDT0 puede retirarse a la billetera",
+    "principalWithdrawn": "Principal Retirado",
+    "principalWithdrawnDesc": "El principal se ha retirado exitosamente a la billetera",
     "statusLockin": "Período de Bloqueo",
     "statusNormal": "Normal",
     "statusWithdrawn": "Retirado",
@@ -526,6 +528,8 @@
     "teamBonus": "Bonificación de Equipo",
     "inviteBonus": "Bonificación de Invitación",
     "withdraw": "Retiro",
+    "capitalWithdraw": "Retiro de Principal",
+    "profitWithdraw": "Retiro de Ganancias",
     "leaderReward": "Recompensa de Líder",
     "reinvest": "Reinversión",
     "supernodeReward": "Recompensa de Supernodo"
@@ -549,7 +553,15 @@
     "confirmWithdraw": "Confirmar Retiro",
     "history": "Historial de Retiros",
     "noHistory": "Sin historial de retiros",
-    "createOrderFailed": "Error al crear orden, intente más tarde"
+    "createOrderFailed": "Error al crear orden, intente más tarde",
+    "userCancelled": "Ha cancelado la operación de retiro",
+    "contractCallFailed": "Llamada al contrato fallida",
+    "signatureFailed": "Firma fallida",
+    "twoSignaturesRequired": "El retiro requiere dos confirmaciones de firma",
+    "twoSignaturesDesc": "Primera para confirmar intención, segunda para confirmar transacción on-chain",
+    "secondSignatureRequired": "Por favor confirme la segunda firma para completar la transacción on-chain",
+    "userCancelledContract": "Ha cancelado la firma de transacción on-chain",
+    "orderCreatedButNotCompleted": "Orden creada pero transacción no completada, por favor contacte soporte"
   },
   "plasmaOne": {
     "visitWebsite": "Visitar Plasma One"

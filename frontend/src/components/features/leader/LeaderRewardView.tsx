@@ -330,6 +330,10 @@ export function LeaderRewardView() {
                   onSelectDate={(date) => setSelectedDate(date ?? null)}
                   flowByDate={LEADER_DAILY_REWARDS}
                   showAmount
+                  onMonthChange={(year, month) => {
+                    const monthStr = `${year}-${String(month).padStart(2, "0")}`;
+                    fetchLeaderCalendar(monthStr);
+                  }}
                 />
                 {selectedDate && selectedDateReward && (
                   <div className="mt-4 pt-4 border-t border-border/40">

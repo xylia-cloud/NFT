@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { useAccount, useWriteContract, useWaitForTransactionReceipt, useSignMessage } from "wagmi";
 import { Wallet, ArrowDownToLine, Shield, AlertCircle, Loader2, History } from "lucide-react";
 import { Usdt0 } from "@/components/ui/usdt0";
 import { getWalletInfo, getXplRate, profitWithdraw, getTransactionDetails, ApiError, type TransactionDetail } from "@/lib/api";
@@ -21,6 +21,10 @@ export function WithdrawView() {
   const [xplRate, setXplRate] = useState(0); // XPL 汇率
   const [withdrawHistory, setWithdrawHistory] = useState<TransactionDetail[]>([]);
   const [currentOrderId, setCurrentOrderId] = useState<string>("");
+  const [pendingWithdrawAmount, setPendingWithdrawAmount] = useState<number>(0);
+  
+  // 消息签名 hook
+  const { signMessageAsync } = useSignMessage();
   
   // 交易类型翻译映射
   const getTransactionTypeName = (protype: string) => {
@@ -123,7 +127,34 @@ export function WithdrawView() {
     
     setIsWithdrawing(true);
     try {
-      // 步骤1: 调用后端创建提现订单并获取签名
+      // 步骤1: 先让用户签名确认提现意图
+      console.log('📝 请求用户签名确认提现...', { amount: inputAmount });
+      
+      // 提示用户需要两次签名
+      toast.info(t('withdraw.twoSignaturesRequired'), {
+        description: t('withdraw.twoSignaturesDesc'),
+        duration: 4000,
+      });
+      
+      const message = `Confirm withdrawal of ${inputAmount} USDT0\nTimestamp: ${Date.now()}`;
+      
+      let userSignature: string;
+      try {
+        userSignature = await signMessageAsync({ message });
+        console.log('✅ 用户第一次签名成功');
+      } catch (signError: any) {
+        console.log('❌ 用户取消第一次签名或签名失败:', signError);
+        setIsWithdrawing(false);
+        
+        if (signError.message?.includes('User rejected') || signError.message?.includes('user rejected')) {
+          toast.error(t('withdraw.userCancelled'));
+        } else {
+          toast.error(signError.message || t('withdraw.signatureFailed'));
+        }
+        return;
+      }
+      
+      // 步骤2: 签名成功后，调用后端创建提现订单并获取合约签名
       console.log('📝 创建提现订单...', { amount: inputAmount });
       const orderResult = await profitWithdraw({ amount: inputAmount.toString() });
       
@@ -139,8 +170,14 @@ export function WithdrawView() {
       });
       
       setCurrentOrderId(orderResult.transaction_id);
+      setPendingWithdrawAmount(inputAmount);
       
-      // 步骤2: 调用智能合约提现（使用签名验证）
+      // 提示用户即将进行第二次签名
+      toast.info(t('withdraw.secondSignatureRequired'), {
+        duration: 3000,
+      });
+      
+      // 步骤3: 调用智能合约提现（使用后端返回的签名）
       console.log('🔗 调用智能合约 withdrawXplWithSignature...');
       
       const { withdraw_signature } = orderResult;
@@ -171,11 +208,34 @@ export function WithdrawView() {
           BigInt(withdraw_signature.nonce),
           withdraw_signature.signature as `0x${string}`,
         ],
+      }, {
+        onError: (error) => {
+          console.error('❌ 合约调用失败:', error);
+          setIsWithdrawing(false);
+          setCurrentOrderId("");
+          setPendingWithdrawAmount(0);
+          
+          // 检查是否是用户拒绝
+          const isUserRejected = error.message?.includes('User rejected') || 
+                                 error.message?.includes('user rejected') ||
+                                 error.message?.includes('User denied');
+          
+          if (isUserRejected) {
+            toast.error(t('withdraw.userCancelledContract'), {
+              description: t('withdraw.orderCreatedButNotCompleted'),
+              duration: 5000,
+            });
+          } else {
+            toast.error(error.message || t('withdraw.contractCallFailed'));
+          }
+        }
       });
       
     } catch (err: any) {
       console.error('❌ 提现失败:', err);
       setIsWithdrawing(false);
+      setCurrentOrderId("");
+      setPendingWithdrawAmount(0);
       
       if (err instanceof ApiError) {
         toast.error(err.localizedMessage);

@@ -296,6 +296,10 @@ export function TeamView() {
               selectedDate={selectedDate}
               onSelectDate={setSelectedDate}
               flowByDate={commissionByDate}
+              onMonthChange={(year, month) => {
+                const monthStr = `${year}-${String(month).padStart(2, "0")}`;
+                fetchTeamCalendar(monthStr);
+              }}
             />
             {selectedDate && selectedDateCommission !== null && (
               <div className="mt-4 pt-4 border-t border-border/40 space-y-2">

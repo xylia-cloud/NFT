@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from 'react-i18next';
-import { Plus, Minus, Loader2, Wallet, TrendingUp, Shield, Users, Activity, Zap, ChevronLeft, ChevronRight, Lock, PiggyBank, Calendar, Unlock, Clock, ArrowDownToLine, AlertTriangle, Twitter, ArrowUp, FileText, ExternalLink, Bell } from "lucide-react";
+import { Plus, Minus, Loader2, Wallet, TrendingUp, Shield, Users, Activity, Zap, ChevronLeft, ChevronRight, Lock, PiggyBank, Calendar, Unlock, Clock, ArrowDownToLine, AlertTriangle, Twitter, ArrowUp, FileText, ExternalLink, Bell, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -62,7 +62,7 @@ export interface StakeOrder {
   lockEndDate: string;
   lockDays: number;
   accruedInterest: number;
-  status: "locked" | "unlocked";
+  status: "locked" | "unlocked" | "withdrawn";
   dailyRate?: number; // 日化收益 %
 }
 
@@ -87,6 +87,7 @@ export function StakeOrderItem({
   // 按天计算倒计时
   const [remainingDays, setRemainingDays] = useState<number>(0);
   const isLocked = order.status === "locked";
+  const isWithdrawn = order.status === "withdrawn";
 
   useEffect(() => {
     if (!isLocked) return;
@@ -122,10 +123,20 @@ export function StakeOrderItem({
                 variant="outline"
                 className={cn(
                   "text-[10px] h-5 px-2",
-                  isLocked ? "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400" : "border-primary/30 bg-primary/10 text-primary"
+                  isLocked 
+                    ? "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400" 
+                    : isWithdrawn
+                    ? "border-gray-500/30 bg-gray-500/10 text-gray-600 dark:text-gray-400"
+                    : "border-primary/30 bg-primary/10 text-primary"
                 )}
               >
-                {isLocked ? <><Lock className="h-2.5 w-2.5 mr-0.5 inline" /> {t('stake.cooldownPeriod')}</> : <><Unlock className="h-2.5 w-2.5 mr-0.5 inline" /> {t('stake.withdrawable')}</>}
+                {isLocked ? (
+                  <><Lock className="h-2.5 w-2.5 mr-0.5 inline" /> {t('stake.cooldownPeriod')}</>
+                ) : isWithdrawn ? (
+                  <><CheckCircle2 className="h-2.5 w-2.5 mr-0.5 inline" /> {t('stake.principalWithdrawn')}</>
+                ) : (
+                  <><Unlock className="h-2.5 w-2.5 mr-0.5 inline" /> {t('stake.withdrawable')}</>
+                )}
               </Badge>
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -156,7 +167,7 @@ export function StakeOrderItem({
       </div>
 
       {/* 可提取时：提现区域（仅提取本金，利息每日发放可单独提取） */}
-      {!isLocked && (
+      {!isLocked && !isWithdrawn && (
         <div className="flex items-center justify-between gap-4 pt-4 border-t border-border/70">
           <div className="text-sm text-muted-foreground">
             {t('stake.principalWithdrawable', { amount: order.amount.toLocaleString() })}
@@ -170,6 +181,14 @@ export function StakeOrderItem({
             {isWithdrawing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ArrowDownToLine className="h-3.5 w-3.5" />}
             {t('stake.withdrawPrincipal')}
           </Button>
+        </div>
+      )}
+      
+      {/* 已提取状态：显示提示信息 */}
+      {isWithdrawn && (
+        <div className="flex items-center gap-2 pt-4 border-t border-border/70 text-sm text-muted-foreground">
+          <CheckCircle2 className="h-4 w-4 text-gray-500" />
+          <span>{t('stake.principalWithdrawnDesc')}</span>
         </div>
       )}
     </div>

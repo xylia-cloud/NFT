@@ -215,6 +215,8 @@
     "lockPeriod": "ロック",
     "cooldownCountdown": "クールダウンカウントダウン",
     "principalWithdrawable": "元本 {{amount}} USDT0 をウォレットに引き出し可能",
+    "principalWithdrawn": "元本引き出し済み",
+    "principalWithdrawnDesc": "元本がウォレットに正常に引き出されました",
     "statusLockin": "ロック期間",
     "statusNormal": "正常",
     "statusWithdrawn": "出金済み",
@@ -528,6 +530,8 @@
     "teamBonus": "チームボーナス",
     "inviteBonus": "招待ボーナス",
     "withdraw": "出金",
+    "capitalWithdraw": "元本出金",
+    "profitWithdraw": "利益出金",
     "leaderReward": "リーダー報酬",
     "reinvest": "再投資",
     "supernodeReward": "スーパーノード報酬"
@@ -551,7 +555,15 @@
     "confirmWithdraw": "出金確認",
     "history": "出金履歴",
     "noHistory": "出金履歴なし",
-    "createOrderFailed": "注文作成失敗、後でもう一度お試しください"
+    "createOrderFailed": "注文作成失敗、後でもう一度お試しください",
+    "userCancelled": "出金操作をキャンセルしました",
+    "contractCallFailed": "コントラクト呼び出しに失敗しました",
+    "signatureFailed": "署名に失敗しました",
+    "twoSignaturesRequired": "出金には2回の署名確認が必要です",
+    "twoSignaturesDesc": "1回目は意図の確認、2回目はチェーン上のトランザクション確認",
+    "secondSignatureRequired": "チェーン上のトランザクションを完了するために2回目の署名を確認してください",
+    "userCancelledContract": "チェーン上のトランザクション署名をキャンセルしました",
+    "orderCreatedButNotCompleted": "注文は作成されましたが、トランザクションが完了していません。サポートにお問い合わせください"
   },
   "plasmaOne": {
     "visitWebsite": "Plasma One を訪問"
