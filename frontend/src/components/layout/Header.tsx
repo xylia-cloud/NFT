@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 const NAV_ITEMS = [
   { id: "home", labelKey: "nav.home", icon: Home },
   { id: "wallet", labelKey: "nav.wallet", icon: CreditCard },
-  { id: "leader", labelKey: "nav.leader", icon: Trophy },
+  // { id: "leader", labelKey: "nav.leader", icon: Trophy }, // 暂时隐藏
   { id: "supernode", labelKey: "nav.supernode", icon: Server },
   { id: "orders", labelKey: "nav.orders", icon: PiggyBank },
   { id: "team", labelKey: "nav.team", icon: Users },
