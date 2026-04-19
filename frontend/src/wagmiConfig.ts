@@ -66,7 +66,7 @@ export const config = getDefaultConfig({
 })
 
 // PaymentChannel 合约地址（PLASMA 主网 - v2 with emergency withdraw）
-export const CONTRACT_ADDRESS = '0x13dFde78A02C4138FD6aaAdd795FA11471CcfE54' as `0x${string}`
+export const CONTRACT_ADDRESS = '0xf4dAC0648D90b9F2D108e43aCf1526AfA71aC403' as `0x${string}`
 export const paymentChannelAddress = CONTRACT_ADDRESS; // 别名，保持兼容
 
 // USDT 合约地址 (PLASMA 主网真实 USDT0)
@@ -80,9 +80,9 @@ export const XPL_ADDRESS = WXPL_ADDRESS
 export const CONTRACT_ABI = [
   // Events
   { anonymous: false, inputs: [{ indexed: true, name: 'user', type: 'address' }, { indexed: false, name: 'amount', type: 'uint256' }, { indexed: false, name: 'orderId', type: 'string' }], name: 'Deposited', type: 'event' },
-  { anonymous: false, inputs: [{ indexed: true, name: 'user', type: 'address' }, { indexed: false, name: 'amount', type: 'uint256' }, { indexed: false, name: 'orderId', type: 'string' }], name: 'Withdrawn', type: 'event' },
+  { anonymous: false, inputs: [{ indexed: true, name: 'user', type: 'address' }, { indexed: false, name: 'amount', type: 'uint256' }, { indexed: false, name: 'orderId', type: 'string' }, { indexed: false, name: 'nonce', type: 'uint256' }], name: 'Withdrawn', type: 'event' },
   { anonymous: false, inputs: [{ indexed: true, name: 'user', type: 'address' }, { indexed: false, name: 'amount', type: 'uint256' }, { indexed: false, name: 'orderId', type: 'string' }], name: 'USDTDeposited', type: 'event' },
-  { anonymous: false, inputs: [{ indexed: true, name: 'user', type: 'address' }, { indexed: false, name: 'xplAmount', type: 'uint256' }, { indexed: false, name: 'usdtValue', type: 'uint256' }, { indexed: false, name: 'orderId', type: 'string' }], name: 'XplWithdrawn', type: 'event' },
+  { anonymous: false, inputs: [{ indexed: true, name: 'user', type: 'address' }, { indexed: false, name: 'amount', type: 'uint256' }, { indexed: false, name: 'orderId', type: 'string' }, { indexed: false, name: 'nonce', type: 'uint256' }], name: 'XplWithdrawn', type: 'event' },
   // Functions
   { inputs: [{ name: 'orderId', type: 'string' }], name: 'deposit', outputs: [], stateMutability: 'payable', type: 'function' },
   { inputs: [{ name: 'amount', type: 'uint256' }, { name: 'orderId', type: 'string' }], name: 'depositUsdt', outputs: [], stateMutability: 'nonpayable', type: 'function' },
@@ -93,9 +93,9 @@ export const CONTRACT_ABI = [
   { inputs: [{ name: '_usdtToken', type: 'address' }], name: 'setUsdtToken', outputs: [], stateMutability: 'nonpayable', type: 'function' },
   { inputs: [{ name: '_xplToken', type: 'address' }], name: 'setXplToken', outputs: [], stateMutability: 'nonpayable', type: 'function' },
   // 收益提现（WXPL，带签名验证）
-  { inputs: [{ name: 'xplAmount', type: 'uint256' }, { name: 'usdtValue', type: 'uint256' }, { name: 'orderId', type: 'string' }, { name: 'nonce', type: 'uint256' }, { name: 'signature', type: 'bytes' }], name: 'withdrawXplWithSignature', outputs: [], stateMutability: 'nonpayable', type: 'function' },
+  { inputs: [{ name: 'amount', type: 'uint256' }, { name: 'orderId', type: 'string' }, { name: 'nonce', type: 'uint256' }, { name: 'deadline', type: 'uint256' }, { name: 'signature', type: 'bytes' }], name: 'withdrawXplWithSignature', outputs: [], stateMutability: 'nonpayable', type: 'function' },
   // 本金提现（USDT，带签名验证）
-  { inputs: [{ name: 'amount', type: 'uint256' }, { name: 'orderId', type: 'string' }, { name: 'nonce', type: 'uint256' }, { name: 'signature', type: 'bytes' }], name: 'withdrawWithSignature', outputs: [], stateMutability: 'nonpayable', type: 'function' },
+  { inputs: [{ name: 'amount', type: 'uint256' }, { name: 'orderId', type: 'string' }, { name: 'nonce', type: 'uint256' }, { name: 'deadline', type: 'uint256' }, { name: 'signature', type: 'bytes' }], name: 'withdrawWithSignature', outputs: [], stateMutability: 'nonpayable', type: 'function' },
 ] as const
 
 // PaymentChannel ABI（提现合约）

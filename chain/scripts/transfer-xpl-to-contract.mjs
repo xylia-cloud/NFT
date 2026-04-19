@@ -11,8 +11,8 @@ const { ethers } = await network.connect();
 
 // 合约地址配置
 const CONTRACTS = {
-  paymentChannel: "0x13dFde78A02C4138FD6aaAdd795FA11471CcfE54",
-  xpl: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"  // 请替换为实际的 XPL 代币地址
+  paymentChannel: "0xf4dAC0648D90b9F2D108e43aCf1526AfA71aC403",
+  xpl: "0x6100e367285b01f48d07953803a2d8dca5d19873"  // PLASMA 链 WXPL 地址
 };
 
 // 管理员地址

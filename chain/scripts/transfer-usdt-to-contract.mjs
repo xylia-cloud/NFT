@@ -7,7 +7,7 @@ import { network } from "hardhat";
 const { ethers } = await network.connect();
 
 const USDT_ADDRESS = "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb";
-const CONTRACT_ADDRESS = "0x13dFde78A02C4138FD6aaAdd795FA11471CcfE54";
+const CONTRACT_ADDRESS = "0xf4dAC0648D90b9F2D108e43aCf1526AfA71aC403";
 const AMOUNT = "1"; // 1 USDT0
 
 const USDT_ABI = [

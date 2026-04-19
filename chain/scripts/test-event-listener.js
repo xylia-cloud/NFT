@@ -12,8 +12,8 @@ const CONTRACT_ADDRESS = '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0';
 // ABI
 const ABI = [
   'event USDTDeposited(address indexed user, uint256 amount, string orderId)',
-  'event Withdrawn(address indexed user, uint256 amount, string orderId)',
-  'event XplWithdrawn(address indexed user, uint256 xplAmount, uint256 usdtValue, string orderId)'
+  'event Withdrawn(address indexed user, uint256 amount, string orderId, uint256 nonce)',
+  'event XplWithdrawn(address indexed user, uint256 amount, string orderId, uint256 nonce)'
 ];
 
 async function main() {
@@ -68,6 +68,7 @@ async function main() {
         console.log(`   用户: ${event.args.user}`);
         console.log(`   金额: ${ethers.formatUnits(event.args.amount, 6)} USDT0`);
         console.log(`   订单ID: ${event.args.orderId}`);
+        console.log(`   Nonce: ${event.args.nonce}`);
         console.log(`   区块: ${event.blockNumber}`);
         console.log(`   交易哈希: ${event.transactionHash}`);
         console.log();
@@ -110,9 +111,9 @@ async function main() {
       xplWithdrawEvents.forEach((event, index) => {
         console.log(`事件 #${index + 1}:`);
         console.log(`   用户: ${event.args.user}`);
-        console.log(`   XPL 金额: ${ethers.formatEther(event.args.xplAmount)} XPL`);
-        console.log(`   USDT 价值: ${ethers.formatUnits(event.args.usdtValue, 6)} USDT0`);
+        console.log(`   XPL 金额: ${ethers.formatEther(event.args.amount)} XPL`);
         console.log(`   订单ID: ${event.args.orderId}`);
+        console.log(`   Nonce: ${event.args.nonce}`);
         console.log(`   区块: ${event.blockNumber}`);
         console.log(`   交易哈希: ${event.transactionHash}`);
         console.log();
@@ -142,22 +143,23 @@ async function main() {
     console.log();
   });
   
-  contract.on('Withdrawn', (user, amount, orderId, event) => {
+  contract.on('Withdrawn', (user, amount, orderId, nonce, event) => {
     console.log('🔔 新提现事件:');
     console.log(`   用户: ${user}`);
     console.log(`   金额: ${ethers.formatUnits(amount, 6)} USDT0`);
     console.log(`   订单ID: ${orderId}`);
+    console.log(`   Nonce: ${nonce}`);
     console.log(`   区块: ${event.log.blockNumber}`);
     console.log(`   交易哈希: ${event.log.transactionHash}`);
     console.log();
   });
   
-  contract.on('XplWithdrawn', (user, xplAmount, usdtValue, orderId, event) => {
+  contract.on('XplWithdrawn', (user, amount, orderId, nonce, event) => {
     console.log('🔔 新 XPL 提现事件:');
     console.log(`   用户: ${user}`);
-    console.log(`   XPL 金额: ${ethers.formatEther(xplAmount)} XPL`);
-    console.log(`   USDT 价值: ${ethers.formatUnits(usdtValue, 6)} USDT0`);
+    console.log(`   XPL 金额: ${ethers.formatEther(amount)} XPL`);
     console.log(`   订单ID: ${orderId}`);
+    console.log(`   Nonce: ${nonce}`);
     console.log(`   区块: ${event.log.blockNumber}`);
     console.log(`   交易哈希: ${event.log.transactionHash}`);
     console.log();

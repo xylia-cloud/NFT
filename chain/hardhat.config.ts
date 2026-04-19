@@ -7,6 +7,42 @@ const FIXED_MNEMONIC = "test test test test test test test test test test test j
 
 export default defineConfig({
   plugins: [hardhatToolboxMochaEthersPlugin],
+  chainDescriptors: {
+    9745: {
+      name: "plasmaMainnet",
+      chainType: "l1",
+      blockExplorers: {
+        etherscan: {
+          name: "PlasmaScan",
+          url: "https://plasmascan.to",
+          apiUrl: "https://api.etherscan.io/v2/api",
+        },
+      },
+    },
+    9746: {
+      name: "plasmaTestnet",
+      chainType: "l1",
+      blockExplorers: {
+        etherscan: {
+          name: "PlasmaScan Testnet",
+          url: "https://testnet.plasmascan.to",
+          apiUrl: "https://api.etherscan.io/v2/api",
+        },
+      },
+    },
+  },
+  verify: {
+    etherscan: {
+      apiKey: configVariable("ETHERSCAN_API_KEY"),
+      enabled: true,
+    },
+    sourcify: {
+      enabled: false,
+    },
+    blockscout: {
+      enabled: false,
+    },
+  },
   solidity: {
     profiles: {
       default: {

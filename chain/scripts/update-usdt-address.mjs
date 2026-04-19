@@ -6,7 +6,7 @@
 import { network } from "hardhat";
 const { ethers } = await network.connect();
 
-const PAYMENT_CHANNEL = "0x13dFde78A02C4138FD6aaAdd795FA11471CcfE54";
+const PAYMENT_CHANNEL = "0xf4dAC0648D90b9F2D108e43aCf1526AfA71aC403";
 const OLD_USDT = "0x3F1Eb88219A75b82906F0844A339BA4C8a74d14E";  // MockUSDT
 const NEW_USDT = "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb";  // 真实 USDT0
 

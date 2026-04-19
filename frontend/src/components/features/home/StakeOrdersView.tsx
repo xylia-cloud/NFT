@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { PiggyBank, Loader2 } from "lucide-react";
 import type { StakeOrder } from "./StakeView";
 import { StakeOrderItem } from "./StakeView";
-import { getMyRecords, capitalWithdraw, ApiError, type StakeRecord } from "@/lib/api";
+import { getMyRecords, capitalWithdraw, unfreezeCapital, ApiError, type StakeRecord } from "@/lib/api";
 import { useAccount, useWriteContract, useWaitForTransactionReceipt, useSignMessage } from "wagmi";
 import { paymentChannelABI, paymentChannelAddress } from "@/wagmiConfig";
 import { toast } from "sonner";
@@ -19,10 +19,13 @@ function convertToStakeOrder(record: StakeRecord): StakeOrder {
   // 根据状态判断是否锁定或已提取
   // withdrawn: 已提取本金
   // lockin/withdrawing: 锁定期
+  // freezing: 冷冻中（48小时解压期）
   // normal: 可提取
-  let status: 'locked' | 'unlocked' | 'withdrawn';
+  let status: 'locked' | 'unlocked' | 'withdrawn' | 'freezing';
   if (record.status === 'withdrawn') {
     status = 'withdrawn';
+  } else if (record.status === 'freezing') {
+    status = 'freezing';
   } else if (record.status === 'lockin' || record.status === 'withdrawing') {
     status = 'locked';
   } else {
@@ -37,6 +40,9 @@ function convertToStakeOrder(record: StakeRecord): StakeOrder {
   // 计算日化收益率（避免除以 0）
   const dailyRate = amount > 0 ? (todayProfit / amount) * 100 : 0;
   
+  // 冷冻结束时间（仅 freezing 状态有效）
+  const freezeEndTime = record.freeze_end_time ? parseInt(record.freeze_end_time) : undefined;
+  
   return {
     id: parseInt(record.id),
     amount: amount,
@@ -46,6 +52,7 @@ function convertToStakeOrder(record: StakeRecord): StakeOrder {
     accruedInterest: totalProfit,
     status: status,
     dailyRate: dailyRate,
+    freezeEndTime: freezeEndTime,
   };
 }
 
@@ -54,6 +61,7 @@ export function StakeOrdersView() {
   const { t } = useTranslation();
   const [stakeOrders, setStakeOrders] = useState<StakeOrder[]>([]);
   const [withdrawingOrderId, setWithdrawingOrderId] = useState<number | null>(null);
+  const [unfreezingOrderId, setUnfreezingOrderId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentWithdrawOrderId, setCurrentWithdrawOrderId] = useState<string>("");
@@ -74,11 +82,11 @@ export function StakeOrdersView() {
         setLoading(true);
         setError(null);
         
-        // 获取所有状态的订单（锁定期、正常、提现中、已提取）
+        // 获取所有状态的订单（锁定期、正常、提现中、已提取、冷冻中）
         const data = await getMyRecords({
           page: '1',
           size: '100',
-          status: ['lockin', 'normal', 'withdrawing', 'withdrawn'],
+          status: ['lockin', 'normal', 'withdrawing', 'withdrawn', 'freezing'],
         });
         
         // 转换为前端格式
@@ -99,10 +107,76 @@ export function StakeOrdersView() {
     return () => clearInterval(interval);
   }, []);
 
+  // 解压本金（发起48小时冷冻）
+  const handleUnfreezeCapital = async (order: StakeOrder) => {
+    if (!address) {
+      toast.error("请先连接钱包");
+      return;
+    }
+    
+    setUnfreezingOrderId(order.id);
+    
+    try {
+      // 从后端订单列表中找到对应的原始订单数据
+      const data = await getMyRecords({
+        page: '1',
+        size: '100',
+        status: ['lockin', 'normal', 'withdrawing', 'withdrawn', 'freezing'],
+      });
+      
+      const originalOrder = data.list.find(r => parseInt(r.id) === order.id);
+      if (!originalOrder) {
+        throw new Error('订单不存在');
+      }
+      
+      // 调用解压接口
+      const result = await unfreezeCapital({ order_id: originalOrder.order_id });
+      
+      toast.success(t('stake.unfreezeSuccess'), {
+        description: t('stake.unfreezeSuccessDesc'),
+      });
+      
+      // 刷新订单列表
+      const updatedData = await getMyRecords({
+        page: '1',
+        size: '100',
+        status: ['lockin', 'normal', 'withdrawing', 'withdrawn', 'freezing'],
+      });
+      const orders = updatedData.list.map(convertToStakeOrder);
+      setStakeOrders(orders);
+      
+    } catch (err: any) {
+      console.error('❌ 解压本金失败:', err);
+      
+      // 如果是 ApiError，使用本地化的错误信息
+      if (err instanceof ApiError) {
+        toast.error(err.localizedMessage);
+      } else {
+        toast.error(err.message || "解压失败，请稍后重试");
+      }
+    } finally {
+      setUnfreezingOrderId(null);
+    }
+  };
+
   const handleWithdrawStakeOrder = async (order: StakeOrder) => {
     if (!address) {
       toast.error("请先连接钱包");
       return;
+    }
+    
+    // 前置条件检查：订单必须是 freezing 状态且冷冻期已结束
+    if (order.status !== 'freezing') {
+      toast.error("订单状态不正确，无法提现");
+      return;
+    }
+    
+    if (order.freezeEndTime) {
+      const now = Math.floor(Date.now() / 1000);
+      if (now < order.freezeEndTime) {
+        toast.error("冷冻期未结束，请等待倒计时结束");
+        return;
+      }
     }
     
     setWithdrawingOrderId(order.id);
@@ -139,7 +213,7 @@ export function StakeOrdersView() {
       const data = await getMyRecords({
         page: '1',
         size: '100',
-        status: ['lockin', 'normal', 'withdrawing', 'withdrawn'],
+        status: ['lockin', 'normal', 'withdrawing', 'withdrawn', 'freezing'],
       });
       
       const originalOrder = data.list.find(r => parseInt(r.id) === order.id);
@@ -147,10 +221,25 @@ export function StakeOrdersView() {
         throw new Error('订单不存在');
       }
       
-      // 步骤3: 调用后端本金提现接口
+      // 步骤3: 调用后端本金提现接口（冷冻期结束后调用，生成链上签名）
+      console.log('🔐 调用后端生成链上签名...', { order_id: originalOrder.order_id });
       const withdrawResult = await capitalWithdraw({ order_id: originalOrder.order_id });
       
+      console.log('✅ 获取签名成功:', {
+        transaction_id: withdrawResult.transaction_id,
+        fee: withdrawResult.fee,
+        mum: withdrawResult.mum,
+        signature_ttl: withdrawResult.signature_ttl,
+        signature_expires_at: withdrawResult.signature_expires_at,
+      });
+      
       setCurrentWithdrawOrderId(withdrawResult.transaction_id);
+      
+      // 提示用户签名有效期
+      toast.info(`请在 ${Math.floor(withdrawResult.signature_ttl / 60)} 分钟内完成链上交易`, {
+        description: "签名过期后需要重新获取",
+        duration: 5000,
+      });
       
       // 提示用户即将进行第二次签名
       toast.info("请确认第二次签名以完成链上交易", {
@@ -162,6 +251,13 @@ export function StakeOrdersView() {
       
       // USDT 金额（已经是 wei 格式，6位精度）
       const usdtAmountWei = BigInt(withdraw_signature.amount_wei);
+      const deadline = BigInt(withdraw_signature.deadline);
+      
+      console.log('⛓️ 调用智能合约 withdrawWithSignature...', {
+        amount_wei: withdraw_signature.amount_wei,
+        nonce: withdraw_signature.nonce,
+        deadline: withdraw_signature.deadline,
+      });
       
       // 调用 withdrawWithSignature 函数（本金提现，转 USDT）
       writeContract({
@@ -172,6 +268,7 @@ export function StakeOrdersView() {
           usdtAmountWei,
           withdrawResult.transaction_id,
           BigInt(withdraw_signature.nonce),
+          deadline,
           withdraw_signature.signature as `0x${string}`,
         ],
       }, {
@@ -187,8 +284,8 @@ export function StakeOrdersView() {
           
           if (isUserRejected) {
             toast.error("您已取消链上交易签名", {
-              description: "订单已创建但交易未完成，请联系客服处理",
-              duration: 5000,
+              description: "订单已创建但交易未完成，12分钟无链上确认将自动回滚到冷冻状态",
+              duration: 8000,
             });
           } else {
             toast.error(error.message || "合约调用失败");
@@ -225,7 +322,7 @@ export function StakeOrdersView() {
           const data = await getMyRecords({
             page: '1',
             size: '100',
-            status: ['lockin', 'normal', 'withdrawing', 'withdrawn'],
+            status: ['lockin', 'normal', 'withdrawing', 'withdrawn', 'freezing'],
           });
           const orders = data.list.map(convertToStakeOrder);
           setStakeOrders(orders);
@@ -265,7 +362,9 @@ export function StakeOrdersView() {
               <StakeOrderItem
                 order={order}
                 onWithdraw={handleWithdrawStakeOrder}
+                onUnfreeze={handleUnfreezeCapital}
                 isWithdrawing={withdrawingOrderId === order.id}
+                isUnfreezing={unfreezingOrderId === order.id}
               />
             </div>
           ))}
@@ -280,4 +379,3 @@ export function StakeOrdersView() {
     </div>
   );
 }
-

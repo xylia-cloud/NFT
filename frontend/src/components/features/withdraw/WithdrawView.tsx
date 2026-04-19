@@ -184,15 +184,13 @@ export function WithdrawView() {
       
       // XPL 金额（已经是 wei 格式，18位精度）
       const xplAmountWei = BigInt(withdraw_signature.amount_wei);
-      
-      // USDT 价值（需要转换为 wei，6位精度）
-      const usdtValueWei = BigInt(Math.floor(orderResult.receipt_amount * 1e6));
+      const deadline = BigInt(withdraw_signature.deadline);
       
       console.log('🔢 合约参数:', {
         xplAmountWei: xplAmountWei.toString(),
-        usdtValueWei: usdtValueWei.toString(),
         orderId: orderResult.transaction_id,
         nonce: withdraw_signature.nonce,
+        deadline: withdraw_signature.deadline,
         signature: withdraw_signature.signature,
       });
       
@@ -203,9 +201,9 @@ export function WithdrawView() {
         functionName: 'withdrawXplWithSignature',
         args: [
           xplAmountWei,
-          usdtValueWei,
           orderResult.transaction_id,
           BigInt(withdraw_signature.nonce),
+          deadline,
           withdraw_signature.signature as `0x${string}`,
         ],
       }, {

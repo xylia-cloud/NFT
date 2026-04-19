@@ -49,7 +49,7 @@ export class ApiError extends Error {
  * API 配置
  */
 const API_CONFIG = {
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://api.plasma.email',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://api.plasma1.online',
   timeout: 30000,
 };
 
@@ -495,7 +495,7 @@ export interface StakeRecord {
   addtime: string;                     // 添加时间戳
   withdrawntime: string;               // 提现时间戳
   withdrawn_id: string | null;
-  status: 'lockin' | 'normal' | 'withdrawn' | 'withdrawing'; // 状态
+  status: 'lockin' | 'normal' | 'withdrawn' | 'withdrawing' | 'freezing'; // 状态
   lockin_time: string;                 // 锁定期结束时间戳
   withdrawn_addr: string | null;
   total_profit: string;                // 累计收益
@@ -505,6 +505,7 @@ export interface StakeRecord {
   add_date_time: string;               // 添加时间（格式化）
   withdrawn_date_time: string | null;  // 提现时间（格式化）
   lockin_date_time: string;            // 锁定期结束时间（格式化）
+  freeze_end_time?: string;            // 冷冻结束时间戳（仅 status=freezing 时有效）
 }
 
 export interface MyRecordsResponse {
@@ -870,6 +871,7 @@ export interface WithdrawSignature {
   signature: string;        // 签名
   nonce: string;            // nonce
   amount_wei: string;       // 金额（wei格式）
+  deadline: string;         // 签名过期时间戳（秒）
   contract_address: string; // 合约地址
   chain_id: number;         // 链ID
 }
@@ -889,16 +891,35 @@ export async function profitWithdraw(params: ProfitWithdrawRequest): Promise<Pro
 }
 
 /**
- * 本金提现
+ * 解压本金（发起本金解押，进入48h冷冻期）
+ */
+export interface UnfreezeCapitalRequest {
+  order_id: string;  // 订单号
+}
+
+export interface UnfreezeCapitalResponse {
+  order_id: string;           // 订单号
+  status: 'freezing';         // 状态：freezing-冷冻中
+  freeze_end_time: number;    // 冷冻结束时间戳（48h后）
+}
+
+export async function unfreezeCapital(params: UnfreezeCapitalRequest): Promise<UnfreezeCapitalResponse> {
+  return post<UnfreezeCapitalResponse>('/Api/Recharge/unfreeze', params);
+}
+
+/**
+ * 本金提现（冷冻期结束后调用，生成链上签名）
  */
 export interface CapitalWithdrawRequest {
   order_id: string;  // 订单号
 }
 
 export interface CapitalWithdrawResponse {
-  transaction_id: string;      // 交易ID（订单号）
-  fee: number;                 // 手续费
-  mum: number;                 // 实际到账 USDT 金额
+  transaction_id: string;           // 交易ID（订单号）
+  fee: number;                      // 手续费（按 withdraw_fee_rate 配置，默认5%）
+  mum: number;                      // 实际到账 USDT 金额
+  signature_expires_at: number;     // 签名过期时间戳
+  signature_ttl: number;            // 签名有效期（秒，默认480秒=8分钟）
   withdraw_signature: WithdrawSignature; // 签名数据
 }
 

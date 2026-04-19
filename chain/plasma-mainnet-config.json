@@ -6,10 +6,10 @@
   "explorer": "https://plasmascan.to",
   "contracts": {
     "PaymentChannel": {
-      "address": "0x13dFde78A02C4138FD6aaAdd795FA11471CcfE54",
-      "deployedAt": "2025-02-22",
-      "version": "v2-with-emergency-withdraw",
-      "previousAddress": "0x2f5A81181CF28653B8254C67cb76B232B48A7397"
+      "address": "0xf4dAC0648D90b9F2D108e43aCf1526AfA71aC403",
+      "deployedAt": "2026-04-17",
+      "version": "v3-deadline-nonce-withdraw",
+      "previousAddress": "0x13dFde78A02C4138FD6aaAdd795FA11471CcfE54"
     },
     "USDT0": {
       "address": "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb",
@@ -28,6 +28,6 @@
     }
   },
   "admin": {
-    "address": "0xA4a7747C9241ba5A9AF9137bb662f38F463Fdf1B"
+    "address": "0x3eE00e5697794fE9FcfEC8a2c342cBd3a9638F93"
   }
 }

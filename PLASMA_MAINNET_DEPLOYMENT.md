@@ -11,7 +11,7 @@
 ## 部署的合约
 
 ### 1. PaymentChannel v2 (支付通道合约 - 当前版本)
-- **合约地址**: `0x13dFde78A02C4138FD6aaAdd795FA11471CcfE54`
+- **合约地址**: `0xf4dAC0648D90b9F2D108e43aCf1526AfA71aC403`
 - **版本**: v2-with-emergency-withdraw
 - **部署时间**: 2025-02-22
 - **功能**: 
@@ -22,7 +22,7 @@
     - `emergencyWithdrawUsdt(uint256 amount)` - 提取 USDT
     - `emergencyWithdrawXpl(uint256 amount)` - 提取 XPL
     - `emergencyWithdrawNative()` - 提取原生代币
-- **浏览器链接**: https://plasmascan.to/address/0x13dFde78A02C4138FD6aaAdd795FA11471CcfE54
+- **浏览器链接**: https://plasmascan.to/address/0xf4dAC0648D90b9F2D108e43aCf1526AfA71aC403
 
 ### 1.1 PaymentChannel v1 (已废弃)
 - **合约地址**: `0x2f5A81181CF28653B8254C67cb76B232B48A7397`

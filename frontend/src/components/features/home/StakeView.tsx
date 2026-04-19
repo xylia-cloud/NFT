@@ -62,8 +62,9 @@ export interface StakeOrder {
   lockEndDate: string;
   lockDays: number;
   accruedInterest: number;
-  status: "locked" | "unlocked" | "withdrawn";
+  status: "locked" | "unlocked" | "withdrawn" | "freezing";
   dailyRate?: number; // 日化收益 %
+  freezeEndTime?: number; // 冷冻结束时间戳（仅 status=freezing 时有效）
 }
 
 // 模拟质押订单数据（锁仓 180 天，利息每日发放可单独提取，到期日为 2026 年）
@@ -77,17 +78,24 @@ export const INITIAL_STAKE_ORDERS: StakeOrder[] = [
 export function StakeOrderItem({
   order,
   onWithdraw,
+  onUnfreeze,
   isWithdrawing,
+  isUnfreezing,
 }: {
   order: StakeOrder;
   onWithdraw: (order: StakeOrder) => void;
+  onUnfreeze?: (order: StakeOrder) => void;
   isWithdrawing: boolean;
+  isUnfreezing?: boolean;
 }) {
   const { t } = useTranslation();
   // 按天计算倒计时
   const [remainingDays, setRemainingDays] = useState<number>(0);
+  // 48小时冷冻倒计时
+  const [freezeRemaining, setFreezeRemaining] = useState<string>("");
   const isLocked = order.status === "locked";
   const isWithdrawn = order.status === "withdrawn";
+  const isFreezing = order.status === "freezing";
 
   useEffect(() => {
     if (!isLocked) return;
@@ -108,6 +116,32 @@ export function StakeOrderItem({
     return () => clearInterval(timer);
   }, [order.lockEndDate, isLocked]);
 
+  // 48小时冷冻倒计时
+  useEffect(() => {
+    if (!isFreezing || !order.freezeEndTime) return;
+    
+    const update = () => {
+      const now = Date.now();
+      const end = order.freezeEndTime! * 1000; // 转换为毫秒
+      const diff = end - now;
+      
+      if (diff <= 0) {
+        setFreezeRemaining(t('stake.freezeEnded'));
+        return;
+      }
+      
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      
+      setFreezeRemaining(`${hours}h ${minutes}m ${seconds}s`);
+    };
+    
+    update();
+    const timer = setInterval(update, 1000);
+    return () => clearInterval(timer);
+  }, [isFreezing, order.freezeEndTime, t]);
+
   return (
     <div className="p-5 md:p-6 hover:bg-muted/20 transition-colors space-y-5">
       {/* 顶部：金额 + 状态 */}
@@ -125,6 +159,8 @@ export function StakeOrderItem({
                   "text-[10px] h-5 px-2",
                   isLocked 
                     ? "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400" 
+                    : isFreezing
+                    ? "border-blue-500/30 bg-blue-500/10 text-blue-600 dark:text-blue-400"
                     : isWithdrawn
                     ? "border-gray-500/30 bg-gray-500/10 text-gray-600 dark:text-gray-400"
                     : "border-primary/30 bg-primary/10 text-primary"
@@ -132,6 +168,8 @@ export function StakeOrderItem({
               >
                 {isLocked ? (
                   <><Lock className="h-2.5 w-2.5 mr-0.5 inline" /> {t('stake.cooldownPeriod')}</>
+                ) : isFreezing ? (
+                  <><Clock className="h-2.5 w-2.5 mr-0.5 inline" /> {t('stake.freezing')}</>
                 ) : isWithdrawn ? (
                   <><CheckCircle2 className="h-2.5 w-2.5 mr-0.5 inline" /> {t('stake.principalWithdrawn')}</>
                 ) : (
@@ -163,24 +201,54 @@ export function StakeOrderItem({
               </div>
             </div>
           )}
+          {isFreezing && (
+            <div className="flex-1 min-w-0 text-left sm:text-right">
+              <div className="text-xs text-muted-foreground mb-0.5">{t('stake.freezeCountdown')}</div>
+              <div className="text-lg font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1 sm:justify-end">
+                <Clock className="h-4 w-4 shrink-0" />
+                {freezeRemaining}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* 可提取时：提现区域（仅提取本金，利息每日发放可单独提取） */}
-      {!isLocked && !isWithdrawn && (
+      {/* 可提取时：解压本金按钮 */}
+      {!isLocked && !isWithdrawn && !isFreezing && (
         <div className="flex items-center justify-between gap-4 pt-4 border-t border-border/70">
           <div className="text-sm text-muted-foreground">
-            {t('stake.principalWithdrawable', { amount: order.amount.toLocaleString() })}
+            {t('stake.unfreezeDesc', { amount: order.amount.toLocaleString() })}
           </div>
           <Button
             size="sm"
             className="gap-1.5 rounded-lg shrink-0"
-            onClick={() => onWithdraw(order)}
-            disabled={isWithdrawing}
+            onClick={() => onUnfreeze?.(order)}
+            disabled={isUnfreezing}
           >
-            {isWithdrawing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ArrowDownToLine className="h-3.5 w-3.5" />}
-            {t('stake.withdrawPrincipal')}
+            {isUnfreezing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Unlock className="h-3.5 w-3.5" />}
+            {t('stake.unfreezeCapital')}
           </Button>
+        </div>
+      )}
+
+      {/* 冷冻中：显示倒计时和提示 */}
+      {isFreezing && (
+        <div className="pt-4 border-t border-border/70 space-y-3">
+          <div className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400">
+            <Clock className="h-4 w-4" />
+            <span>{t('stake.freezingDesc')}</span>
+          </div>
+          {freezeRemaining === t('stake.freezeEnded') && (
+            <Button
+              size="sm"
+              className="gap-1.5 rounded-lg w-full"
+              onClick={() => onWithdraw(order)}
+              disabled={isWithdrawing}
+            >
+              {isWithdrawing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ArrowDownToLine className="h-3.5 w-3.5" />}
+              {t('stake.withdrawPrincipal')}
+            </Button>
+          )}
         </div>
       )}
       

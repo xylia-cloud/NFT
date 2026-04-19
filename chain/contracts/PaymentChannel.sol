@@ -2,6 +2,8 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 
 /**
  * PaymentChannel v2
@@ -17,12 +19,13 @@ contract PaymentChannel {
     IERC20 public xplToken;   // XPL 代币，收益提现用
     
     mapping(address => uint256) public balances;
-    mapping(bytes32 => bool) public usedSignatures;  // 防重放
+    mapping(uint256 => bool) public usedNonces;  // nonce 防重放
     
     event Deposited(address indexed user, uint256 amount, string orderId);
     event USDTDeposited(address indexed user, uint256 amount, string orderId);
-    event Withdrawn(address indexed user, uint256 amount, string orderId);
-    event XplWithdrawn(address indexed user, uint256 xplAmount, uint256 usdtValue, string orderId);
+    event Withdrawn(address indexed user, uint256 amount, string orderId, uint256 nonce);
+    event XplWithdrawn(address indexed user, uint256 amount, string orderId, uint256 nonce);
+    event OwnerWithdrawn(address indexed user, uint256 amount, string orderId);
     
     modifier onlyOwner() {
         require(msg.sender == owner, "Only owner can call this function");
@@ -62,80 +65,62 @@ contract PaymentChannel {
      * @param amount 提现金额 (wei)
      * @param orderId 订单号
      * @param nonce 唯一随机数，防重放
-     * @param signature owner 对 (user, amount, orderId, nonce, chainId, contractAddress) 的签名
+     * @param deadline 签名过期时间戳（秒）
+     * @param signature owner 对 (user, amount, orderId, nonce, deadline, chainId, contractAddress) 的签名
      */
     function withdrawWithSignature(
         uint256 amount,
         string calldata orderId,
         uint256 nonce,
+        uint256 deadline,
         bytes calldata signature
     ) external {
         require(amount > 0, "Withdrawal amount must be greater than 0");
         require(bytes(orderId).length > 0, "Order ID is required");
-        
-        // 构造签名哈希
-        bytes32 messageHash = keccak256(
-            abi.encodePacked(msg.sender, amount, orderId, nonce, block.chainid, address(this))
-        );
-        bytes32 ethSignedHash = _toEthSignedMessageHash(messageHash);
-        
-        // 防重放
-        require(!usedSignatures[ethSignedHash], "Signature already used");
-        usedSignatures[ethSignedHash] = true;
-        
-        // 验证签名
-        address signer = _recoverSigner(ethSignedHash, signature);
-        require(signer == owner, "Invalid signature");
+        require(block.timestamp <= deadline, "Signature expired");
+        require(!usedNonces[nonce], "Nonce already used");
+        require(_verifySignature(msg.sender, amount, orderId, nonce, deadline, signature), "Invalid signature");
+        usedNonces[nonce] = true;
         
         // 转 USDT 给用户
         require(address(usdtToken) != address(0), "USDT token not set");
         bool success = usdtToken.transfer(msg.sender, amount);
         require(success, "USDT transfer failed");
         
-        emit Withdrawn(msg.sender, amount, orderId);
+        emit Withdrawn(msg.sender, amount, orderId, nonce);
     }
     
     // ========== 收益提现（XPL，带签名验证） ==========
     
     /**
      * 用户调用，带后端 owner 签名提现 XPL（收益提现）
-     * 后端已按汇率算好 XPL 数量，签名里包含 xplAmount
-     * @param xplAmount XPL 数量 (wei, 18 decimals)
-     * @param usdtValue 对应的 USDT 价值 (用于事件记录)
+     * 后端已按汇率算好 XPL 数量，签名里包含 amount
+     * @param amount XPL 数量 (wei, 18 decimals)
      * @param orderId 订单号
      * @param nonce 唯一随机数，防重放
-     * @param signature owner 对 (user, xplAmount, orderId, nonce, chainId, contractAddress) 的签名
+     * @param deadline 签名过期时间戳（秒）
+     * @param signature owner 对 (user, amount, orderId, nonce, deadline, chainId, contractAddress) 的签名
      */
     function withdrawXplWithSignature(
-        uint256 xplAmount,
-        uint256 usdtValue,
+        uint256 amount,
         string calldata orderId,
         uint256 nonce,
+        uint256 deadline,
         bytes calldata signature
     ) external {
-        require(xplAmount > 0, "Withdrawal amount must be greater than 0");
+        require(amount > 0, "Withdrawal amount must be greater than 0");
         require(bytes(orderId).length > 0, "Order ID is required");
-        
-        // 构造签名哈希（签名内容不含 usdtValue，只签核心字段）
-        bytes32 messageHash = keccak256(
-            abi.encodePacked(msg.sender, xplAmount, orderId, nonce, block.chainid, address(this))
-        );
-        bytes32 ethSignedHash = _toEthSignedMessageHash(messageHash);
-        
-        // 防重放
-        require(!usedSignatures[ethSignedHash], "Signature already used");
-        usedSignatures[ethSignedHash] = true;
-        
-        // 验证签名
-        address signer = _recoverSigner(ethSignedHash, signature);
-        require(signer == owner, "Invalid signature");
+        require(block.timestamp <= deadline, "Signature expired");
+        require(!usedNonces[nonce], "Nonce already used");
+        require(_verifySignature(msg.sender, amount, orderId, nonce, deadline, signature), "Invalid signature");
+        usedNonces[nonce] = true;
         
         // 转 XPL 给用户
         require(address(xplToken) != address(0), "XPL token not set");
-        bool success = xplToken.transfer(msg.sender, xplAmount);
+        bool success = xplToken.transfer(msg.sender, amount);
         require(success, "XPL transfer failed");
         
-        emit XplWithdrawn(msg.sender, xplAmount, usdtValue, orderId);
+        emit XplWithdrawn(msg.sender, amount, orderId, nonce);
     }
     
     // ========== Owner 方法 ==========
@@ -147,7 +132,7 @@ contract PaymentChannel {
         
         balances[to] -= amount;
         to.transfer(amount);
-        emit Withdrawn(to, amount, orderId);
+        emit OwnerWithdrawn(to, amount, orderId);
     }
     
     function setUsdtToken(address _usdtToken) external onlyOwner {
@@ -209,27 +194,20 @@ contract PaymentChannel {
     
     // ========== 内部方法 ==========
     
-    function _toEthSignedMessageHash(bytes32 hash) internal pure returns (bytes32) {
-        return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash));
-    }
-    
-    function _recoverSigner(bytes32 ethSignedHash, bytes memory sig) internal pure returns (address) {
-        require(sig.length == 65, "Invalid signature length");
-        
-        bytes32 r;
-        bytes32 s;
-        uint8 v;
-        
-        assembly {
-            r := mload(add(sig, 32))
-            s := mload(add(sig, 64))
-            v := byte(0, mload(add(sig, 96)))
-        }
-        
-        if (v < 27) v += 27;
-        require(v == 27 || v == 28, "Invalid signature v value");
-        
-        return ecrecover(ethSignedHash, v, r, s);
+    function _verifySignature(
+        address user,
+        uint256 amount,
+        string calldata orderId,
+        uint256 nonce,
+        uint256 deadline,
+        bytes calldata signature
+    ) internal view returns (bool) {
+        bytes32 messageHash = keccak256(
+            abi.encodePacked(user, amount, orderId, nonce, deadline, block.chainid, address(this))
+        );
+        bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
+        address signer = ECDSA.recover(ethSignedHash, signature);
+        return signer == owner;
     }
     
     receive() external payable {

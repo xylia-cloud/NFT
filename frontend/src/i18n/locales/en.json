@@ -220,7 +220,17 @@
     "statusLockin": "Lock Period",
     "statusNormal": "Normal",
     "statusWithdrawn": "Withdrawn",
-    "statusWithdrawing": "Withdrawing"
+    "statusWithdrawing": "Withdrawing",
+    "statusFreezing": "Freezing",
+    "unfreezeCapital": "Unfreeze Principal",
+    "unfreezing": "Unfreezing...",
+    "unfreezeDesc": "Click to start 48-hour cooldown period for principal {{amount}} USDT0",
+    "unfreezeSuccess": "Unfreeze Initiated",
+    "unfreezeSuccessDesc": "48-hour cooldown period started. You can withdraw after the countdown ends.",
+    "freezing": "Freezing",
+    "freezeCountdown": "Freeze Countdown",
+    "freezingDesc": "Principal is in 48-hour cooldown period. You can withdraw after the countdown ends.",
+    "freezeEnded": "Cooldown Ended"
   },
   "leader": {
     "title": "Leader Rewards",

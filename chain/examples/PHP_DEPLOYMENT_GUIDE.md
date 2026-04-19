@@ -88,7 +88,7 @@ cd /www/wwwroot/admin-withdraw
 👤 管理员地址: 0xA4a7747C9241ba5A9AF9137bb662f38F463Fdf1B
 💰 代币: USDT0 (6 decimals)
 📊 合约余额:
-   地址: 0x13dFde78A02C4138FD6aaAdd795FA11471CcfE54
+   地址: 0xf4dAC0648D90b9F2D108e43aCf1526AfA71aC403
    余额: 0.0 USDT0
 ✅ 合约余额为 0，无需提取
 ```
@@ -206,7 +206,7 @@ npm install
 ## 相关链接
 
 - PLASMA 主网浏览器: https://plasmascan.to
-- PaymentChannel 合约: https://plasmascan.to/address/0x13dFde78A02C4138FD6aaAdd795FA11471CcfE54
+- PaymentChannel 合约: https://plasmascan.to/address/0xf4dAC0648D90b9F2D108e43aCf1526AfA71aC403
 - USDT0 代币: https://plasmascan.to/token/0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb
 - 管理员地址: https://plasmascan.to/address/0xA4a7747C9241ba5A9AF9137bb662f38F463Fdf1B
 

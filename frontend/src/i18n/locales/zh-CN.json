@@ -220,7 +220,17 @@
     "statusLockin": "锁定期",
     "statusNormal": "正常",
     "statusWithdrawn": "已提现",
-    "statusWithdrawing": "提现中"
+    "statusWithdrawing": "提现中",
+    "statusFreezing": "冷冻中",
+    "unfreezeCapital": "解压本金",
+    "unfreezing": "解压中...",
+    "unfreezeDesc": "点击开始 48 小时冷冻期，本金 {{amount}} USDT0",
+    "unfreezeSuccess": "解压成功",
+    "unfreezeSuccessDesc": "已开始 48 小时冷冻期，倒计时结束后可提取本金",
+    "freezing": "冷冻中",
+    "freezeCountdown": "冷冻倒计时",
+    "freezingDesc": "本金正在 48 小时冷冻期中，倒计时结束后可提取",
+    "freezeEnded": "冷冻结束"
   },
   "leader": {
     "title": "领袖奖励",
