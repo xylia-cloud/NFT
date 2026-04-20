@@ -49,7 +49,7 @@ export class ApiError extends Error {
  * API 配置
  */
 const API_CONFIG = {
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://api.plasma1.online',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://api.plasma.email',
   timeout: 30000,
 };
 
