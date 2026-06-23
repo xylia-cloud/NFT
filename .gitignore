@@ -2,3 +2,9 @@
 
 # Hardhat Ignition 部署产物（可再生）
 chain/ignition/deployments/
+
+# 本地敏感/依赖/超大文件（不纳入版本库）
+.env
+node_modules/
+*.tar.gz
+admin-withdraw_XMwFZ/归档.zip
