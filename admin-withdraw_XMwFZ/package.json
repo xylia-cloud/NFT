@@ -1,0 +1,36 @@
+{
+  "name": "nft",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx hardhat test",
+    "node": "npx hardhat node --hostname 127.0.0.1 --port 8546",
+    "deploy:local": "npx hardhat run scripts/deploy-local.mjs --network localhost",
+    "mint:usdt": "node scripts/mint-usdt.cjs",
+    "mint:xpl": "node scripts/mint-xpl.cjs",
+    "withdraw:usdt": "NETWORK=plasmaMainnet ASSET=usdt npx hardhat run scripts/admin-withdraw-all.mjs --network plasmaMainnet",
+    "withdraw:all": "NETWORK=plasmaMainnet ASSET=all npx hardhat run scripts/admin-withdraw-all.mjs --network plasmaMainnet"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-ethers": "^4.0.2",
+    "@nomicfoundation/hardhat-ignition": "^3.0.6",
+    "@nomicfoundation/hardhat-toolbox-mocha-ethers": "^3.0.2",
+    "@openzeppelin/contracts": "^5.4.0",
+    "@types/chai": "^4.2.0",
+    "@types/chai-as-promised": "^8.0.1",
+    "@types/mocha": ">=10.0.10",
+    "@types/node": "^22.8.5",
+    "chai": "^5.1.2",
+    "dotenv": "^17.2.3",
+    "ethers": "^6.14.0",
+    "forge-std": "foundry-rs/forge-std#v1.9.4",
+    "hardhat": "^3.4.1",
+    "mocha": "^11.0.0",
+    "typescript": "~5.8.0"
+  },
+  "type": "module"
+}
