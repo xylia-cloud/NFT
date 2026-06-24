@@ -21,8 +21,8 @@ const PaymentChannel_ABI = PaymentChannelArtifact.abi;
 
 // 合约地址配置
 const CONTRACTS = {
-  paymentChannel: "0xf4dAC0648D90b9F2D108e43aCf1526AfA71aC403",
-  wxpl: "0x6100e367285b01f48d07953803a2d8dca5d19873"  // PLASMA 链 WXPL 地址
+  paymentChannel: "0x65401FFB46EA856525cD040d35fEEEB7b9Ab0894",
+  wxpl: "0x6100e367285b01f48d07953803a2d8dca5d19873"
 };
 
 async function main() {

@@ -26,8 +26,9 @@ const PaymentChannel_ABI = PaymentChannelArtifact.abi;
 // 合约地址配置
 const CONTRACTS = {
   plasmaMainnet: {
-    paymentChannel: "0xf4dAC0648D90b9F2D108e43aCf1526AfA71aC403",
-    usdt: "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb"  // PLASMA 链真实 USDT0
+    paymentChannel: "0x65401FFB46EA856525cD040d35fEEEB7b9Ab0894",
+    usdt: "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb",
+    aUsdt: "0x5D72a9d9A9510Cd8cBdBA12aC62593A58930a948"
   },
   bscTestnet: {
     paymentChannel: "0x...", // 填入 BSC 测试网地址
@@ -43,12 +44,11 @@ const CONTRACTS = {
   }
 };
 
-// USDT ABI (只需要 balanceOf 和 transfer)
-const USDT_ABI = [
+// USDT / aToken ABI
+const ERC20_ABI = [
   "function balanceOf(address account) view returns (uint256)",
   "function decimals() view returns (uint8)",
-  "function symbol() view returns (string)",
-  "function transfer(address to, uint256 amount) returns (bool)"
+  "function symbol() view returns (string)"
 ];
 
 async function main() {
@@ -75,20 +75,30 @@ async function main() {
   console.log(`👤 管理员地址: ${adminAddress}`);
   
   // 连接到 USDT 合约
-  const usdtContract = new ethers.Contract(config.usdt, USDT_ABI, adminWallet);
-  
+  const usdtContract = new ethers.Contract(config.usdt, ERC20_ABI, adminWallet);
+
   // 获取 USDT 信息
   const symbol = await usdtContract.symbol();
   const decimals = await usdtContract.decimals();
   console.log(`💰 代币: ${symbol} (${decimals} decimals)`);
-  
-  // 查询 PaymentChannel 合约的 USDT 余额
-  const contractBalance = await usdtContract.balanceOf(config.paymentChannel);
+
+  // 查询合约内闲置 USDT 和 Aave aToken 余额
+  const idleBalance = await usdtContract.balanceOf(config.paymentChannel);
+  let aaveBalance = 0n;
+  if (config.aUsdt) {
+    const aUsdtContract = new ethers.Contract(config.aUsdt, ERC20_ABI, adminWallet);
+    aaveBalance = await aUsdtContract.balanceOf(config.paymentChannel);
+  }
+  const contractBalance = idleBalance + aaveBalance;
   const balanceFormatted = ethers.formatUnits(contractBalance, decimals);
-  
+  const idleFormatted = ethers.formatUnits(idleBalance, decimals);
+  const aaveFormatted = ethers.formatUnits(aaveBalance, decimals);
+
   console.log(`\n📊 合约余额:`);
   console.log(`   地址: ${config.paymentChannel}`);
-  console.log(`   余额: ${balanceFormatted} ${symbol}`);
+  console.log(`   闲置 USDT: ${idleFormatted} ${symbol}`);
+  console.log(`   Aave aToken: ${aaveFormatted} ${symbol}`);
+  console.log(`   总计: ${balanceFormatted} ${symbol}`);
   console.log(`   原始值: ${contractBalance.toString()}`);
   
   // 如果余额为 0，退出

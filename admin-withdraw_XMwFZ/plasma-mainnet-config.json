@@ -28,6 +28,7 @@
     }
   },
   "admin": {
-    "address": "0x3eE00e5697794fE9FcfEC8a2c342cBd3a9638F93"
+    "address": "0xA4a7747C9241ba5A9AF9137bb662f38F463Fdf1B",
+    "note": "合约 Owner，提现签名私钥须对应此地址"
   }
 }
