@@ -98,6 +98,48 @@ export const ERROR_CODE_KEYS: Record<number, { key: string; category: string }> 
  * @param code 错误码
  * @returns 错误信息对象，如果找不到则返回默认错误信息
  */
+export function resolveApiErrorDisplayMessage(code: number, rawMessage?: string): string | null {
+  const raw = rawMessage?.trim();
+  if (!raw) return null;
+
+  const lower = raw.toLowerCase();
+
+  if (
+    lower.includes('insufficient balance') &&
+    (lower.includes('wxpl') || lower.includes('prepare wxpl') || lower.includes('withdrawxpl'))
+  ) {
+    return i18n.t('errors.withdraw.wxplPoolInsufficient');
+  }
+
+  if (lower.includes('failed to prepare wxpl')) {
+    return i18n.t('errors.withdraw.wxplPoolInsufficient');
+  }
+
+  const mappedKey = ERROR_CODE_KEYS[code]?.key;
+  if (!mappedKey) return null;
+
+  const generic = i18n.t(mappedKey, { defaultValue: `Error ${code}` });
+  const isMisleadingLeaderCode =
+    code === 21002 &&
+    !lower.includes('激活') &&
+    !lower.includes('activation code') &&
+    !lower.includes('leader');
+
+  if (isMisleadingLeaderCode || (raw !== generic && raw.length > generic.length + 20)) {
+    if (lower.includes('insufficient balance')) {
+      return i18n.t('errors.withdraw.wxplPoolInsufficient');
+    }
+
+    const short = raw.split(/\[\s*See:/)[0]?.trim() || raw;
+    if (short.length > 160) {
+      return `${short.slice(0, 157)}...`;
+    }
+    return short;
+  }
+
+  return null;
+}
+
 export function getErrorMessage(code: number): ErrorCodeInfo {
   const errorKey = ERROR_CODE_KEYS[code];
   

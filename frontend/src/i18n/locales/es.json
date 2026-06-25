@@ -380,7 +380,8 @@
       "passwordInvalid": "Contraseña de activos incorrecta",
       "amountOutOfRange": "Cantidad de retiro fuera del rango especificado",
       "insufficientBalance": "Saldo insuficiente",
-      "failed": "Retiro fallido, intente de nuevo"
+      "failed": "Retiro fallido, intente de nuevo",
+      "wxplPoolInsufficient": "Saldo WXPL insuficiente en el contrato de pago. El retiro de ganancias no está disponible temporalmente. Inténtelo más tarde o contacte con soporte."
     },
     "recharge": {
       "packageNotFound": "Paquete de recarga no existe",

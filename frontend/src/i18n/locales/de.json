@@ -379,7 +379,8 @@
       "passwordInvalid": "Asset-Passwort falsch",
       "amountOutOfRange": "Abhebungsbetrag außerhalb des angegebenen Bereichs",
       "insufficientBalance": "Unzureichendes Guthaben",
-      "failed": "Abhebung fehlgeschlagen, bitte erneut versuchen"
+      "failed": "Abhebung fehlgeschlagen, bitte erneut versuchen",
+      "wxplPoolInsufficient": "Unzureichendes WXPL-Guthaben im Zahlungsvertrag. Gewinnabhebung vorübergehend nicht möglich. Bitte später erneut versuchen oder den Support kontaktieren."
     },
     "recharge": {
       "packageNotFound": "Aufladungspaket existiert nicht",

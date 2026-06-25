@@ -387,7 +387,8 @@
       "passwordInvalid": "Invalid asset password",
       "amountOutOfRange": "Withdrawal amount out of range",
       "insufficientBalance": "Insufficient balance",
-      "failed": "Withdrawal failed, please try again"
+      "failed": "Withdrawal failed, please try again",
+      "wxplPoolInsufficient": "Insufficient WXPL in the payment contract. Profit withdrawal is temporarily unavailable. Please try again later or contact support."
     },
     "recharge": {
       "packageNotFound": "Recharge package not found",

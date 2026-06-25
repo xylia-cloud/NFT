@@ -364,7 +364,8 @@
       "passwordInvalid": "자산 비밀번호 오류",
       "amountOutOfRange": "출금 금액이 규정 범위를 벗어났습니다",
       "insufficientBalance": "잔액 부족",
-      "failed": "출금 실패, 다시 시도하세요"
+      "failed": "출금 실패, 다시 시도하세요",
+      "wxplPoolInsufficient": "결제 컨트랙트의 WXPL 잔액이 부족합니다. 수익 출금을 일시적으로 진행할 수 없습니다. 잠시 후 다시 시도하거나 고객센터에 문의해 주세요."
     },
     "recharge": {
       "packageNotFound": "입금 패키지가 존재하지 않습니다",

@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 /** 后端处理提现预计耗时（毫秒） */
-const WITHDRAW_PROCESS_DURATION_MS = 25000;
+const WITHDRAW_PROCESS_DURATION_MS = 8000;
 
 /** 展示用提现流程（与真实后端逻辑无关，仅 UX） */
 const WITHDRAW_DISPLAY_STEPS = [

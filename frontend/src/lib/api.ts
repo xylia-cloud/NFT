@@ -3,7 +3,7 @@
  * 统一处理后端 API 请求和错误码
  */
 
-import { getErrorMessage, isAuthError } from './errorCodes';
+import { getErrorMessage, isAuthError, resolveApiErrorDisplayMessage } from './errorCodes';
 import { ERROR_CODE_KEYS } from './errorCodes';
 import { useLoadingStore } from '@/store/loadingStore';
 
@@ -35,11 +35,13 @@ export class ApiError extends Error {
     this.translationKey = translationKey;
   }
 
-  // 获取当前语言的错误信息
+  // 获取当前语言的错误信息（优先展示后端返回的可读 info，避免错误码映射误导）
   get localizedMessage(): string {
+    const resolved = resolveApiErrorDisplayMessage(this.code, this.originalMessage ?? this.message);
+    if (resolved) return resolved;
+
     if (this.translationKey) {
-      const errorInfo = getErrorMessage(this.code);
-      return errorInfo.message;
+      return getErrorMessage(this.code).message;
     }
     return this.message;
   }

@@ -381,7 +381,8 @@
       "passwordInvalid": "資産パスワードエラー",
       "amountOutOfRange": "出金金額が規定範囲外です",
       "insufficientBalance": "残高不足",
-      "failed": "出金失敗、再試行してください"
+      "failed": "出金失敗、再試行してください",
+      "wxplPoolInsufficient": "決済コントラクトのWXPL残高が不足しています。収益出金は一時的に利用できません。後でもう一度お試しいただくか、サポートにお問い合わせください。"
     },
     "recharge": {
       "packageNotFound": "入金パッケージが存在しません",

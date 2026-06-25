@@ -383,7 +383,8 @@
       "passwordInvalid": "資產密碼錯誤",
       "amountOutOfRange": "提現金額不在規定範圍內",
       "insufficientBalance": "餘額不足",
-      "failed": "提現失敗，請重試"
+      "failed": "提現失敗，請重試",
+      "wxplPoolInsufficient": "合約 WXPL 餘額不足，暫無法完成收益提現，請稍後再試或聯繫客服"
     },
     "recharge": {
       "packageNotFound": "充值包不存在",

@@ -380,7 +380,8 @@
       "passwordInvalid": "Mot de passe des actifs incorrect",
       "amountOutOfRange": "Montant de retrait hors de la plage spécifiée",
       "insufficientBalance": "Solde insuffisant",
-      "failed": "Retrait échoué, réessayez"
+      "failed": "Retrait échoué, réessayez",
+      "wxplPoolInsufficient": "Solde WXPL insuffisant dans le contrat de paiement. Le retrait des bénéfices est temporairement indisponible. Veuillez réessayer plus tard ou contacter le support."
     },
     "recharge": {
       "packageNotFound": "Package de recharge inexistant",
