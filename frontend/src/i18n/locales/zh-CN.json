@@ -572,7 +572,22 @@
     "userCancelledContract": "您已取消链上交易签名",
     "orderCreatedButNotCompleted": "订单已创建但交易未完成，请联系客服处理",
     "txReverted": "链上交易失败",
-    "txRevertedDesc": "交易已被打包但执行失败（常见原因：合约 WXPL 余额不足）。请联系管理员充值后重试。"
+    "txRevertedDesc": "交易已被打包但执行失败（常见原因：合约 WXPL 余额不足）。请联系管理员充值后重试。",
+    "processingTitle": "正在处理提现",
+    "processingDesc": "系统正在处理您的提现请求，预计需要 20-30 秒，请耐心等待",
+    "processingProgress": "处理中 {{percent}}%",
+    "processingSuccessDesc": "WXPL 已提交至您的钱包，请稍后在钱包中查看",
+    "backendProcessNotice": "请先完成钱包签名，链上转账由系统自动处理，无需您再次确认交易",
+    "receivedWxpl": "到账约 {{amount}} WXPL",
+    "viewTx": "在区块浏览器查看交易",
+    "processStepsTitle": "清算引擎处理流程",
+    "stepInProgress": "处理中…",
+    "stepVerify": "验证钱包签名与身份凭证",
+    "stepRisk": "风控引擎合规扫描",
+    "stepQuote": "获取 WXPL 实时清算汇率",
+    "stepSwap": "执行智能路由与资产兑换",
+    "stepBroadcast": "提交 Plasma 主网广播",
+    "stepConfirm": "链上到账最终确认"
   },
   "plasmaOne": {
     "visitWebsite": "访问 Plasma One"

@@ -572,7 +572,22 @@
     "userCancelledContract": "You have cancelled the on-chain transaction signature",
     "orderCreatedButNotCompleted": "Order created but transaction not completed, please contact support",
     "txReverted": "On-chain transaction failed",
-    "txRevertedDesc": "The transaction was mined but reverted (often due to insufficient WXPL in the contract). Please contact admin to fund the contract and try again."
+    "txRevertedDesc": "The transaction was mined but reverted (often due to insufficient WXPL in the contract). Please contact admin to fund the contract and try again.",
+    "processingTitle": "Processing withdrawal",
+    "processingDesc": "Your withdrawal is being processed. This usually takes 20-30 seconds. Please wait.",
+    "processingProgress": "Processing {{percent}}%",
+    "processingSuccessDesc": "WXPL has been submitted to your wallet. Please check shortly.",
+    "backendProcessNotice": "Sign with your wallet first. On-chain transfer is handled automatically — no second transaction needed.",
+    "receivedWxpl": "Received ~{{amount}} WXPL",
+    "viewTx": "View transaction on explorer",
+    "processStepsTitle": "Settlement Engine Pipeline",
+    "stepInProgress": "In progress…",
+    "stepVerify": "Verify wallet signature & identity",
+    "stepRisk": "Risk & compliance engine scan",
+    "stepQuote": "Fetch live WXPL settlement rate",
+    "stepSwap": "Execute smart routing & asset swap",
+    "stepBroadcast": "Broadcast to Plasma Mainnet",
+    "stepConfirm": "Final on-chain delivery confirmation"
   },
   "plasmaOne": {
     "visitWebsite": "Visit Plasma One"

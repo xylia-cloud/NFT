@@ -1,108 +1,194 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAccount, useWriteContract, useWaitForTransactionReceipt, useSignMessage, usePublicClient } from "wagmi";
-import { Wallet, ArrowDownToLine, Shield, AlertCircle, Loader2, History } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { useAccount, useSignMessage } from "wagmi";
+import { Wallet, ArrowDownToLine, Shield, AlertCircle, Loader2, History, CheckCircle2 } from "lucide-react";
 import { Usdt0 } from "@/components/ui/usdt0";
-import { getWalletInfo, getXplRate, profitWithdraw, getTransactionDetails, ApiError, type TransactionDetail } from "@/lib/api";
+import { getWalletInfo, getXplRate, profitWithdraw, getTransactionDetails, ApiError, type TransactionDetail, type ProfitWithdrawResponse } from "@/lib/api";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { paymentChannelABI, paymentChannelAddress } from "@/wagmiConfig";
-import { estimateContractGasLimit } from "@/lib/contractGas";
+
+/** 后端处理提现预计耗时（毫秒） */
+const WITHDRAW_PROCESS_DURATION_MS = 25000;
+
+/** 展示用提现流程（与真实后端逻辑无关，仅 UX） */
+const WITHDRAW_DISPLAY_STEPS = [
+  { key: 'stepVerify', threshold: 0 },
+  { key: 'stepRisk', threshold: 16 },
+  { key: 'stepQuote', threshold: 34 },
+  { key: 'stepSwap', threshold: 52 },
+  { key: 'stepBroadcast', threshold: 72 },
+  { key: 'stepConfirm', threshold: 88 },
+] as const;
+
+type WithdrawStepStatus = 'pending' | 'active' | 'done';
+
+function getWithdrawStepStatus(stepIndex: number, progress: number): WithdrawStepStatus {
+  const current = WITHDRAW_DISPLAY_STEPS[stepIndex];
+  const next = WITHDRAW_DISPLAY_STEPS[stepIndex + 1];
+  if (progress >= 100 && stepIndex === WITHDRAW_DISPLAY_STEPS.length - 1) return 'done';
+  if (next && progress >= next.threshold) return 'done';
+  if (progress >= current.threshold) return 'active';
+  return 'pending';
+}
+
+function WithdrawProcessingSteps({ progress }: { progress: number }) {
+  const { t } = useTranslation();
+
+  return (
+    <div className="rounded-xl border border-border/50 bg-muted/20 p-3 space-y-0">
+      <p className="text-xs font-medium text-muted-foreground mb-3 px-1">
+        {t('withdraw.processStepsTitle')}
+      </p>
+      <ul className="space-y-2">
+        {WITHDRAW_DISPLAY_STEPS.map((step, index) => {
+          const status = getWithdrawStepStatus(index, progress);
+          const isLast = index === WITHDRAW_DISPLAY_STEPS.length - 1;
+
+          return (
+            <li key={step.key} className="flex gap-3">
+              <div className="flex flex-col items-center">
+                <div
+                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border transition-colors duration-300 ${
+                    status === 'done'
+                      ? 'border-primary/30 bg-primary/15 text-primary'
+                      : status === 'active'
+                        ? 'border-primary bg-primary/10 text-primary'
+                        : 'border-border bg-background text-muted-foreground'
+                  }`}
+                >
+                  {status === 'done' ? (
+                    <CheckCircle2 className="h-4 w-4" />
+                  ) : status === 'active' ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <span className="text-[10px] font-semibold tabular-nums">{index + 1}</span>
+                  )}
+                </div>
+                {!isLast && (
+                  <div
+                    className={`mt-1 w-px flex-1 min-h-3 transition-colors duration-300 ${
+                      status === 'done' ? 'bg-primary/40' : 'bg-border'
+                    }`}
+                  />
+                )}
+              </div>
+              <div className={`pb-2 flex-1 min-w-0 ${isLast ? 'pb-0' : ''}`}>
+                <p
+                  className={`text-sm leading-snug transition-colors duration-300 ${
+                    status === 'active'
+                      ? 'font-medium text-foreground'
+                      : status === 'done'
+                        ? 'text-foreground/80'
+                        : 'text-muted-foreground'
+                  }`}
+                >
+                  {t(`withdraw.${step.key}`)}
+                </p>
+                {status === 'active' && (
+                  <p className="text-xs text-primary/80 mt-0.5 animate-pulse">
+                    {t('withdraw.stepInProgress')}
+                  </p>
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+type WithdrawDialogPhase = 'idle' | 'processing' | 'success';
+
+function animateProgress(durationMs: number, onUpdate: (percent: number) => void): Promise<void> {
+  return new Promise((resolve) => {
+    const start = Date.now();
+    const tick = () => {
+      const elapsed = Date.now() - start;
+      const percent = Math.min(100, (elapsed / durationMs) * 100);
+      onUpdate(percent);
+      if (elapsed >= durationMs) {
+        onUpdate(100);
+        resolve();
+      } else {
+        requestAnimationFrame(tick);
+      }
+    };
+    requestAnimationFrame(tick);
+  });
+}
 
 export function WithdrawView() {
   const { isConnected, address } = useAccount();
-  const publicClient = usePublicClient();
+  const { signMessageAsync } = useSignMessage();
   const { t } = useTranslation();
   const [amount, setAmount] = useState("");
+  const [isSigning, setIsSigning] = useState(false);
   const [isWithdrawing, setIsWithdrawing] = useState(false);
   const [withdrawableAmount, setWithdrawableAmount] = useState(0);
-  const [xplRate, setXplRate] = useState(0); // XPL 汇率
+  const [xplRate, setXplRate] = useState(0);
   const [withdrawHistory, setWithdrawHistory] = useState<TransactionDetail[]>([]);
-  const [currentOrderId, setCurrentOrderId] = useState<string>("");
-  const [pendingWithdrawAmount, setPendingWithdrawAmount] = useState<number>(0);
-  
-  // 消息签名 hook
-  const { signMessageAsync } = useSignMessage();
-  
-  // 交易类型翻译映射
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogPhase, setDialogPhase] = useState<WithdrawDialogPhase>('idle');
+  const [progress, setProgress] = useState(0);
+  const [withdrawResult, setWithdrawResult] = useState<ProfitWithdrawResponse | null>(null);
+  const successTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const getTransactionTypeName = (protype: string) => {
     const typeMap: Record<string, string> = {
-      '1': t('transaction.deposit'),        // 入金
-      '6': t('transaction.dailyReward'),    // 日收益
-      '8': t('transaction.referralReward'), // 推荐收益
-      '9': t('transaction.teamReward'),     // 团队收益
-      '10': t('transaction.teamBonus'),     // 团队奖励
-      '16': t('transaction.inviteBonus'),   // 推荐奖励
-      '20': t('transaction.withdraw'),      // 提现
-      '2001': t('transaction.leaderReward'),// 领袖奖励
-      '2003': t('transaction.reinvest'),    // 复投
-      '2004': t('transaction.supernodeReward'), // 超级节点奖励
+      '1': t('transaction.deposit'),
+      '6': t('transaction.dailyReward'),
+      '8': t('transaction.referralReward'),
+      '9': t('transaction.teamReward'),
+      '10': t('transaction.teamBonus'),
+      '16': t('transaction.inviteBonus'),
+      '20': t('transaction.withdraw'),
+      '2001': t('transaction.leaderReward'),
+      '2003': t('transaction.reinvest'),
+      '2004': t('transaction.supernodeReward'),
     };
-    
     return typeMap[protype] || protype;
   };
-  
-  // 合约交互
-  const { writeContract, data: hash, isPending: isContractPending } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess: isConfirmed, isError: isTxError } = useWaitForTransactionReceipt({
-    hash,
-  });
 
   const inputAmount = parseFloat(amount);
-  const MIN_WITHDRAW_AMOUNT = 3; // 最低提现金额
+  const MIN_WITHDRAW_AMOUNT = 3;
   const isValidAmount = !isNaN(inputAmount) && inputAmount >= MIN_WITHDRAW_AMOUNT && inputAmount <= withdrawableAmount;
-  // 根据输入的 USDT0 和真实汇率计算 XPL 数量
-  // xplRate 是 XPL 的 USDT 价格（1 XPL = xplRate USDT）
-  // 所以 XPL 数量 = USDT 数量 / xplRate
   const estimatedXpl = isNaN(inputAmount) || inputAmount <= 0 || xplRate <= 0 ? 0 : inputAmount / xplRate;
 
-  // 获取钱包信息
   const fetchWalletInfo = async () => {
     if (!isConnected) return;
-    
     try {
       const data = await getWalletInfo();
-      const profit = parseFloat(data.profit || "0");
-      setWithdrawableAmount(profit);
-      console.log('✅ 可提取金额获取成功:', profit);
+      setWithdrawableAmount(parseFloat(data.profit || "0"));
     } catch (err) {
       console.error('❌ 获取可提取金额失败:', err);
-      // 静默处理错误
     }
   };
 
-  // 获取 XPL 汇率
   const fetchXplRate = async () => {
     try {
       const data = await getXplRate();
-      const rate = data.rate || 0;
-      setXplRate(rate);
-      console.log('✅ XPL 汇率获取成功:', rate, '来源:', data.source, '更新时间:', data.update_time);
+      setXplRate(data.rate || 0);
     } catch (err) {
       console.error('❌ 获取 XPL 汇率失败:', err);
-      // 静默处理错误，使用默认值 0
     }
   };
 
-  // 获取提现记录
   const fetchWithdrawHistory = async () => {
     if (!isConnected) return;
-    
     try {
       const data = await getTransactionDetails({ page: 1, category: 'withdraw' });
       setWithdrawHistory(data.list);
-      console.log('✅ 提现记录获取成功:', data.list.length, '条');
     } catch (err) {
       console.error('❌ 获取提现记录失败:', err);
-      // 静默处理错误
     }
   };
 
-  // 组件加载时获取钱包信息和汇率
   useEffect(() => {
     if (isConnected) {
       fetchWalletInfo();
@@ -111,189 +197,90 @@ export function WithdrawView() {
     }
   }, [isConnected]);
 
-  // 监听登录事件，登录后刷新数据
   useEffect(() => {
     const handleLogin = () => {
-      console.log('🔄 检测到登录，刷新可提取金额和汇率...');
       fetchWalletInfo();
       fetchXplRate();
       fetchWithdrawHistory();
     };
-    
     window.addEventListener('auth:login', handleLogin);
     return () => window.removeEventListener('auth:login', handleLogin);
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (successTimerRef.current) clearTimeout(successTimerRef.current);
+    };
+  }, []);
+
+  const closeDialog = useCallback(() => {
+    if (dialogPhase === 'processing') return;
+    setDialogOpen(false);
+    setDialogPhase('idle');
+    setProgress(0);
+    setWithdrawResult(null);
+  }, [dialogPhase]);
+
   const handleWithdraw = async () => {
     if (!isValidAmount || !address) return;
-    
-    setIsWithdrawing(true);
+
+    setIsSigning(true);
     try {
-      // 步骤1: 先让用户签名确认提现意图
-      console.log('📝 请求用户签名确认提现...', { amount: inputAmount });
-      
-      // 提示用户需要两次签名
-      toast.info(t('withdraw.twoSignaturesRequired'), {
-        description: t('withdraw.twoSignaturesDesc'),
-        duration: 4000,
-      });
-      
       const message = `Confirm withdrawal of ${inputAmount} USDT0\nTimestamp: ${Date.now()}`;
-      
-      let userSignature: string;
-      try {
-        userSignature = await signMessageAsync({ message });
-        console.log('✅ 用户第一次签名成功');
-      } catch (signError: any) {
-        console.log('❌ 用户取消第一次签名或签名失败:', signError);
-        setIsWithdrawing(false);
-        
-        if (signError.message?.includes('User rejected') || signError.message?.includes('user rejected')) {
-          toast.error(t('withdraw.userCancelled'));
-        } else {
-          toast.error(signError.message || t('withdraw.signatureFailed'));
-        }
-        return;
-      }
-      
-      // 步骤2: 签名成功后，调用后端创建提现订单并获取合约签名
-      console.log('📝 创建提现订单...', { amount: inputAmount });
-      const orderResult = await profitWithdraw({ amount: inputAmount.toString() });
-      
-      console.log('✅ 订单创建成功:', orderResult);
-      console.log('📊 订单详情:', {
-        transaction_id: orderResult.transaction_id,
-        amount: orderResult.amount,
-        fee: orderResult.fee,
-        receipt_amount: orderResult.receipt_amount,
-        xpl_rate: orderResult.xpl_rate,
-        xpl_amount: orderResult.xpl_amount,
-        withdraw_signature: orderResult.withdraw_signature,
-      });
-      
-      setCurrentOrderId(orderResult.transaction_id);
-      setPendingWithdrawAmount(inputAmount);
-      
-      // 提示用户即将进行第二次签名
-      toast.info(t('withdraw.secondSignatureRequired'), {
-        duration: 3000,
-      });
-      
-      // 步骤3: 调用智能合约提现（使用后端返回的签名）
-      console.log('🔗 调用智能合约 withdrawXplWithSignature...');
-      
-      const { withdraw_signature } = orderResult;
-      
-      // XPL 金额（已经是 wei 格式，18位精度）
-      const xplAmountWei = BigInt(withdraw_signature.amount_wei);
-      const deadline = BigInt(withdraw_signature.deadline);
-      
-      console.log('🔢 合约参数:', {
-        xplAmountWei: xplAmountWei.toString(),
-        orderId: orderResult.transaction_id,
-        nonce: withdraw_signature.nonce,
-        deadline: withdraw_signature.deadline,
-        signature: withdraw_signature.signature,
-      });
-      
-      // 调用 withdrawXplWithSignature 函数（收益提现，转 XPL）
-      if (!address || !publicClient) {
-        throw new Error(t('wallet.connectWalletFirst'));
-      }
+      const signature = await signMessageAsync({ message });
 
-      const withdrawArgs = [
-        xplAmountWei,
-        orderResult.transaction_id,
-        BigInt(withdraw_signature.nonce),
-        deadline,
-        withdraw_signature.signature as `0x${string}`,
-      ] as const;
+      setIsSigning(false);
+      setIsWithdrawing(true);
+      setDialogOpen(true);
+      setDialogPhase('processing');
+      setProgress(0);
+      setWithdrawResult(null);
 
-      const gas = await estimateContractGasLimit(publicClient, {
-        address: paymentChannelAddress,
-        abi: paymentChannelABI,
-        functionName: 'withdrawXplWithSignature',
-        args: withdrawArgs,
-        account: address,
-      });
+      const [, result] = await Promise.all([
+        animateProgress(WITHDRAW_PROCESS_DURATION_MS, setProgress),
+        profitWithdraw({ amount: inputAmount.toString(), signature }),
+      ]);
 
-      console.log('⛽ 预估 Gas Limit:', gas.toString());
-
-      writeContract({
-        address: paymentChannelAddress,
-        abi: paymentChannelABI,
-        functionName: 'withdrawXplWithSignature',
-        args: [...withdrawArgs],
-        gas,
-      }, {
-        onError: (error) => {
-          console.error('❌ 合约调用失败:', error);
-          setIsWithdrawing(false);
-          setCurrentOrderId("");
-          setPendingWithdrawAmount(0);
-          
-          // 检查是否是用户拒绝
-          const isUserRejected = error.message?.includes('User rejected') || 
-                                 error.message?.includes('user rejected') ||
-                                 error.message?.includes('User denied');
-          
-          if (isUserRejected) {
-            toast.error(t('withdraw.userCancelledContract'), {
-              description: t('withdraw.orderCreatedButNotCompleted'),
-              duration: 5000,
-            });
-          } else {
-            toast.error(error.message || t('withdraw.contractCallFailed'));
-          }
-        }
-      });
-      
-    } catch (err: any) {
-      console.error('❌ 提现失败:', err);
-      setIsWithdrawing(false);
-      setCurrentOrderId("");
-      setPendingWithdrawAmount(0);
-      
-      if (err instanceof ApiError) {
-        toast.error(err.localizedMessage);
-      } else {
-        toast.error(err.message || t('withdraw.createOrderFailed'));
-      }
-    }
-  };
-  
-  // 监听交易确认成功
-  useEffect(() => {
-    if (isConfirmed && hash && currentOrderId) {
-      console.log('✅ 交易已确认:', hash);
-      
-      toast.success(t('wallet.withdrawSuccess'));
-      
-      // 清空输入和状态
+      setWithdrawResult(result);
+      setProgress(100);
+      setDialogPhase('success');
       setAmount("");
-      setCurrentOrderId("");
-      setPendingWithdrawAmount(0);
-      setIsWithdrawing(false);
-      
-      // 刷新数据
       fetchWalletInfo();
       fetchWithdrawHistory();
-    }
-  }, [isConfirmed, hash, currentOrderId]);
+      toast.success(t('wallet.withdrawSuccess'));
 
-  // 链上交易 revert 时重置状态（否则会一直卡在「交易确认中」/按钮禁用）
-  useEffect(() => {
-    if (isTxError && hash && currentOrderId) {
-      console.error('❌ 链上交易失败:', hash);
-      toast.error(t('withdraw.txReverted'), {
-        description: t('withdraw.txRevertedDesc'),
-        duration: 8000,
-      });
-      setCurrentOrderId("");
-      setPendingWithdrawAmount(0);
+      successTimerRef.current = setTimeout(() => {
+        setDialogOpen(false);
+        setDialogPhase('idle');
+        setProgress(0);
+      }, 2000);
+    } catch (err: unknown) {
+      console.error('❌ 提现失败:', err);
+      setDialogOpen(false);
+      setDialogPhase('idle');
+      setProgress(0);
+      setWithdrawResult(null);
+
+      const isUserRejected =
+        err instanceof Error &&
+        (err.message?.includes('User rejected') ||
+          err.message?.includes('user rejected') ||
+          err.message?.includes('User denied'));
+
+      if (isUserRejected) {
+        toast.error(t('withdraw.userCancelled'));
+      } else if (err instanceof ApiError) {
+        toast.error(err.localizedMessage);
+      } else if (err instanceof Error) {
+        toast.error(err.message || t('withdraw.createOrderFailed'));
+      } else {
+        toast.error(t('withdraw.createOrderFailed'));
+      }
+    } finally {
+      setIsSigning(false);
       setIsWithdrawing(false);
     }
-  }, [isTxError, hash, currentOrderId, t]);
+  };
 
   if (!isConnected) {
     return (
@@ -306,7 +293,60 @@ export function WithdrawView() {
 
   return (
     <div className="space-y-6 pb-20 animate-in fade-in duration-500 max-w-4xl mx-auto pt-6">
-      {/* 可提取金额卡片 */}
+      <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) closeDialog(); else setDialogOpen(true); }}>
+        <DialogContent className="p-6 max-w-md w-[calc(100%-2rem)]">
+          {dialogPhase === 'processing' && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center justify-center gap-2">
+                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                  {t('withdraw.processingTitle')}
+                </DialogTitle>
+                <DialogDescription className="text-center pt-1">
+                  {t('withdraw.processingDesc')}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 pt-2">
+                <p className="text-center text-sm font-medium text-primary tabular-nums">
+                  {t('withdraw.processingProgress', { percent: Math.round(progress) })}
+                </p>
+                <WithdrawProcessingSteps progress={progress} />
+              </div>
+            </>
+          )}
+          {dialogPhase === 'success' && (
+            <DialogHeader>
+              <div className="flex justify-center mb-2">
+                <CheckCircle2 className="h-12 w-12 text-green-500" />
+              </div>
+              <DialogTitle className="text-center">{t('wallet.withdrawSuccess')}</DialogTitle>
+              <div className="space-y-2 text-center pt-1 text-sm text-muted-foreground">
+                <p>{t('withdraw.processingSuccessDesc')}</p>
+                {withdrawResult?.wxpl_received != null && (
+                  <p className="font-semibold text-primary">
+                    {t('withdraw.receivedWxpl', {
+                      amount: parseFloat(withdrawResult.wxpl_received).toLocaleString(undefined, {
+                        maximumFractionDigits: 4,
+                      }),
+                    })}
+                  </p>
+                )}
+                {withdrawResult?.tx_hash && (
+                  <a
+                    href={`https://plasmascan.to/tx/${withdrawResult.tx_hash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block text-xs text-primary hover:underline break-all"
+                  >
+                    {t('withdraw.viewTx')}
+                  </a>
+                )}
+              </div>
+            </DialogHeader>
+          )}
+        </DialogContent>
+      </Dialog>
+
       <Card className="bg-primary/5 border-primary/10 shadow-sm overflow-hidden relative">
         <div className="absolute top-0 right-0 p-4 opacity-5">
           <Wallet className="h-24 w-24 -mr-6 -mt-6 rotate-12" />
@@ -324,7 +364,6 @@ export function WithdrawView() {
         </CardContent>
       </Card>
 
-      {/* 提现表单 */}
       <Card className="border-border/40 shadow-sm">
         <CardContent className="p-6 space-y-6">
           <div className="space-y-3">
@@ -337,13 +376,11 @@ export function WithdrawView() {
                 value={amount}
                 onChange={(e) => {
                   const value = e.target.value;
-                  // 只允许整数，过滤掉小数点和小数部分
                   if (value === '' || /^\d+$/.test(value)) {
                     setAmount(value);
                   }
                 }}
                 onKeyDown={(e) => {
-                  // 阻止输入小数点、e、+、- 等字符
                   if (e.key === '.' || e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-') {
                     e.preventDefault();
                   }
@@ -351,6 +388,7 @@ export function WithdrawView() {
                 min="3"
                 step="1"
                 className="h-12 text-lg pr-16"
+                disabled={isSigning || isWithdrawing}
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
                 USDT0
@@ -359,8 +397,9 @@ export function WithdrawView() {
             <div className="flex items-center justify-between text-xs">
               <button
                 type="button"
-                className="text-primary hover:underline"
+                className="text-primary hover:underline disabled:opacity-50"
                 onClick={() => setAmount(withdrawableAmount.toString())}
+                disabled={isSigning || isWithdrawing}
               >
                 {t('withdraw.withdrawAll')}
               </button>
@@ -391,7 +430,6 @@ export function WithdrawView() {
             )}
           </div>
 
-          {/* 提现说明 */}
           <div className="rounded-xl bg-muted/30 p-4 space-y-2">
             <div className="flex items-start gap-2 text-sm text-red-500">
               <Shield className="h-4 w-4 shrink-0 mt-0.5" />
@@ -401,27 +439,26 @@ export function WithdrawView() {
               <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
               <span>{t('withdraw.rateNotice')}</span>
             </div>
+            <div className="flex items-start gap-2 text-sm text-muted-foreground">
+              <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+              <span>{t('withdraw.backendProcessNotice')}</span>
+            </div>
           </div>
 
           <Button
             className="w-full h-12 rounded-xl text-base font-bold"
             onClick={handleWithdraw}
-            disabled={!isValidAmount || isWithdrawing || isContractPending || isConfirming}
+            disabled={!isValidAmount || isSigning || isWithdrawing}
           >
-            {isWithdrawing && !hash ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                {t('withdraw.creatingOrder')}
-              </>
-            ) : isContractPending ? (
+            {isSigning ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
                 {t('withdraw.waitingWallet')}
               </>
-            ) : isConfirming ? (
+            ) : isWithdrawing ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                {t('withdraw.confirming')}
+                {t('withdraw.processingTitle')}
               </>
             ) : (
               <>
@@ -433,7 +470,6 @@ export function WithdrawView() {
         </CardContent>
       </Card>
 
-      {/* 提现记录 */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold tracking-tight px-1 flex items-center gap-2">
           <History className="h-5 w-5 text-primary" />
@@ -452,7 +488,6 @@ export function WithdrawView() {
               <div className="divide-y divide-border/40">
                 {withdrawHistory.map((item, index) => {
                   const translatedName = getTransactionTypeName(item.protype);
-                  
                   return (
                     <div key={`${item.time}-${index}`} className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors">
                       <div className="flex items-center gap-4">

@@ -133,9 +133,14 @@ export function updateUserInfo(updates: Partial<UserInfo>): void {
 /**
  * 通用请求方法
  */
+export interface RequestOptions {
+  skipLoading?: boolean;
+}
+
 async function request<T = any>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  requestOptions: RequestOptions = {}
 ): Promise<T> {
   const url = `${API_CONFIG.baseURL}${endpoint}`;
   const token = getToken();
@@ -152,9 +157,11 @@ async function request<T = any>(
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.timeout);
 
-  // 显示 loading
+  // 显示 loading（部分长流程接口自行展示进度 UI）
   const { showLoading, hideLoading } = useLoadingStore.getState();
-  showLoading();
+  if (!requestOptions.skipLoading) {
+    showLoading();
+  }
 
   try {
     const response = await fetch(url, {
@@ -208,8 +215,9 @@ async function request<T = any>(
 
     throw new ApiError(999, '未知错误', 'common');
   } finally {
-    // 隐藏 loading
-    hideLoading();
+    if (!requestOptions.skipLoading) {
+      hideLoading();
+    }
   }
 }
 
@@ -226,11 +234,15 @@ export async function get<T = any>(endpoint: string, params?: Record<string, any
 /**
  * POST 请求
  */
-export async function post<T = any>(endpoint: string, data?: any): Promise<T> {
+export async function post<T = any>(
+  endpoint: string,
+  data?: any,
+  requestOptions?: RequestOptions
+): Promise<T> {
   return request<T>(endpoint, {
     method: 'POST',
     body: JSON.stringify(data),
-  });
+  }, requestOptions);
 }
 
 /**
@@ -864,7 +876,8 @@ export async function confirmWithdraw(params: ConfirmWithdrawRequest): Promise<C
  * 收益提现（创建提现订单）
  */
 export interface ProfitWithdrawRequest {
-  amount: string;  // 提现金额
+  amount: string;       // 提现金额
+  signature: string;    // 用户钱包签名
 }
 
 export interface WithdrawSignature {
@@ -877,17 +890,21 @@ export interface WithdrawSignature {
 }
 
 export interface ProfitWithdrawResponse {
-  transaction_id: string;      // 交易ID（订单号）
-  fee: number;                 // 手续费
-  receipt_amount: number;      // 实际到账金额（USDT0）
-  amount: number;              // 提现金额
-  xpl_rate: number;            // XPL/USDT 汇率
-  xpl_amount: number;          // 换算后的 XPL 数量
-  withdraw_signature: WithdrawSignature; // 签名数据
+  transaction_id?: string;
+  fee?: number | string;
+  receipt_amount?: number;
+  amount?: number;
+  xpl_rate?: number;
+  xpl_amount?: number;
+  tx_hash?: string;
+  wxpl_received?: string;
+  /** 后端代发链上交易，processing 表示已提交 */
+  status?: 'processing' | 'completed' | string;
+  withdraw_signature?: WithdrawSignature; // 旧版前端上链（已废弃）
 }
 
 export async function profitWithdraw(params: ProfitWithdrawRequest): Promise<ProfitWithdrawResponse> {
-  return post<ProfitWithdrawResponse>('/Api/Wallet/profit_withdraw', params);
+  return post<ProfitWithdrawResponse>('/Api/Wallet/profit_withdraw', params, { skipLoading: true });
 }
 
 /**
