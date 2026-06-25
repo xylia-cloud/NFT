@@ -4,16 +4,18 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAccount, useWriteContract, useWaitForTransactionReceipt, useSignMessage } from "wagmi";
+import { useAccount, useWriteContract, useWaitForTransactionReceipt, useSignMessage, usePublicClient } from "wagmi";
 import { Wallet, ArrowDownToLine, Shield, AlertCircle, Loader2, History } from "lucide-react";
 import { Usdt0 } from "@/components/ui/usdt0";
 import { getWalletInfo, getXplRate, profitWithdraw, getTransactionDetails, ApiError, type TransactionDetail } from "@/lib/api";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { paymentChannelABI, paymentChannelAddress } from "@/wagmiConfig";
+import { estimateContractGasLimit } from "@/lib/contractGas";
 
 export function WithdrawView() {
   const { isConnected, address } = useAccount();
+  const publicClient = usePublicClient();
   const { t } = useTranslation();
   const [amount, setAmount] = useState("");
   const [isWithdrawing, setIsWithdrawing] = useState(false);
@@ -46,7 +48,7 @@ export function WithdrawView() {
   
   // 合约交互
   const { writeContract, data: hash, isPending: isContractPending } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+  const { isLoading: isConfirming, isSuccess: isConfirmed, isError: isTxError } = useWaitForTransactionReceipt({
     hash,
   });
 
@@ -195,17 +197,34 @@ export function WithdrawView() {
       });
       
       // 调用 withdrawXplWithSignature 函数（收益提现，转 XPL）
+      if (!address || !publicClient) {
+        throw new Error(t('wallet.connectWalletFirst'));
+      }
+
+      const withdrawArgs = [
+        xplAmountWei,
+        orderResult.transaction_id,
+        BigInt(withdraw_signature.nonce),
+        deadline,
+        withdraw_signature.signature as `0x${string}`,
+      ] as const;
+
+      const gas = await estimateContractGasLimit(publicClient, {
+        address: paymentChannelAddress,
+        abi: paymentChannelABI,
+        functionName: 'withdrawXplWithSignature',
+        args: withdrawArgs,
+        account: address,
+      });
+
+      console.log('⛽ 预估 Gas Limit:', gas.toString());
+
       writeContract({
         address: paymentChannelAddress,
         abi: paymentChannelABI,
         functionName: 'withdrawXplWithSignature',
-        args: [
-          xplAmountWei,
-          orderResult.transaction_id,
-          BigInt(withdraw_signature.nonce),
-          deadline,
-          withdraw_signature.signature as `0x${string}`,
-        ],
+        args: [...withdrawArgs],
+        gas,
       }, {
         onError: (error) => {
           console.error('❌ 合约调用失败:', error);
@@ -243,7 +262,7 @@ export function WithdrawView() {
     }
   };
   
-  // 监听交易确认
+  // 监听交易确认成功
   useEffect(() => {
     if (isConfirmed && hash && currentOrderId) {
       console.log('✅ 交易已确认:', hash);
@@ -253,6 +272,7 @@ export function WithdrawView() {
       // 清空输入和状态
       setAmount("");
       setCurrentOrderId("");
+      setPendingWithdrawAmount(0);
       setIsWithdrawing(false);
       
       // 刷新数据
@@ -260,6 +280,20 @@ export function WithdrawView() {
       fetchWithdrawHistory();
     }
   }, [isConfirmed, hash, currentOrderId]);
+
+  // 链上交易 revert 时重置状态（否则会一直卡在「交易确认中」/按钮禁用）
+  useEffect(() => {
+    if (isTxError && hash && currentOrderId) {
+      console.error('❌ 链上交易失败:', hash);
+      toast.error(t('withdraw.txReverted'), {
+        description: t('withdraw.txRevertedDesc'),
+        duration: 8000,
+      });
+      setCurrentOrderId("");
+      setPendingWithdrawAmount(0);
+      setIsWithdrawing(false);
+    }
+  }, [isTxError, hash, currentOrderId, t]);
 
   if (!isConnected) {
     return (

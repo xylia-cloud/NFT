@@ -570,7 +570,9 @@
     "twoSignaturesDesc": "第一次确认提现意图，第二次确认链上交易",
     "secondSignatureRequired": "请确认第二次签名以完成链上交易",
     "userCancelledContract": "您已取消链上交易签名",
-    "orderCreatedButNotCompleted": "订单已创建但交易未完成，请联系客服处理"
+    "orderCreatedButNotCompleted": "订单已创建但交易未完成，请联系客服处理",
+    "txReverted": "链上交易失败",
+    "txRevertedDesc": "交易已被打包但执行失败（常见原因：合约 WXPL 余额不足）。请联系管理员充值后重试。"
   },
   "plasmaOne": {
     "visitWebsite": "访问 Plasma One"

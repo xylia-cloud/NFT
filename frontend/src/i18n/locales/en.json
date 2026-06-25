@@ -570,7 +570,9 @@
     "twoSignaturesDesc": "First to confirm intent, second to confirm on-chain transaction",
     "secondSignatureRequired": "Please confirm the second signature to complete the on-chain transaction",
     "userCancelledContract": "You have cancelled the on-chain transaction signature",
-    "orderCreatedButNotCompleted": "Order created but transaction not completed, please contact support"
+    "orderCreatedButNotCompleted": "Order created but transaction not completed, please contact support",
+    "txReverted": "On-chain transaction failed",
+    "txRevertedDesc": "The transaction was mined but reverted (often due to insufficient WXPL in the contract). Please contact admin to fund the contract and try again."
   },
   "plasmaOne": {
     "visitWebsite": "Visit Plasma One"

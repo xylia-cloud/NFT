@@ -4,8 +4,9 @@ import { PiggyBank, Loader2 } from "lucide-react";
 import type { StakeOrder } from "./StakeView";
 import { StakeOrderItem } from "./StakeView";
 import { getMyRecords, capitalWithdraw, unfreezeCapital, ApiError, type StakeRecord } from "@/lib/api";
-import { useAccount, useWriteContract, useWaitForTransactionReceipt, useSignMessage } from "wagmi";
+import { useAccount, useWriteContract, useWaitForTransactionReceipt, useSignMessage, usePublicClient } from "wagmi";
 import { paymentChannelABI, paymentChannelAddress } from "@/wagmiConfig";
+import { estimateContractGasLimit } from "@/lib/contractGas";
 import { toast } from "sonner";
 
 // 将后端返回的记录转换为前端 StakeOrder 格式
@@ -58,6 +59,7 @@ function convertToStakeOrder(record: StakeRecord): StakeOrder {
 
 export function StakeOrdersView() {
   const { address } = useAccount();
+  const publicClient = usePublicClient();
   const { t } = useTranslation();
   const [stakeOrders, setStakeOrders] = useState<StakeOrder[]>([]);
   const [withdrawingOrderId, setWithdrawingOrderId] = useState<number | null>(null);
@@ -68,7 +70,7 @@ export function StakeOrdersView() {
   
   // 合约交互
   const { writeContract, data: hash } = useWriteContract();
-  const { isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+  const { isSuccess: isConfirmed, isError: isTxError } = useWaitForTransactionReceipt({
     hash,
   });
   
@@ -260,17 +262,34 @@ export function StakeOrdersView() {
       });
       
       // 调用 withdrawWithSignature 函数（本金提现，转 USDT）
+      if (!address || !publicClient) {
+        throw new Error('钱包未连接');
+      }
+
+      const withdrawArgs = [
+        usdtAmountWei,
+        withdrawResult.transaction_id,
+        BigInt(withdraw_signature.nonce),
+        deadline,
+        withdraw_signature.signature as `0x${string}`,
+      ] as const;
+
+      const gas = await estimateContractGasLimit(publicClient, {
+        address: paymentChannelAddress,
+        abi: paymentChannelABI,
+        functionName: 'withdrawWithSignature',
+        args: withdrawArgs,
+        account: address,
+      });
+
+      console.log('⛽ 预估 Gas Limit:', gas.toString());
+
       writeContract({
         address: paymentChannelAddress,
         abi: paymentChannelABI,
         functionName: 'withdrawWithSignature',
-        args: [
-          usdtAmountWei,
-          withdrawResult.transaction_id,
-          BigInt(withdraw_signature.nonce),
-          deadline,
-          withdraw_signature.signature as `0x${string}`,
-        ],
+        args: [...withdrawArgs],
+        gas,
       }, {
         onError: (error) => {
           console.error('❌ 合约调用失败:', error);
@@ -307,7 +326,7 @@ export function StakeOrdersView() {
     }
   };
   
-  // 监听交易确认
+  // 监听交易确认成功
   useEffect(() => {
     if (isConfirmed && hash && currentWithdrawOrderId) {
       toast.success("本金提现成功");
@@ -333,6 +352,19 @@ export function StakeOrdersView() {
       fetchOrders();
     }
   }, [isConfirmed, hash, currentWithdrawOrderId]);
+
+  // 链上交易 revert 时重置状态
+  useEffect(() => {
+    if (isTxError && hash && currentWithdrawOrderId) {
+      console.error('❌ 本金提现链上交易失败:', hash);
+      toast.error(t('home.txFailed', { action: t('transaction.capitalWithdraw') }), {
+        description: t('home.txFailedDesc', { action: t('transaction.capitalWithdraw') }),
+        duration: 8000,
+      });
+      setCurrentWithdrawOrderId("");
+      setWithdrawingOrderId(null);
+    }
+  }, [isTxError, hash, currentWithdrawOrderId, t]);
 
   if (loading) {
     return (
