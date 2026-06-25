@@ -87,6 +87,9 @@ export const ERROR_CODE_KEYS: Record<number, { key: string; category: string }> 
   30004: { key: 'errors.wallet.signatureInvalid', category: 'wallet' },
   30005: { key: 'errors.wallet.redisConnectionFailed', category: 'wallet' },
 
+  // ==================== 收益提现相关 (121001-121099) ====================
+  121002: { key: 'errors.withdraw.wxplPoolInsufficient', category: 'withdraw' },
+
   // ==================== 邀请相关 (40001-49999) ====================
   40001: { key: 'errors.invite.inviterRequired', category: 'invite' },
   40002: { key: 'errors.invite.inviterInvalid', category: 'invite' },
@@ -99,6 +102,10 @@ export const ERROR_CODE_KEYS: Record<number, { key: string; category: string }> 
  * @returns 错误信息对象，如果找不到则返回默认错误信息
  */
 export function resolveApiErrorDisplayMessage(code: number, rawMessage?: string): string | null {
+  if (code === 121002) {
+    return i18n.t('errors.withdraw.wxplPoolInsufficient');
+  }
+
   const raw = rawMessage?.trim();
   if (!raw) return null;
 
@@ -173,7 +180,7 @@ export function isAuthError(code: number): boolean {
  * @returns 是否为余额不足
  */
 export function isInsufficientBalanceError(code: number): boolean {
-  return code === 145 || code === 20704;
+  return code === 145 || code === 20704 || code === 121002;
 }
 
 /**
