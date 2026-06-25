@@ -292,7 +292,7 @@ export function WithdrawView() {
   }
 
   return (
-    <div className="space-y-6 pb-20 animate-in fade-in duration-500 max-w-4xl mx-auto pt-6">
+    <div className="space-y-4 pb-8 animate-in fade-in duration-500 max-w-4xl mx-auto pt-2">
       <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) closeDialog(); else setDialogOpen(true); }}>
         <DialogContent className="p-6 max-w-md w-[calc(100%-2rem)]">
           {dialogPhase === 'processing' && (
@@ -347,26 +347,19 @@ export function WithdrawView() {
         </DialogContent>
       </Dialog>
 
-      <Card className="bg-primary/5 border-primary/10 shadow-sm overflow-hidden relative">
-        <div className="absolute top-0 right-0 p-4 opacity-5">
-          <Wallet className="h-24 w-24 -mr-6 -mt-6 rotate-12" />
-        </div>
-        <CardContent className="p-6">
-          <div className="space-y-1">
-            <span className="text-sm font-medium text-muted-foreground">{t('withdraw.availableAmount')}</span>
-            <div className="flex items-baseline gap-3">
-              <span className="text-4xl font-bold tracking-tight text-primary tabular-nums inline-flex items-center gap-2">
-                <Usdt0 iconSize="xl" iconOnly />
-                {withdrawableAmount.toLocaleString()}
-              </span>
-            </div>
+      <Card className="border-border/40 shadow-sm overflow-hidden">
+        <div className="bg-primary/5 border-b border-primary/10 px-4 py-3">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-xs font-medium text-muted-foreground shrink-0">{t('withdraw.availableAmount')}</span>
+            <span className="text-2xl font-bold tracking-tight text-primary tabular-nums inline-flex items-center gap-1.5">
+              <Usdt0 iconSize="lg" iconOnly />
+              {withdrawableAmount.toLocaleString()}
+            </span>
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      <Card className="border-border/40 shadow-sm">
-        <CardContent className="p-6 space-y-6">
-          <div className="space-y-3">
+        <CardContent className="p-4 space-y-3">
+          <div className="space-y-2">
             <Label htmlFor="amount" className="text-sm font-medium">{t('withdraw.withdrawAmount')}</Label>
             <div className="relative">
               <Input
@@ -387,7 +380,7 @@ export function WithdrawView() {
                 }}
                 min="3"
                 step="1"
-                className="h-12 text-lg pr-16"
+                className="h-10 text-base pr-16"
                 disabled={isSigning || isWithdrawing}
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
@@ -408,45 +401,45 @@ export function WithdrawView() {
               </span>
             </div>
             {inputAmount > 0 && inputAmount < MIN_WITHDRAW_AMOUNT && (
-              <div className="flex items-center gap-2 text-sm text-destructive">
-                <AlertCircle className="h-4 w-4 shrink-0" />
+              <div className="flex items-center gap-1.5 text-xs text-destructive">
+                <AlertCircle className="h-3.5 w-3.5 shrink-0" />
                 <span>{t('withdraw.minAmountError')}</span>
               </div>
             )}
             {inputAmount > 0 && xplRate > 0 && (
-              <div className="rounded-lg bg-primary/5 border border-primary/10 p-3">
-                <p className="text-sm text-muted-foreground">
+              <div className="rounded-lg bg-primary/5 border border-primary/10 px-3 py-2">
+                <p className="text-xs text-muted-foreground">
                   {t('withdraw.currentRate', { rate: xplRate.toLocaleString(undefined, { maximumFractionDigits: 4 }) })}
                 </p>
-                <p className="text-base font-semibold text-primary mt-1">
+                <p className="text-sm font-semibold text-primary">
                   {t('withdraw.estimatedXpl', { amount: estimatedXpl.toLocaleString(undefined, { maximumFractionDigits: 4 }) })}
                 </p>
               </div>
             )}
             {inputAmount > 0 && xplRate <= 0 && (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 {t('withdraw.fetchingRate')}
               </p>
             )}
           </div>
 
-          <div className="rounded-xl bg-muted/30 p-4 space-y-2">
-            <div className="flex items-start gap-2 text-sm text-red-500">
-              <Shield className="h-4 w-4 shrink-0 mt-0.5" />
+          <div className="rounded-lg bg-muted/30 px-3 py-2 space-y-1">
+            <p className="flex items-start gap-1.5 text-xs text-red-500 leading-snug">
+              <Shield className="h-3.5 w-3.5 shrink-0 mt-0.5" />
               <span>{t('withdraw.feeNotice')}</span>
-            </div>
-            <div className="flex items-start gap-2 text-sm text-muted-foreground">
-              <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+            </p>
+            <p className="flex items-start gap-1.5 text-xs text-muted-foreground leading-snug">
+              <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
               <span>{t('withdraw.rateNotice')}</span>
-            </div>
-            <div className="flex items-start gap-2 text-sm text-muted-foreground">
-              <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+            </p>
+            <p className="flex items-start gap-1.5 text-xs text-muted-foreground leading-snug">
+              <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
               <span>{t('withdraw.backendProcessNotice')}</span>
-            </div>
+            </p>
           </div>
 
           <Button
-            className="w-full h-12 rounded-xl text-base font-bold"
+            className="w-full h-11 rounded-xl text-sm font-bold"
             onClick={handleWithdraw}
             disabled={!isValidAmount || isSigning || isWithdrawing}
           >
@@ -470,21 +463,21 @@ export function WithdrawView() {
         </CardContent>
       </Card>
 
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold tracking-tight px-1 flex items-center gap-2">
-          <History className="h-5 w-5 text-primary" />
+      <div className="space-y-3">
+        <h3 className="text-base font-semibold tracking-tight px-1 flex items-center gap-2">
+          <History className="h-4 w-4 text-primary" />
           {t('withdraw.history')}
         </h3>
         {withdrawHistory.length === 0 ? (
           <Card className="border-border/40 shadow-sm">
-            <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-              <History className="h-10 w-10 opacity-20 mb-2" />
+            <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+              <History className="h-8 w-8 opacity-20 mb-2" />
               <p className="text-sm">{t('withdraw.noHistory')}</p>
             </div>
           </Card>
         ) : (
           <Card className="border-border/40 shadow-sm">
-            <ScrollArea className="h-[400px]">
+            <ScrollArea className="h-[280px]">
               <div className="divide-y divide-border/40">
                 {withdrawHistory.map((item, index) => {
                   const translatedName = getTransactionTypeName(item.protype);
