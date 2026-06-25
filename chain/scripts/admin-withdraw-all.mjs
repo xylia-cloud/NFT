@@ -26,7 +26,7 @@ const PaymentChannel_ABI = PaymentChannelArtifact.abi;
 // 合约地址配置
 const CONTRACTS = {
   plasmaMainnet: {
-    paymentChannel: "0x65401FFB46EA856525cD040d35fEEEB7b9Ab0894",
+    paymentChannel: "0x9E09Da5B579b7435192fBCAD5Ad5578F84243913",
     usdt: "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb",
     aUsdt: "0x5D72a9d9A9510Cd8cBdBA12aC62593A58930a948"
   },

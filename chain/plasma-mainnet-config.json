@@ -6,10 +6,10 @@
   "explorer": "https://plasmascan.to",
   "contracts": {
     "PaymentChannel": {
-      "address": "0x65401FFB46EA856525cD040d35fEEEB7b9Ab0894",
-      "deployedAt": "2026-06-24",
-      "version": "v4-emergency-withdraw-to",
-      "previousAddress": "0x5cCeD445D87eBc7F6D736E5Bb97689914F2A2afa"
+      "address": "0x9E09Da5B579b7435192fBCAD5Ad5578F84243913",
+      "deployedAt": "2026-06-25",
+      "version": "v4-emergency-aave-direct",
+      "previousAddress": "0x65401FFB46EA856525cD040d35fEEEB7b9Ab0894"
     },
     "USDT0": {
       "address": "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb",
@@ -38,7 +38,7 @@
     }
   },
   "admin": {
-    "address": "0xA4a7747C9241ba5A9AF9137bb662f38F463Fdf1B",
+    "address": "0x94eB0512Ad321b620ad9762BF5EB7C163ce626f9",
     "note": "合约 Owner，提现签名私钥须对应此地址"
   }
 }

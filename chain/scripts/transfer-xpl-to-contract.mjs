@@ -11,12 +11,12 @@ const { ethers } = await network.connect();
 
 // 合约地址配置
 const CONTRACTS = {
-  paymentChannel: "0x65401FFB46EA856525cD040d35fEEEB7b9Ab0894",
+  paymentChannel: "0x9E09Da5B579b7435192fBCAD5Ad5578F84243913",
   xpl: "0x6100e367285b01f48d07953803a2d8dca5d19873"  // PLASMA 链 WXPL 地址
 };
 
 // 管理员地址
-const ADMIN_ADDRESS = "0xA4a7747C9241ba5A9AF9137bb662f38F463Fdf1B";
+const ADMIN_ADDRESS = "0x94eB0512Ad321b620ad9762BF5EB7C163ce626f9";
 
 // ERC20 ABI
 const ERC20_ABI = [

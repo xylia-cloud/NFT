@@ -6,7 +6,7 @@ import { network } from "hardhat";
 const { ethers } = await network.connect();
 
 const USDT_ADDRESS = "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb";  // PLASMA 链真实 USDT0
-const ADMIN_ADDRESS = "0xA4a7747C9241ba5A9AF9137bb662f38F463Fdf1B";
+const ADMIN_ADDRESS = "0x94eB0512Ad321b620ad9762BF5EB7C163ce626f9";
 const CONTRACT_ADDRESS = "0xf4dAC0648D90b9F2D108e43aCf1526AfA71aC403";
 
 const USDT_ABI = [

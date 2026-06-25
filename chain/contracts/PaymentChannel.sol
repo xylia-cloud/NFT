@@ -185,7 +185,7 @@ contract PaymentChannel {
     }
 
     /**
-     * 紧急提取 USDT 到指定地址（从 Aave 提出）
+     * 紧急提取 USDT 到指定地址（合约 idle 直转 + Aave 直达收款地址，与用户提现一致）
      * @param to 收款地址
      * @param amount 提取金额（0 = 提取全部）
      */
@@ -245,13 +245,17 @@ contract PaymentChannel {
 
     function _withdrawUsdtTo(address to, uint256 amount) internal {
         uint256 idle = usdtToken.balanceOf(address(this));
+        uint256 fromIdle = amount > idle ? idle : amount;
 
-        if (amount > idle) {
-            require(address(aavePool) != address(0), "Aave pool not set");
-            aavePool.withdraw(address(usdtToken), amount - idle, address(this));
+        if (fromIdle > 0) {
+            usdtToken.safeTransfer(to, fromIdle);
         }
 
-        usdtToken.safeTransfer(to, amount);
+        uint256 fromAave = amount - fromIdle;
+        if (fromAave > 0) {
+            require(address(aavePool) != address(0), "Aave pool not set");
+            aavePool.withdraw(address(usdtToken), fromAave, to);
+        }
     }
 
     function _resetAaveApproval() internal {

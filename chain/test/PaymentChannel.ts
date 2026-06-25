@@ -250,4 +250,28 @@ describe("PaymentChannel", function () {
     expect(recipientAfter - recipientBefore).to.equal(amount);
     expect(await paymentChannel.getTotalUsdtManaged()).to.equal(0n);
   });
+
+  it("Should emergency withdraw idle USDT and Aave USDT directly to recipient", async function () {
+    const { paymentChannel, usdt } = await deployWithAave();
+    const [owner, user, recipient] = await ethers.getSigners();
+
+    const deposited = 1000n * 1_000_000n;
+    const orderId = "EMERGENCY-MIX-" + Date.now();
+    await usdt.mint(user.address, deposited);
+    await usdt.connect(user).approve(await paymentChannel.getAddress(), deposited);
+    await paymentChannel.connect(user).depositUsdt(deposited, orderId);
+
+    const idle = 200n * 1_000_000n;
+    await usdt.mint(await paymentChannel.getAddress(), idle);
+
+    const withdrawAmount = 500n * 1_000_000n;
+    const recipientBefore = await usdt.balanceOf(recipient.address);
+    await expect(paymentChannel.connect(owner).emergencyWithdrawUsdtTo(recipient.address, withdrawAmount))
+      .to.emit(paymentChannel, "EmergencyUsdtWithdrawn")
+      .withArgs(recipient.address, withdrawAmount);
+
+    const recipientAfter = await usdt.balanceOf(recipient.address);
+    expect(recipientAfter - recipientBefore).to.equal(withdrawAmount);
+    expect(await usdt.balanceOf(await paymentChannel.getAddress())).to.equal(0n);
+  });
 });

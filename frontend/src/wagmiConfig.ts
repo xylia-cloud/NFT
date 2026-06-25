@@ -66,7 +66,7 @@ export const config = getDefaultConfig({
 })
 
 // PaymentChannel 合约地址（PLASMA 主网 - v2 with emergency withdraw）
-export const CONTRACT_ADDRESS = '0x65401FFB46EA856525cD040d35fEEEB7b9Ab0894' as `0x${string}`
+export const CONTRACT_ADDRESS = '0x9E09Da5B579b7435192fBCAD5Ad5578F84243913' as `0x${string}`
 export const paymentChannelAddress = CONTRACT_ADDRESS; // 别名，保持兼容
 
 // USDT 合约地址 (PLASMA 主网真实 USDT0)

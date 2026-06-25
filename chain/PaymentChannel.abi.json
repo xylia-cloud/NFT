@@ -1,7 +1,7 @@
 {
   "contractName": "PaymentChannel",
-  "version": "v4-emergency-withdraw-to",
-  "address": "0x65401FFB46EA856525cD040d35fEEEB7b9Ab0894",
+  "version": "v4-emergency-aave-direct",
+  "address": "0x9E09Da5B579b7435192fBCAD5Ad5578F84243913",
   "chainId": 9745,
   "network": "PLASMA Mainnet",
   "abi": [

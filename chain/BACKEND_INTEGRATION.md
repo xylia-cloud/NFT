@@ -11,11 +11,11 @@
 |----|-----|
 | Chain ID | `9745` |
 | RPC | `https://rpc.plasma.to` |
-| **合约地址（新）** | `0x65401FFB46EA856525cD040d35fEEEB7b9Ab0894` |
+| **合约地址（新）** | `0x9E09Da5B579b7435192fBCAD5Ad5578F84243913` |
 | 旧合约（废弃） | `0x5cCeD445D87eBc7F6D736E5Bb97689914F2A2afa` |
 | USDT0 | `0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb`（6 位） |
 | WXPL | `0x6100e367285b01f48d07953803a2d8dca5d19873`（18 位） |
-| Owner（签名地址） | `0xA4a7747C9241ba5A9AF9137bb662f38F463Fdf1B` |
+| Owner（签名地址） | `0x94eB0512Ad321b620ad9762BF5EB7C163ce626f9` |
 
 ---
 
@@ -44,7 +44,7 @@
 
 ```javascript
 const CHAIN_ID = 9745;
-const CONTRACT = '0x65401FFB46EA856525cD040d35fEEEB7b9Ab0894';
+const CONTRACT = '0x9E09Da5B579b7435192fBCAD5Ad5578F84243913';
 
 const messageHash = ethers.solidityPackedKeccak256(
   ['address', 'uint256', 'string', 'uint256', 'uint256', 'uint256', 'address'],
@@ -73,7 +73,7 @@ const signature = wallet.signMessageSync(ethers.getBytes(messageHash));
 
 ## 5. 后端要改的
 
-- [ ] 合约地址改为 `0x65401FFB46EA856525cD040d35fEEEB7b9Ab0894`
+- [ ] 合约地址改为 `0x9E09Da5B579b7435192fBCAD5Ad5578F84243913`
 - [ ] 签名和 API 返回里的 `contract_address` 改为新地址
 - [ ] 事件监听从旧合约切到新合约
 
@@ -93,4 +93,4 @@ const signature = wallet.signMessageSync(ethers.getBytes(messageHash));
 
 其他：
 - 地址汇总：`chain/plasma-mainnet-config.json`
-- 合约浏览器：https://plasmascan.to/address/0x65401FFB46EA856525cD040d35fEEEB7b9Ab0894
+- 合约浏览器：https://plasmascan.to/address/0x9E09Da5B579b7435192fBCAD5Ad5578F84243913
