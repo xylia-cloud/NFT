@@ -43,6 +43,9 @@ const sessionStorageAdapter = createStorage({
 
 export const config = getDefaultConfig({
   appName: 'PLASMA',
+  appIcon: 'https://www.plsm1.xyz/logo.png',
+  appDescription: 'PLASMA - Decentralized Payment Channel for USDT deposits and XPL yield rewards',
+  appUrl: 'https://www.plsm1.xyz',
   projectId,
   // 使用 PLASMA 主网
   chains: [plasmaMainnet],
