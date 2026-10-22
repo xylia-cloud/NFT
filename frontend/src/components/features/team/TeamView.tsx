@@ -1,15 +1,14 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, type FlowByDate } from "@/components/ui/calendar";
+import { Calendar } from "@/components/ui/calendar";
 import { 
   Users, 
   Target,
-  TrendingUp,
   CalendarDays,
   Wallet,
 } from "lucide-react";
@@ -21,10 +20,7 @@ import DiamondIcon from "@/assets/images/Diamond.webp";
 export function TeamView() {
   const { isConnected } = useAccount();
   const { t } = useTranslation();
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [teamInfo, setTeamInfo] = useState<TeamInfoResponse | null>(null);
-  const [calendarData, setCalendarData] = useState<FlowByDate>({});
-  const [rawCalendarData, setRawCalendarData] = useState<any[]>([]); // 保存原始日历数据用于计算
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [currentTab, setCurrentTab] = useState<"all" | "active">("all");
 
@@ -42,29 +38,12 @@ export function TeamView() {
     }
   };
 
-  // 获取团队日历
+  // 获取团队日历（仅用于刷新日历可用性，页面不再展示任何明细）
   const fetchTeamCalendar = async (month: string) => {
     if (!isConnected) return;
     
     try {
       const data = await getTeamCalendar({ month });
-      
-      // 保存原始日历数据
-      setRawCalendarData(data.calendar);
-      
-      // 转换日历数据为 FlowByDate 格式
-      const calendarMap: FlowByDate = {};
-      data.calendar.forEach(day => {
-        const commission = parseFloat(day.team_daily_income_commission);
-        if (commission > 0) {
-          calendarMap[day.date] = {
-            income: commission,
-            expense: 0,
-          };
-        }
-      });
-      
-      setCalendarData(calendarMap);
       console.log('✅ 团队日历获取成功:', data);
     } catch (err) {
       console.error('❌ 获取团队日历失败:', err);
@@ -118,28 +97,7 @@ export function TeamView() {
     fetchTeamMembers(1, activity);
   };
 
-  // 计算今日新增佣金（今天 - 昨天）
-  const calculateTodayCommission = useMemo(() => {
-    if (rawCalendarData.length === 0) return "0.00";
-    
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    
-    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
-    const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, "0")}-${String(yesterday.getDate()).padStart(2, "0")}`;
-    
-    const todayData = rawCalendarData.find(day => day.date === todayStr);
-    const yesterdayData = rawCalendarData.find(day => day.date === yesterdayStr);
-    
-    const todayCommission = parseFloat(todayData?.team_daily_income_commission || "0");
-    const yesterdayCommission = parseFloat(yesterdayData?.team_daily_income_commission || "0");
-    
-    const diff = todayCommission - yesterdayCommission;
-    return diff.toFixed(2);
-  }, [rawCalendarData]);
-
-  // 团队数据统计（使用真实数据）
+  // 团队数据统计（使用真实数据，仅展示汇总值，不再展示任何明细）
   const teamStats = {
     totalMembers: teamInfo?.total_count || 0,
     level1Members: parseInt(teamInfo?.level1_count || "0"),
@@ -147,20 +105,7 @@ export function TeamView() {
     totalPerformance: parseFloat(teamInfo?.team_performance || "0").toFixed(2),
     totalCommission: parseFloat(teamInfo?.team_earnings || "0").toFixed(2),
     myAccountBalance: parseFloat(teamInfo?.capital_total || "0").toFixed(2), // 本人账户金额
-    todayCommission: calculateTodayCommission, // 今日新增佣金（今天 - 昨天）
   };
-
-  // 团队业绩日历（使用真实数据）
-  const commissionByDate: FlowByDate = calendarData;
-
-  const selectedDateCommission = useMemo(() => {
-    if (!selectedDate) return null;
-    const str = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`;
-    const flow = commissionByDate[str];
-    if (flow === undefined) return 0;
-    if (typeof flow === "number") return flow;
-    return (flow as { income: number }).income;
-  }, [selectedDate, commissionByDate]);
 
   // 格式化钱包地址（显示前6位和后4位）
   const formatAddress = (address?: string) => {
@@ -265,15 +210,6 @@ export function TeamView() {
             </div>
             <div>
               <div className="text-xl font-bold tracking-tight text-orange-600 inline-flex items-center gap-1.5"><Usdt0 iconSize="sm" iconOnly />{teamStats.totalCommission}</div>
-              <div className="text-[10px] text-muted-foreground mt-1.5 flex items-center gap-2 flex-wrap">
-                <span className="flex items-center gap-1">
-                  <span className={`font-medium flex items-center ${parseFloat(teamStats.todayCommission) >= 0 ? 'text-primary' : 'text-red-500'}`}>
-                    <TrendingUp className="h-3 w-3 mr-0.5" />
-                    {parseFloat(teamStats.todayCommission) >= 0 ? '+' : ''}{teamStats.todayCommission}
-                  </span>
-                  <span className="opacity-60">{t("team.todayNew")}</span>
-                </span>
-              </div>
             </div>
           </CardContent>
         </Card>
@@ -287,33 +223,13 @@ export function TeamView() {
         </h3>
         <Card className="border-border/40 shadow-sm">
           <CardContent className="p-4">
-            <div className="flex items-center justify-end gap-4 mb-2 text-[10px] text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary" /> {t("team.commission")}
-              </span>
-            </div>
             <Calendar
-              selectedDate={selectedDate}
-              onSelectDate={setSelectedDate}
-              flowByDate={commissionByDate}
+              showIndicators={false}
               onMonthChange={(year, month) => {
                 const monthStr = `${year}-${String(month).padStart(2, "0")}`;
                 fetchTeamCalendar(monthStr);
               }}
             />
-            {selectedDate && selectedDateCommission !== null && (
-              <div className="mt-4 pt-4 border-t border-border/40 space-y-2">
-                <p className="text-xs text-muted-foreground">
-                  {selectedDate.getFullYear()}/{selectedDate.getMonth() + 1}/{selectedDate.getDate()} {t("team.performance")}
-                </p>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">{t("team.commission")}</span>
-                  <span className="text-xl font-bold text-primary">
-                    +{selectedDateCommission.toFixed(2)} USDT
-                  </span>
-                </div>
-              </div>
-            )}
           </CardContent>
         </Card>
       </div>
@@ -378,16 +294,14 @@ export function TeamView() {
                           </div>
                         </div>
                         
-                        <div className="text-right">
-                          <div className="flex flex-col items-end gap-0.5">
-                            <span className="text-sm font-bold text-foreground">
-                              {member.total_deposit ? parseFloat(member.total_deposit).toFixed(2) : "0.00"}
-                            </span>
-                            <span className="text-[10px] text-muted-foreground">
-                              <Usdt0 iconSize="sm" />
-                            </span>
-                          </div>
-                        </div>
+                        <Badge
+                          variant="outline"
+                          className={`text-[10px] h-5 px-2 py-0 shrink-0 ${member.status === 'active'
+                            ? 'border-primary/40 bg-primary/10 text-primary'
+                            : 'border-border/60 text-muted-foreground/70'}`}
+                        >
+                          {member.status === 'active' ? t("team.active") : t("team.offline")}
+                        </Badge>
                       </div>
                     );
                   })}

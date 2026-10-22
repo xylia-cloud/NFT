@@ -10,11 +10,12 @@ export interface FlowByDate {
 
 interface CalendarProps {
   selectedDate?: Date | null;
-  onSelectDate: (date: Date | null) => void;
+  onSelectDate?: (date: Date | null) => void;
   flowByDate?: FlowByDate;
   showAmount?: boolean;
   className?: string;
   onMonthChange?: (year: number, month: number) => void; // 新增：月份变化回调
+  showIndicators?: boolean; // 是否在日期格子里显示金额/圆点，默认 true
 }
 
 export function Calendar({
@@ -24,6 +25,7 @@ export function Calendar({
   showAmount = false,
   className,
   onMonthChange,
+  showIndicators = true,
 }: CalendarProps) {
   const { t } = useTranslation();
   const [viewDate, setViewDate] = useState(new Date());
@@ -141,6 +143,7 @@ export function Calendar({
               key={d}
               type="button"
               onClick={() => {
+                if (!onSelectDate) return;
                 const date = new Date(year, month, d);
                 onSelectDate(isSelected(d) ? null : date);
               }}
@@ -150,14 +153,14 @@ export function Calendar({
                 isSelected(d) && "bg-primary text-primary-foreground hover:bg-primary/90",
                 !isSelected(d) && isToday(d) && "ring-1 ring-primary",
                 !isSelected(d) && !isToday(d) && "text-foreground",
-                (hasFlow(d) || hasReward(d)) && !isSelected(d) && "bg-primary/5"
+                showIndicators && (hasFlow(d) || hasReward(d)) && !isSelected(d) && "bg-primary/5"
               )}
             >
               {d}
-              {showAmount && hasReward(d) && !isSelected(d) && (
+              {showIndicators && showAmount && hasReward(d) && !isSelected(d) && (
                 <span className="text-[10px] text-primary font-medium">+{getAmount(d).toFixed(1)}</span>
               )}
-              {!showAmount && (hasFlow(d) || hasReward(d)) && !isSelected(d) && (
+              {showIndicators && !showAmount && (hasFlow(d) || hasReward(d)) && !isSelected(d) && (
                 <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 flex gap-0.5 items-center">
                   {hasIncome(d) || hasReward(d) ? (
                     <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" title={t('wallet.income')} />
