@@ -263,7 +263,7 @@ export function TeamView() {
             {selectedDate && selectedDateCommission !== null && (
               <div className="mt-4 pt-4 border-t border-border/40 animate-in fade-in slide-in-from-bottom-2 duration-300">
                 <div className="text-sm font-medium mb-3">
-                  {selectedDate.getFullYear()}/{selectedDate.getMonth() + 1}/{selectedDate.getDate()} {t("team.performance")}
+                  {selectedDate.getFullYear()}/{selectedDate.getMonth() + 1}/{selectedDate.getDate()}
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">{t("team.commission")}</span>
