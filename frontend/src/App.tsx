@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAccount } from 'wagmi';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
@@ -16,15 +16,21 @@ import { AboutView } from '@/components/features/about/AboutView';
 import { PlasmaOneView } from '@/components/features/plasma-one/PlasmaOneView';
 import { NewsView } from '@/components/features/news/NewsView';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Toaster } from '@/components/ui/sonner';
 import { GlobalLoading } from '@/components/ui/GlobalLoading';
 import { NetworkGuard } from '@/components/NetworkGuard';
 import { useWalletAuth } from '@/hooks/useWalletAuth';
 import { useLoadingStore } from '@/store/loadingStore';
-import { clearToken, getUserInfo, createVoceChatToken } from '@/lib/api';
-import { Wallet, X, Loader2 } from 'lucide-react';
+import { clearToken } from '@/lib/api';
+import { Wallet } from 'lucide-react';
 
-const CUSTOMER_SERVICE_BASE_URL = "https://service.plasma.email";
+// Crisp 在线客服（唯一客服入口，替换原 VoceChat）
+const CRISP_CHAT_URL = "https://go.crisp.chat/chat/embed/?website_id=073d33e8-a907-4dfc-a78e-c2edba682900";
+const CRISP_CHAT_TITLE = "在线客服";
+// Crisp embed 自带对话框，此处仅作为宿主容器尺寸
+const CRISP_IFRAME_WIDTH = "350px";
+const CRISP_IFRAME_HEIGHT = "600px";
 const VALID_TABS = ['home', 'wallet', 'withdraw', 'leader', 'supernode', 'team', 'invite', 'help-center', 'orders', 'about', 'plasma-one', 'news'] as const;
 
 function ConnectWalletGate() {
@@ -58,57 +64,19 @@ function hashToTab(hash: string): string {
 }
 
 export default function App() {
-  const { t } = useTranslation();
   const [currentTab, setCurrentTab] = useState(() => hashToTab(window.location.hash));
   const [showCustomerService, setShowCustomerService] = useState(false);
-  const [voceChatUrl, setVoceChatUrl] = useState<string>('');
-  const [isLoadingVoceChat, setIsLoadingVoceChat] = useState(false);
+  // Crisp iframe 首帧不加载，对话窗口完全展开后再挂载，避免初始化时被测量成错误的高度
+  const [crispReady, setCrispReady] = useState(false);
+  const crispIframeId = useId();
   const { isConnected } = useAccount();
   const { isLoading } = useLoadingStore();
 
   // 打开客服对话框
-  const handleOpenCustomerService = async () => {
+  const handleOpenCustomerService = () => {
     setShowCustomerService(true);
-    setIsLoadingVoceChat(true);
-    
-    try {
-      // 获取当前登录用户信息
-      const userInfo = getUserInfo();
-      
-      if (!userInfo) {
-        console.warn('⚠️ 用户未登录，使用默认 VoceChat URL');
-        setVoceChatUrl(CUSTOMER_SERVICE_BASE_URL);
-        setIsLoadingVoceChat(false);
-        return;
-      }
-      
-      console.log('🔑 创建 VoceChat token...');
-      console.log('👤 用户信息:', { uid: userInfo.uid, username: userInfo.username });
-      
-      // 使用用户 ID 和用户名创建 VoceChat token
-      const userid = userInfo.uid;
-      let username = userInfo.username || userInfo.wallet_address;
-      
-      // 如果用户名是钱包地址（以0x开头且长度大于20），则缩短显示
-      if (username && username.startsWith('0x') && username.length > 20) {
-        username = `${username.slice(0, 6)}...${username.slice(-4)}`;
-        console.log('📝 钱包地址已缩短:', username);
-      }
-      
-      const token = await createVoceChatToken(userid, username);
-      console.log('✅ VoceChat token 创建成功');
-      
-      // 构建自动登录 URL
-      const autoLoginUrl = `${CUSTOMER_SERVICE_BASE_URL}/#/oauth/${token}`;
-      setVoceChatUrl(autoLoginUrl);
-      console.log('🔗 VoceChat 自动登录 URL:', autoLoginUrl);
-    } catch (error) {
-      console.error('❌ 创建 VoceChat token 失败:', error);
-      // 如果创建 token 失败，使用默认 URL
-      setVoceChatUrl(CUSTOMER_SERVICE_BASE_URL);
-    } finally {
-      setIsLoadingVoceChat(false);
-    }
+    // 等下一帧（Dialog 完成挂载并拿到最终尺寸）再加载 Crisp
+    requestAnimationFrame(() => requestAnimationFrame(() => setCrispReady(true)));
   };
 
   // 从 URL 中提取邀请人地址（只在应用启动时提取一次）
@@ -212,38 +180,29 @@ export default function App() {
       >
         {renderContent()}
       </MainLayout>
-      {showCustomerService && (
-        <div className="fixed inset-0 z-[100] flex flex-col bg-background">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30 shrink-0">
-            <span className="text-sm font-semibold text-foreground">{t('nav.customerService')}</span>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-10 w-10 shrink-0"
-              onClick={() => {
-                setShowCustomerService(false);
-                setVoceChatUrl(''); // 清除 URL，下次重新获取
-              }}
-            >
-              <X className="h-5 w-5" />
-            </Button>
+      <Dialog open={showCustomerService} onOpenChange={setShowCustomerService}>
+        {/* Dialog 自带标题栏关闭按钮，内容区仅放 Crisp iframe */}
+        <DialogContent className="w-fit max-w-[calc(100vw-2rem)] overflow-hidden p-0">
+          <div
+            style={{
+              width: `min(${CRISP_IFRAME_WIDTH}, calc(100vw - 2rem))`,
+              height: CRISP_IFRAME_HEIGHT,
+            }}
+          >
+            {crispReady && (
+              <iframe
+                id={crispIframeId}
+                title={CRISP_CHAT_TITLE}
+                src={CRISP_CHAT_URL}
+                width={CRISP_IFRAME_WIDTH}
+                height={CRISP_IFRAME_HEIGHT}
+                className="block h-full w-full border-0"
+                allow="clipboard-write"
+              />
+            )}
           </div>
-          {isLoadingVoceChat ? (
-            <div className="flex-1 flex items-center justify-center">
-              <div className="flex flex-col items-center gap-3">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
-              </div>
-            </div>
-          ) : (
-            <iframe
-              title={t('nav.customerService')}
-              src={voceChatUrl}
-              className="flex-1 w-full min-h-0 border-0"
-            />
-          )}
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
       <GlobalLoading isLoading={isLoading} />
       <Toaster />
     </>
