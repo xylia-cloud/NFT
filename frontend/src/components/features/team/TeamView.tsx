@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar, type FlowByDate } from "@/components/ui/calendar";
 import { 
   Users, 
   Target,
@@ -13,14 +13,19 @@ import {
   Wallet,
 } from "lucide-react";
 import { Usdt0 } from "@/components/ui/usdt0";
-import { getTeamInfo, getTeamCalendar, getTeamMembers, type TeamInfoResponse, type TeamMember } from "@/lib/api";
+import { getTeamInfo, getTeamCalendar, getTeamMembers, type TeamInfoResponse, type TeamMember, type TeamCalendarDay } from "@/lib/api";
 import { useAccount } from "wagmi";
 import DiamondIcon from "@/assets/images/Diamond.webp";
 
 export function TeamView() {
   const { isConnected } = useAccount();
   const { t } = useTranslation();
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [teamInfo, setTeamInfo] = useState<TeamInfoResponse | null>(null);
+  // 日历明细：团队每日佣金，格式 "YYYY-MM-DD" -> { income, expense }
+  const [calendarData, setCalendarData] = useState<FlowByDate>({});
+  // 原始日历数据，用于取选中日期当天的业绩
+  const [rawCalendarData, setRawCalendarData] = useState<TeamCalendarDay[]>([]);
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [currentTab, setCurrentTab] = useState<"all" | "active">("all");
 
@@ -38,12 +43,24 @@ export function TeamView() {
     }
   };
 
-  // 获取团队日历（仅用于刷新日历可用性，页面不再展示任何明细）
+  // 获取团队日历（用于日历格子上的每日佣金明细）
   const fetchTeamCalendar = async (month: string) => {
     if (!isConnected) return;
     
     try {
       const data = await getTeamCalendar({ month });
+      setRawCalendarData(data.calendar);
+
+      // 只把有佣金的日期显示出来，避免整月铺满圆点
+      const flow: FlowByDate = {};
+      data.calendar.forEach((day) => {
+        const commission = parseFloat(day.team_daily_income_commission);
+        if (commission > 0) {
+          flow[day.date] = { income: commission, expense: 0 };
+        }
+      });
+      setCalendarData(flow);
+
       console.log('✅ 团队日历获取成功:', data);
     } catch (err) {
       console.error('❌ 获取团队日历失败:', err);
@@ -97,7 +114,25 @@ export function TeamView() {
     fetchTeamMembers(1, activity);
   };
 
-  // 团队数据统计（使用真实数据，仅展示汇总值，不再展示任何明细）
+  // 选中日期对应的佣金（日历明细）
+  const selectedDateCommission = useMemo(() => {
+    if (!selectedDate) return null;
+    const dateStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`;
+    const day = rawCalendarData.find((item) => item.date === dateStr);
+    if (!day) return 0;
+    return parseFloat(day.team_daily_income_commission || "0");
+  }, [selectedDate, rawCalendarData]);
+
+  // 选中日期对应的团队业绩
+  const selectedDatePerformance = useMemo(() => {
+    if (!selectedDate) return null;
+    const dateStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`;
+    const day = rawCalendarData.find((item) => item.date === dateStr);
+    if (!day) return 0;
+    return parseFloat(day.team_performance || "0");
+  }, [selectedDate, rawCalendarData]);
+
+  // 团队数据统计（汇总值）
   const teamStats = {
     totalMembers: teamInfo?.total_count || 0,
     level1Members: parseInt(teamInfo?.level1_count || "0"),
@@ -224,12 +259,43 @@ export function TeamView() {
         <Card className="border-border/40 shadow-sm">
           <CardContent className="p-4">
             <Calendar
-              showIndicators={false}
+              selectedDate={selectedDate}
+              onSelectDate={setSelectedDate}
+              flowByDate={calendarData}
               onMonthChange={(year, month) => {
                 const monthStr = `${year}-${String(month).padStart(2, "0")}`;
                 fetchTeamCalendar(monthStr);
               }}
             />
+
+            {/* 选中日期明细 */}
+            {selectedDate && selectedDateCommission !== null && (
+              <div className="mt-4 pt-4 border-t border-border/40 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="text-sm font-medium">
+                    {selectedDate.getFullYear()}/{selectedDate.getMonth() + 1}/{selectedDate.getDate()} {t("team.performance")}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {t("team.commission")}
+                  </div>
+                </div>
+                <div className="space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">{t("team.teamPerformance")}</span>
+                    <span className="text-sm font-semibold inline-flex items-center gap-1">
+                      <Usdt0 iconSize="sm" iconOnly />
+                      {(selectedDatePerformance || 0).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">{t("team.commission")}</span>
+                    <span className="text-sm font-semibold text-orange-600">
+                      +{selectedDateCommission.toFixed(2)} USDT
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
