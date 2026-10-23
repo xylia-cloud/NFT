@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from "@/components/ui/card";
 import { AssetCard } from "@/components/ui/asset-card";
@@ -10,7 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Calendar, type FlowByDate } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Usdt0 } from "@/components/ui/usdt0";
-import { getTransactionCalendar, getTransactionDetails, getWalletInfo, profitReinvest, ApiError, type TransactionDetail, type WalletInfoResponse } from "@/lib/api";
+import { getTransactionCalendar, getTransactionDetails, getTeamCalendar, getWalletInfo, profitReinvest, ApiError, type TransactionDetail, type WalletInfoResponse } from "@/lib/api";
 import { useApiError } from "@/hooks/useApiError";
 import { toast } from "sonner";
 import { 
@@ -24,7 +24,8 @@ import {
   RefreshCw,
   Plus,
   Minus,
-  Trophy
+  Trophy,
+  Users
 } from "lucide-react";
 
 const REINVEST_THRESHOLD = 100;
@@ -40,8 +41,11 @@ export function WalletView() {
   const [calendarData, setCalendarData] = useState<FlowByDate>({});
   const [rawCalendarData, setRawCalendarData] = useState<any[]>([]); // 保存原始日历数据
   const [transactions, setTransactions] = useState<TransactionDetail[]>([]);
+  // 团队每日收益（来自 /Api/Team/calendar），格式 "YYYY-MM-DD" -> 当日团队收益合计
+  const [teamDailyIncome, setTeamDailyIncome] = useState<Record<string, number>>({});
   const [currentCategory, setCurrentCategory] = useState<'all' | 'deposit' | 'profit' | 'reinvest' | 'withdraw'>('all');
   const [walletInfo, setWalletInfo] = useState<WalletInfoResponse | null>(null);
+
 
   const now = new Date();
   const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
@@ -92,6 +96,31 @@ export function WalletView() {
     }
   };
 
+  // 已请求过的月份，避免重复拉取团队每日收益
+  const teamIncomeMonthsRef = useRef<Set<string>>(new Set());
+
+  // 获取团队每日收益（按月，来自 /Api/Team/calendar）
+  const fetchTeamDailyIncome = async (month: string) => {
+    if (!isConnected || !month) return;
+    if (teamIncomeMonthsRef.current.has(month)) return;
+    teamIncomeMonthsRef.current.add(month);
+
+    try {
+      const data = await getTeamCalendar({ month });
+      const map: Record<string, number> = {};
+      data.calendar.forEach((day) => {
+        const value = parseFloat(day.team_daily_income_commission) || 0;
+        if (value !== 0) map[day.date] = value;
+      });
+      setTeamDailyIncome((prev) => ({ ...prev, ...map }));
+      console.log(`✅ 团队每日收益获取成功 (${month}):`, map);
+    } catch (err) {
+      // 失败则允许下次重试
+      teamIncomeMonthsRef.current.delete(month);
+      console.error('❌ 获取团队每日收益失败:', err);
+    }
+  };
+
   // 获取交易记录
   const fetchTransactionDetails = async (page: number, category: 'all' | 'deposit' | 'profit' | 'reinvest' | 'withdraw') => {
     if (!isConnected) return;
@@ -100,6 +129,17 @@ export function WalletView() {
       const data = await getTransactionDetails({ page, category });
       setTransactions(data.list);
       console.log('✅ 交易记录获取成功:', data);
+
+      // 列表里出现的月份，逐个补拉团队每日收益（通常 1~2 个月，已拉过的跳过）
+      const months = Array.from(
+        new Set(
+          data.list
+            .filter((tx) => TEAM_PROTYPES.includes(tx.protype))
+            .map((tx) => (tx.time_format || '').slice(0, 7))
+            .filter(Boolean)
+        )
+      );
+      months.forEach((month) => fetchTeamDailyIncome(month));
     } catch (err) {
       console.error('❌ 获取交易记录失败:', err);
       // 静默处理错误
@@ -445,7 +485,7 @@ export function WalletView() {
           </TabsList>
 
           <TabsContent value={currentCategory} className="mt-4">
-            <TransactionList transactions={transactions} />
+            <TransactionList transactions={transactions} teamDailyIncome={teamDailyIncome} />
           </TabsContent>
         </Tabs>
       </div>
@@ -453,8 +493,22 @@ export function WalletView() {
   );
 }
 
+// 团队收益的业务类型码：9=团队收益，10=团队奖励
+const TEAM_PROTYPES = ['9', '10'];
+
+type DailyGroup = {
+  date: string;        // YYYY-MM-DD
+  latestTime: number;  // 用于排序，取当天最新一条的时间戳
+};
+
 // 交易列表组件
-function TransactionList({ transactions }: { transactions: TransactionDetail[] }) {
+function TransactionList({
+  transactions,
+  teamDailyIncome,
+}: {
+  transactions: TransactionDetail[];
+  teamDailyIncome: Record<string, number>; // 后端按天聚合的团队收益（YYYY-MM-DD -> 金额）
+}) {
   const { t } = useTranslation();
   
   // 交易类型翻译映射
@@ -484,7 +538,54 @@ function TransactionList({ transactions }: { transactions: TransactionDetail[] }
     
     return typeMap[protype] || protype;
   };
-  
+  // 团队收益按天合并成一条（金额取后端 /Api/Team/calendar 的每日汇总）；其余明细保持逐条
+  const rows = useMemo(() => {
+    const teamDays = new Map<string, DailyGroup>();
+    const others: { tx: TransactionDetail }[] = [];
+
+    transactions.forEach((tx) => {
+      if (TEAM_PROTYPES.includes(tx.protype)) {
+        // 后端 time_format 形如 "2025-09-20 12:34:56"，取前 10 位作为日期
+        const date = (tx.time_format || '').slice(0, 10);
+        if (!date) return;
+        const timeNum = Number(tx.time) || 0;
+        const existing = teamDays.get(date);
+        if (existing) {
+          existing.latestTime = Math.max(existing.latestTime, timeNum);
+        } else {
+          teamDays.set(date, { date, latestTime: timeNum });
+        }
+        return;
+      }
+      others.push({ tx });
+    });
+
+    // 后端返回了汇总但当前页没有流水的日期，也补成一行，保证「每天一条」
+    Object.keys(teamDailyIncome).forEach((date) => {
+      if (teamDays.has(date)) return;
+      teamDays.set(date, { date, latestTime: Date.parse(`${date}T00:00:00`) || 0 });
+    });
+
+    type Row =
+      | { kind: 'single'; tx: TransactionDetail; order: number }
+      | { kind: 'team'; group: DailyGroup; order: number };
+
+    const teamRows: Row[] = Array.from(teamDays.values()).map((group) => ({
+      kind: 'team' as const,
+      group,
+      order: group.latestTime || 0,
+    }));
+
+    const singleRows: Row[] = others.map(({ tx }) => ({
+      kind: 'single' as const,
+      tx,
+      order: Number(tx.time) || 0,
+    }));
+
+    // 按时间倒序，保证合并后仍保持"新的在上"
+    return [...teamRows, ...singleRows].sort((a, b) => b.order - a.order);
+  }, [transactions, teamDailyIncome]);
+
   if (transactions.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-muted-foreground bg-card rounded-xl border border-dashed">
@@ -545,63 +646,96 @@ function TransactionList({ transactions }: { transactions: TransactionDetail[] }
     };
   };
 
+  const renderSingleRow = (tx: TransactionDetail, key: string) => {
+    const translatedName = getTransactionTypeName(tx.protype, tx.coin);
+    const style = getTransactionStyle(translatedName, tx.type);
+    const Icon = style.icon;
+    const isIncome = tx.type === '1';
+
+    // 推荐收益特殊处理
+    const isReferralReward = tx.protype === '8';
+    const referralLevelBadge = isReferralReward && tx.referral_level
+      ? (tx.referral_level === 1 ? 'Lv.1' : 'Lv.2')
+      : '';
+    const sourceUserShort = isReferralReward && tx.source_user
+      ? `${tx.source_user.slice(0, 6)}****${tx.source_user.slice(-6)}`
+      : '';
+
+    // 复投不显示+号
+    const isReinvest = tx.protype === '2003';
+    const showSign = !isReinvest;
+
+    return (
+      <div key={key} className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors">
+        <div className="flex items-center gap-4">
+          <div className={`flex h-9 w-9 items-center justify-center rounded-full border ${style.bgColor} ${style.borderColor} ${style.textColor}`}>
+            <Icon className="h-4 w-4" />
+          </div>
+          <div>
+            <div className="font-medium text-sm flex items-center gap-2">
+              <span>{translatedName}</span>
+              {referralLevelBadge && (
+                <span className={`text-[10px] px-1.5 py-0.5 rounded ${tx.referral_level === 1 ? 'bg-blue-500/10 text-blue-600' : 'bg-indigo-500/10 text-indigo-600'}`}>
+                  {referralLevelBadge}
+                </span>
+              )}
+            </div>
+            {isReferralReward ? (
+              <div className="text-xs text-muted-foreground mt-0.5 space-y-0.5">
+                <div>{sourceUserShort}</div>
+                <div>{tx.time_format}</div>
+              </div>
+            ) : (
+              <div className="text-xs text-muted-foreground">{tx.time_format}</div>
+            )}
+          </div>
+        </div>
+        <div className="text-right flex items-center justify-end gap-1">
+          <span className={`font-bold text-sm ${isReinvest ? 'text-red-500' : isIncome ? 'text-primary' : 'text-foreground'}`}>
+            {showSign && (isIncome ? '+' : '-')}{Math.floor(parseFloat(tx.fee) * 100) / 100}
+          </span>
+          <span className="text-xs font-normal text-muted-foreground"><Usdt0 iconSize="sm" /></span>
+        </div>
+      </div>
+    );
+  };
+
+  const renderTeamRow = (group: DailyGroup, key: string) => {
+    // 金额取后端 /Api/Team/calendar 的每日汇总；缺失时显示 --
+    const dayTotal = teamDailyIncome[group.date];
+    const hasValue = typeof dayTotal === 'number';
+    const amountText = hasValue ? String(Math.floor(dayTotal * 100) / 100) : '--';
+
+    return (
+      <div key={key} className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors">
+        <div className="flex items-center gap-4">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-primary">
+            <Users className="h-4 w-4" />
+          </div>
+          <div>
+            <div className="font-medium text-sm">{t('transaction.teamReward')}</div>
+            <div className="text-xs text-muted-foreground mt-0.5">{group.date}</div>
+          </div>
+        </div>
+        <div className="text-right flex items-center justify-end gap-1">
+          <span className={`font-bold text-sm ${hasValue ? 'text-primary' : 'text-muted-foreground'}`}>
+            {hasValue ? `+${amountText}` : amountText}
+          </span>
+          <span className="text-xs font-normal text-muted-foreground"><Usdt0 iconSize="sm" /></span>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <Card className="border-border/40 shadow-sm">
       <ScrollArea className="h-[400px]">
         <div className="divide-y divide-border/40">
-          {transactions.map((tx, index) => {
-            const translatedName = getTransactionTypeName(tx.protype, tx.coin);
-            const style = getTransactionStyle(translatedName, tx.type);
-            const Icon = style.icon;
-            const isIncome = tx.type === '1';
-            
-            // 推荐收益特殊处理
-            const isReferralReward = tx.protype === '8';
-            const referralLevelBadge = isReferralReward && tx.referral_level 
-              ? (tx.referral_level === 1 ? 'Lv.1' : 'Lv.2')
-              : '';
-            const sourceUserShort = isReferralReward && tx.source_user
-              ? `${tx.source_user.slice(0, 6)}****${tx.source_user.slice(-6)}`
-              : '';
-            
-            // 复投不显示+号
-            const isReinvest = tx.protype === '2003';
-            const showSign = !isReinvest;
-            
-            return (
-              <div key={`${tx.time}-${index}`} className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors">
-                <div className="flex items-center gap-4">
-                  <div className={`flex h-9 w-9 items-center justify-center rounded-full border ${style.bgColor} ${style.borderColor} ${style.textColor}`}>
-                    <Icon className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <div className="font-medium text-sm flex items-center gap-2">
-                      <span>{translatedName}</span>
-                      {referralLevelBadge && (
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded ${tx.referral_level === 1 ? 'bg-blue-500/10 text-blue-600' : 'bg-indigo-500/10 text-indigo-600'}`}>
-                          {referralLevelBadge}
-                        </span>
-                      )}
-                    </div>
-                    {isReferralReward ? (
-                      <div className="text-xs text-muted-foreground mt-0.5 space-y-0.5">
-                        <div>{sourceUserShort}</div>
-                        <div>{tx.time_format}</div>
-                      </div>
-                    ) : (
-                      <div className="text-xs text-muted-foreground">{tx.time_format}</div>
-                    )}
-                  </div>
-                </div>
-                <div className="text-right flex items-center justify-end gap-1">
-                  <span className={`font-bold text-sm ${isReinvest ? 'text-red-500' : isIncome ? 'text-primary' : 'text-foreground'}`}>
-                    {showSign && (isIncome ? '+' : '-')}{Math.floor(parseFloat(tx.fee) * 100) / 100}
-                  </span>
-                  <span className="text-xs font-normal text-muted-foreground"><Usdt0 iconSize="sm" /></span>
-                </div>
-              </div>
-            );
-          })}
+          {rows.map((row, index) =>
+            row.kind === 'team'
+              ? renderTeamRow(row.group, `team-${row.group.date}-${index}`)
+              : renderSingleRow(row.tx, `${row.tx.time}-${index}`)
+          )}
         </div>
       </ScrollArea>
     </Card>
