@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from "@/components/ui/card";
 import { AssetCard } from "@/components/ui/asset-card";
@@ -96,15 +96,10 @@ export function WalletView() {
     }
   };
 
-  // 已请求过的月份，避免重复拉取团队每日收益
-  const teamIncomeMonthsRef = useRef<Set<string>>(new Set());
-
   // 获取团队每日收益（按月，来自 /Api/Team/calendar）
+  // 结果整体覆盖而不是累加，避免旧月份的过期数据滞留
   const fetchTeamDailyIncome = async (month: string) => {
     if (!isConnected || !month) return;
-    if (teamIncomeMonthsRef.current.has(month)) return;
-    teamIncomeMonthsRef.current.add(month);
-
     try {
       const data = await getTeamCalendar({ month });
       const map: Record<string, number> = {};
@@ -112,13 +107,26 @@ export function WalletView() {
         const value = parseFloat(day.team_daily_income_commission) || 0;
         if (value !== 0) map[day.date] = value;
       });
-      setTeamDailyIncome((prev) => ({ ...prev, ...map }));
+      setTeamDailyIncome(map);
       console.log(`✅ 团队每日收益获取成功 (${month}):`, map);
     } catch (err) {
-      // 失败则允许下次重试
-      teamIncomeMonthsRef.current.delete(month);
       console.error('❌ 获取团队每日收益失败:', err);
     }
+  };
+
+  // 根据资金明细列表覆盖到的月份，拉取对应的团队每日收益（每次刷新都重新请求，保证当天数据最新）
+  const fetchTeamDailyIncomeForList = (list: TransactionDetail[]) => {
+    const months = Array.from(
+      new Set(
+        list
+          .filter((tx) => TEAM_PROTYPES.includes(tx.protype))
+          .map((tx) => (tx.time_format || '').slice(0, 7))
+          .filter(Boolean)
+      )
+    );
+    // 团队收益可能今天才产生但列表里还没有当月记录，兜底带上当前月
+    if (!months.includes(currentMonth)) months.push(currentMonth);
+    months.forEach((month) => fetchTeamDailyIncome(month));
   };
 
   // 获取交易记录
@@ -130,16 +138,8 @@ export function WalletView() {
       setTransactions(data.list);
       console.log('✅ 交易记录获取成功:', data);
 
-      // 列表里出现的月份，逐个补拉团队每日收益（通常 1~2 个月，已拉过的跳过）
-      const months = Array.from(
-        new Set(
-          data.list
-            .filter((tx) => TEAM_PROTYPES.includes(tx.protype))
-            .map((tx) => (tx.time_format || '').slice(0, 7))
-            .filter(Boolean)
-        )
-      );
-      months.forEach((month) => fetchTeamDailyIncome(month));
+      // 拉取列表覆盖月份的团队每日收益
+      fetchTeamDailyIncomeForList(data.list);
     } catch (err) {
       console.error('❌ 获取交易记录失败:', err);
       // 静默处理错误
@@ -510,6 +510,12 @@ function TransactionList({
   teamDailyIncome: Record<string, number>; // 后端按天聚合的团队收益（YYYY-MM-DD -> 金额）
 }) {
   const { t } = useTranslation();
+
+  // 当前月份，形如 "2026-10"，用于筛选当月的团队收益行
+  const thisMonthKey = useMemo(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+  }, []);
   
   // 交易类型翻译映射
   const getTransactionTypeName = (protype: string, coin?: string) => {
@@ -560,8 +566,10 @@ function TransactionList({
       others.push({ tx });
     });
 
-    // 后端返回了汇总但当前页没有流水的日期，也补成一行，保证「每天一条」
+    // 后端汇总里有、但当前页没有对应流水的日期也补成一行，保证「每天一条」
+    // 只补当前月的日期，避免混入其它月份整月的数据
     Object.keys(teamDailyIncome).forEach((date) => {
+      if (!date.startsWith(thisMonthKey)) return;
       if (teamDays.has(date)) return;
       teamDays.set(date, { date, latestTime: Date.parse(`${date}T00:00:00`) || 0 });
     });
@@ -584,7 +592,7 @@ function TransactionList({
 
     // 按时间倒序，保证合并后仍保持"新的在上"
     return [...teamRows, ...singleRows].sort((a, b) => b.order - a.order);
-  }, [transactions, teamDailyIncome]);
+  }, [transactions, teamDailyIncome, thisMonthKey]);
 
   if (transactions.length === 0) {
     return (
