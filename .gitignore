@@ -1,4 +1,5 @@
 .vercel
+.wrangler
 
 # Hardhat Ignition 部署产物（可再生）
 chain/ignition/deployments/
