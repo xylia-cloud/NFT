@@ -123,15 +123,6 @@ export function TeamView() {
     return parseFloat(day.team_daily_income_commission || "0");
   }, [selectedDate, rawCalendarData]);
 
-  // 选中日期对应的团队业绩
-  const selectedDatePerformance = useMemo(() => {
-    if (!selectedDate) return null;
-    const dateStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`;
-    const day = rawCalendarData.find((item) => item.date === dateStr);
-    if (!day) return 0;
-    return parseFloat(day.team_performance || "0");
-  }, [selectedDate, rawCalendarData]);
-
   // 团队数据统计（汇总值）
   const teamStats = {
     totalMembers: teamInfo?.total_count || 0,
@@ -271,28 +262,14 @@ export function TeamView() {
             {/* 选中日期明细 */}
             {selectedDate && selectedDateCommission !== null && (
               <div className="mt-4 pt-4 border-t border-border/40 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="text-sm font-medium">
-                    {selectedDate.getFullYear()}/{selectedDate.getMonth() + 1}/{selectedDate.getDate()} {t("team.performance")}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {t("team.commission")}
-                  </div>
+                <div className="text-sm font-medium mb-3">
+                  {selectedDate.getFullYear()}/{selectedDate.getMonth() + 1}/{selectedDate.getDate()} {t("team.performance")}
                 </div>
-                <div className="space-y-2.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">{t("team.teamPerformance")}</span>
-                    <span className="text-sm font-semibold inline-flex items-center gap-1">
-                      <Usdt0 iconSize="sm" iconOnly />
-                      {(selectedDatePerformance || 0).toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">{t("team.commission")}</span>
-                    <span className="text-sm font-semibold text-orange-600">
-                      +{selectedDateCommission.toFixed(2)} USDT
-                    </span>
-                  </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">{t("team.commission")}</span>
+                  <span className="text-sm font-semibold text-orange-600">
+                    +{selectedDateCommission.toFixed(2)} USDT
+                  </span>
                 </div>
               </div>
             )}
