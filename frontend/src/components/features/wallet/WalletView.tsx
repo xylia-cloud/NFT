@@ -10,7 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Calendar, type FlowByDate } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Usdt0 } from "@/components/ui/usdt0";
-import { getTransactionCalendar, getTransactionDetails, getTeamCalendar, getWalletInfo, profitReinvest, ApiError, type TransactionDetail, type WalletInfoResponse } from "@/lib/api";
+import { getTransactionCalendar, getTransactionDetails, getTeamCalendar, getTeamInfo, getWalletInfo, profitReinvest, ApiError, type TransactionDetail, type WalletInfoResponse, type TeamInfoResponse } from "@/lib/api";
 import { useApiError } from "@/hooks/useApiError";
 import { toast } from "sonner";
 import { 
@@ -25,7 +25,9 @@ import {
   Plus,
   Minus,
   Trophy,
-  Users
+  Users,
+  Target,
+  TrendingUp
 } from "lucide-react";
 
 const REINVEST_THRESHOLD = 100;
@@ -43,7 +45,9 @@ export function WalletView() {
   const [transactions, setTransactions] = useState<TransactionDetail[]>([]);
   // 团队每日收益（来自 /Api/Team/calendar），格式 "YYYY-MM-DD" -> 当日团队收益合计
   const [teamDailyIncome, setTeamDailyIncome] = useState<Record<string, number>>({});
-  const [currentCategory, setCurrentCategory] = useState<'all' | 'deposit' | 'profit' | 'reinvest' | 'withdraw'>('all');
+  // 团队汇总信息（来自 /Api/Team/info），用于「团队」选项卡
+  const [teamInfo, setTeamInfo] = useState<TeamInfoResponse | null>(null);
+  const [currentCategory, setCurrentCategory] = useState<'team' | 'deposit' | 'profit' | 'reinvest' | 'withdraw'>('team');
   const [walletInfo, setWalletInfo] = useState<WalletInfoResponse | null>(null);
 
 
@@ -114,6 +118,18 @@ export function WalletView() {
     }
   };
 
+  // 获取团队汇总信息（团队资产与收益）
+  const fetchTeamInfo = async () => {
+    if (!isConnected) return;
+    try {
+      const data = await getTeamInfo();
+      setTeamInfo(data);
+      console.log('✅ 团队信息获取成功:', data);
+    } catch (err) {
+      console.error('❌ 获取团队信息失败:', err);
+    }
+  };
+
   // 根据资金明细列表覆盖到的月份，拉取对应的团队每日收益（每次刷新都重新请求，保证当天数据最新）
   const fetchTeamDailyIncomeForList = (list: TransactionDetail[]) => {
     const months = Array.from(
@@ -130,7 +146,7 @@ export function WalletView() {
   };
 
   // 获取交易记录
-  const fetchTransactionDetails = async (page: number, category: 'all' | 'deposit' | 'profit' | 'reinvest' | 'withdraw') => {
+  const fetchTransactionDetails = async (page: number, category: 'deposit' | 'profit' | 'reinvest' | 'withdraw') => {
     if (!isConnected) return;
     
     try {
@@ -150,8 +166,9 @@ export function WalletView() {
   useEffect(() => {
     if (isConnected) {
       fetchWalletInfo();
+      fetchTeamInfo();
       fetchTransactionCalendar(currentMonth);
-      fetchTransactionDetails(1, 'all');
+      fetchTransactionDetails(1, 'deposit');
     }
   }, [isConnected]);
 
@@ -160,8 +177,9 @@ export function WalletView() {
     const handleLogin = () => {
       console.log('🔄 检测到登录，刷新钱包数据...');
       fetchWalletInfo();
+      fetchTeamInfo();
       fetchTransactionCalendar(currentMonth);
-      fetchTransactionDetails(1, 'all');
+      fetchTransactionDetails(1, 'deposit');
     };
     
     window.addEventListener('auth:login', handleLogin);
@@ -169,8 +187,14 @@ export function WalletView() {
   }, []);
 
   // 切换分类时重新获取交易记录
-  const handleCategoryChange = (category: 'all' | 'deposit' | 'profit' | 'reinvest' | 'withdraw') => {
+  const handleCategoryChange = (category: 'team' | 'deposit' | 'profit' | 'reinvest' | 'withdraw') => {
     setCurrentCategory(category);
+    // 「团队」选项卡展示团队汇总，不需要拉资金明细
+    if (category === 'team') {
+      fetchTeamInfo();
+      fetchTeamDailyIncome(currentMonth);
+      return;
+    }
     fetchTransactionDetails(1, category);
   };
 
@@ -237,7 +261,7 @@ export function WalletView() {
       await Promise.all([
         fetchWalletInfo(),
         fetchTransactionCalendar(currentMonth),
-        fetchTransactionDetails(1, currentCategory),
+        fetchTransactionDetails(1, currentCategory === 'team' ? 'deposit' : currentCategory),
       ]);
       
     } catch (error) {
@@ -477,7 +501,7 @@ export function WalletView() {
 
         <Tabs value={currentCategory} onValueChange={(value) => handleCategoryChange(value as any)} className="w-full">
           <TabsList className="grid w-full grid-cols-5 h-9 p-1 bg-muted/50 rounded-lg">
-            <TabsTrigger value="all" className="rounded-md text-xs h-7">{t("common.all")}</TabsTrigger>
+            <TabsTrigger value="team" className="rounded-md text-xs h-7">{t("wallet.teamTab")}</TabsTrigger>
             <TabsTrigger value="deposit" className="rounded-md text-xs h-7">{t("wallet.deposit")}</TabsTrigger>
             <TabsTrigger value="profit" className="rounded-md text-xs h-7">{t("wallet.profit")}</TabsTrigger>
             <TabsTrigger value="reinvest" className="rounded-md text-xs h-7">{t("wallet.reinvest")}</TabsTrigger>
@@ -485,7 +509,11 @@ export function WalletView() {
           </TabsList>
 
           <TabsContent value={currentCategory} className="mt-4">
-            <TransactionList transactions={transactions} teamDailyIncome={teamDailyIncome} />
+            {currentCategory === 'team' ? (
+              <TeamAssetPanel teamInfo={teamInfo} teamDailyIncome={teamDailyIncome} />
+            ) : (
+              <TransactionList transactions={transactions} teamDailyIncome={teamDailyIncome} />
+            )}
           </TabsContent>
         </Tabs>
       </div>
@@ -495,6 +523,117 @@ export function WalletView() {
 
 // 团队收益的业务类型码：9=团队收益，10=团队奖励
 const TEAM_PROTYPES = ['9', '10'];
+
+// 「团队」选项卡：展示团队资产与收益汇总
+function TeamAssetPanel({
+  teamInfo,
+  teamDailyIncome,
+}: {
+  teamInfo: TeamInfoResponse | null;
+  teamDailyIncome: Record<string, number>;
+}) {
+  const { t } = useTranslation();
+
+  const todayStr = useMemo(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  }, []);
+
+  const format = (value?: string) => (parseFloat(value || "0") || 0).toFixed(2);
+  const todayTeamIncome = teamDailyIncome[todayStr] || 0;
+
+  const items = [
+    {
+      key: 'teamAssets',
+      label: t('wallet.teamAssets'),
+      value: format(teamInfo?.team_performance),
+      color: 'text-primary',
+      icon: Users,
+      bg: 'bg-primary/10',
+      border: 'border-primary/20',
+      iconColor: 'text-primary',
+    },
+    {
+      key: 'teamEarnings',
+      label: t('wallet.teamEarnings'),
+      value: format(teamInfo?.team_earnings),
+      color: 'text-orange-600',
+      icon: Target,
+      bg: 'bg-orange-500/10',
+      border: 'border-orange-500/20',
+      iconColor: 'text-orange-500',
+    },
+    {
+      key: 'teamToday',
+      label: t('wallet.teamToday'),
+      value: (Math.floor(todayTeamIncome * 100) / 100).toFixed(2),
+      color: 'text-primary',
+      icon: TrendingUp,
+      bg: 'bg-emerald-500/10',
+      border: 'border-emerald-500/20',
+      iconColor: 'text-emerald-600',
+    },
+  ];
+
+  // 本人账户金额单独展示：它不属于团队资产
+  const ownBalance = {
+    label: t('wallet.teamCapital'),
+    value: format(teamInfo?.capital_total),
+  };
+
+  return (
+    <div className="space-y-3">
+      {/* 本人账户金额 */}
+      <Card className="border-border/40 shadow-sm">
+        <div className="p-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full border border-blue-500/20 bg-blue-500/10 text-blue-500">
+              <Wallet className="h-4 w-4" />
+            </div>
+            <div>
+              <div className="font-medium text-sm">{ownBalance.label}</div>
+              <div className="text-xs text-muted-foreground mt-0.5">
+                {t('wallet.teamMembers', { count: teamInfo?.total_count ?? 0 })}
+              </div>
+            </div>
+          </div>
+          <div className="text-right flex items-center justify-end gap-1">
+            <span className="font-bold text-sm text-foreground">{ownBalance.value}</span>
+            <span className="text-xs font-normal text-muted-foreground"><Usdt0 iconSize="sm" /></span>
+          </div>
+        </div>
+      </Card>
+
+      {/* 团队资产与收益 */}
+      <Card className="border-border/40 shadow-sm">
+      <ScrollArea className="h-[340px]">
+        <div className="divide-y divide-border/40">
+          {items.map((item) => {
+            const Icon = item.icon;
+            return (
+              <div key={item.key} className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors">
+                <div className="flex items-center gap-4">
+                  <div className={`flex h-9 w-9 items-center justify-center rounded-full border ${item.bg} ${item.border} ${item.iconColor}`}>
+                    <Icon className="h-4 w-4" />
+                  </div>
+                  <div className="font-medium text-sm">{item.label}</div>
+                </div>
+                <div className="flex items-center justify-end gap-2">
+                  {item.key === 'teamToday' && (
+                    <span className="text-xs text-muted-foreground">{todayStr}</span>
+                  )}
+                  <span className={`font-bold text-sm ${item.color}`}>{item.value}</span>
+                  <span className="text-xs font-normal text-muted-foreground"><Usdt0 iconSize="sm" /></span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </ScrollArea>
+      </Card>
+    </div>
+  );
+}
 
 type DailyGroup = {
   date: string;        // YYYY-MM-DD
